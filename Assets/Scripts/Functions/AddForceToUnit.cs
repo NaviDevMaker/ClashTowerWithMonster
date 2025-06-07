@@ -57,7 +57,7 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
     List<UnitBase> GetUnitInRange()
     {
         var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(me.gameObject, me.prioritizedRadius);
-        if (sortedArray.Length == 0) return default;
+        if (sortedArray.Length == 0) return new List<UnitBase>();
         List<UnitBase> filteredList = new List<UnitBase>();
         var myType = me.moveType;
         foreach (var unit in sortedArray)

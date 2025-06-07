@@ -76,13 +76,15 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
     List<Color[]> originalMaterialColors = new List<Color[]>();
 
 
+    private void Awake()
+    {
+        SetRadius();
+        prioritizedRadius = radiusX >= radiusZ ? radiusX : radiusZ;
+    }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected virtual void Start()
-    {
-      
-        SetRadius();
-        SetMaterialColors();
-        prioritizedRadius = radiusX >= radiusZ ? radiusX : radiusZ;
+    {       
+        SetMaterialColors();       
         SetHPBar().Forget();
         Initialize(ownerID);
     }
