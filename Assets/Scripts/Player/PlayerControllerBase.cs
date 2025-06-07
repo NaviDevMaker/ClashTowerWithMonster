@@ -43,7 +43,7 @@ namespace Game.Players
         protected override void Start()
         {
             animator = GetComponent<Animator>();
-            addForceToUnit = new AddForceToUnit<PlayerControllerBase<T>>(this,prioritizedRadius);
+            addForceToUnit = new AddForceToUnit<PlayerControllerBase<T>>(this);
             base.Start();
             ChangeState(IdleState);
             CheckEnemyState?.OnEnter();

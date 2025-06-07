@@ -19,7 +19,7 @@ namespace Game.Monsters
         protected override void Start()
         {
             base.Start();
-            addForceToUnit = new AddForceToUnit<MonsterControllerBase<T>>(this,prioritizedRadius);
+            addForceToUnit = new AddForceToUnit<MonsterControllerBase<T>>(this);
             animator = GetComponent<Animator>();
             ChangeState(IdleState);
         }

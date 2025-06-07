@@ -14,6 +14,7 @@ namespace Game.Monsters.ChestMonster
 
         public override void Initialize(int owner)
         {
+            moveType = MoveType.Walk;
             base.Initialize(owner);
             IdleState = new IdleState(this);
             ChaseState = new ChaseState(this);

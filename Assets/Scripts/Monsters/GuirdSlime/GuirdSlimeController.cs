@@ -13,6 +13,7 @@ namespace Game.Monsters.GuirdSlime
 
         public override void Initialize(int owner = -1)
         {
+            moveType = MoveType.Walk;
             Debug.Log("dsajnskajdsfksj");
             base.Initialize(owner);
             IdleState = new IdleState(this);

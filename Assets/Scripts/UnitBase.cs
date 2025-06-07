@@ -20,7 +20,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
     public float radiusX { get; private set; } = 0f;
     public float radiusZ { get; private set; } = 0f;
 
-    public Transform pushbleTransform { get; private set; }
+    public Transform pushbleTransform => transform;
     public float prioritizedRadius { get; private set; }
 
     public MoveType moveType { get; protected set; }
@@ -74,10 +74,12 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
 
     List<Material[]> meshMaterials = new List<Material[]>();
     List<Color[]> originalMaterialColors = new List<Color[]>();
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected virtual void Start()
     {
-        pushbleTransform = transform;
+      
         SetRadius();
         SetMaterialColors();
         prioritizedRadius = radiusX >= radiusZ ? radiusX : radiusZ;
@@ -98,6 +100,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
     //«—ˆƒvƒŒƒCƒ„[‘¤‚©‚çŒÄ‚Ô‚½‚ß‚Épublic
     public virtual void Initialize(int owner)
     {
+
        if(owner != -1) SetUnitSide(owner);
     }
     void SetUnitSide(int owner)

@@ -14,6 +14,7 @@ namespace Game.Monsters.BigEyeMonster
 
         public override void Initialize(int owner)
         {
+            moveType = MoveType.Fly;
             base.Initialize(owner);
             IdleState = new IdleState(this);
             ChaseState = new ChaseState(this);
