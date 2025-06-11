@@ -43,7 +43,7 @@ namespace Game.Players
         protected AddForceToUnit<PlayerControllerBase<T>> addForceToUnit;
         protected override void Start()
         {
-            Time.timeScale = 0.5f;//å„Ç≈è¡ÇµÇƒ
+            //Time.timeScale = 0.5f;//å„Ç≈è¡ÇµÇƒ
             addForceToUnit = new AddForceToUnit<PlayerControllerBase<T>>(this, StatusData.PushAmount);
             animator = GetComponent<Animator>();
             base.Start();
