@@ -4,7 +4,6 @@ namespace Game.Monsters.GuirdSlime
 {
     public class GuirdSlimeController : MonsterControllerBase<GuirdSlimeController>
     {
-
         //public int ID;//テスト用だから消してね
         protected override void Start()
         {

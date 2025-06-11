@@ -373,10 +373,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitScale: 0
   unitType: 0
-  myMesh: {fileID: 3679650995374491466}
+  mySkinnedMeshes:
+  - {fileID: 3679650995374491466}
+  myMeshes: []
   statusData: {fileID: 11400000, guid: d1e4d0dc9983faf449ccd12fd7d7e046, type: 2}
   Side: 0
   ownerID: 1
+  monsterAnimPar: {fileID: 11400000, guid: c86b8f83d9673264d95e86cd55b9ac2c, type: 2}
 --- !u!1 &3395815460228761037
 GameObject:
   m_ObjectHideFlags: 0

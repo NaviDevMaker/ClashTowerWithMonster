@@ -5,6 +5,12 @@ namespace Game.Monsters.Slime
 {
     public class SlimeController : MonsterControllerBase<SlimeController>
     {
+
+        protected override void Awake()
+        {
+            base.Awake();
+            isSummoned = true;//テスト用だから消して
+        }
         //public int ID;//テスト用だから消してね
         protected override void Start()
         {

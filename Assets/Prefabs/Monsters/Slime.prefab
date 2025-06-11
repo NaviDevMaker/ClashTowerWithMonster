@@ -360,10 +360,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitScale: 0
   unitType: 0
-  myMesh: {fileID: 3895794011862821181}
+  mySkinnedMeshes:
+  - {fileID: 3895794011862821181}
+  myMeshes: []
   statusData: {fileID: 11400000, guid: 44553aa53e8b5914db2157f4568312bd, type: 2}
   Side: 1
-  ownerID: 0
+  ownerID: 1
+  monsterAnimPar: {fileID: 11400000, guid: c86b8f83d9673264d95e86cd55b9ac2c, type: 2}
 --- !u!65 &3933022643637449772
 BoxCollider:
   m_ObjectHideFlags: 0

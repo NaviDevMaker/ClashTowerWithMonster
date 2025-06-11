@@ -3,14 +3,12 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Events;
 using System;
-using UnityEngine.InputSystem.DualShock.LowLevel;
-using System.Collections;
 using Cysharp.Threading.Tasks;
 using System.Threading;
-public class SumonMonsterPointer : MonoBehaviour
+public class SummonMonsterPointer : MonoBehaviour
 {
     GameObject summonPointerParticle;
-    GameObject selectedMonster;
+    GameObject selectedCardPrefab;
     Dictionary<CardName,GameObject> cardPrefabs = new Dictionary<CardName, GameObject>();
     Card currentCard;
 
@@ -26,7 +24,7 @@ public class SumonMonsterPointer : MonoBehaviour
         if ((InputManager.IsClickedSummonButton() && CheckCanSetMonster.Invoke()) 
             || InputManager.IsClickedSummonButtonOnHandField())
         {
-            if(selectedMonster != null)
+            if(selectedCardPrefab != null)
             {
                 SetMonsterOnField();
             }           
@@ -56,9 +54,9 @@ public class SumonMonsterPointer : MonoBehaviour
             {
                 Debug.Log("ƒqƒbƒg");
                 var targetPos = hit.point;
-                if (selectedMonster != null)
+                if (selectedCardPrefab != null)
                 {
-                    selectedMonster.gameObject.transform.position = targetPos;
+                    selectedCardPrefab.gameObject.transform.position = targetPos;
                     particlePos = targetPos;
                     targetPos.y += 0.5f;
                     summonPointerParticle.transform.position = targetPos;
@@ -73,8 +71,10 @@ public class SumonMonsterPointer : MonoBehaviour
         cts.Cancel();
         cts.Dispose();
         cts = new CancellationTokenSource();
-        Instantiate(selectedMonster, selectedMonster.transform.position, Quaternion.identity);
-       
+        var obj = Instantiate(selectedCardPrefab, selectedCardPrefab.transform.position, Quaternion.identity);
+
+        var summonbable = obj.GetComponent<ISummonbable>();
+        summonbable.isSummoned = true;
         StartCoroutine(EffectManager.Instance.magicCircleEffect.SummonEffect(particlePos));
         OnSummonMonster?.Invoke(currentCard);
         OnPointerUp?.Invoke();
@@ -82,7 +82,7 @@ public class SumonMonsterPointer : MonoBehaviour
     
     public void SetMonsterPrefab(Card selectedCard)
     {
-       if(selectedMonster != null)
+       if(selectedCardPrefab != null)
        {
           var currentCardData = currentCard.CardData;
           if (cardPrefabs.TryGetValue(currentCardData.CardName, out GameObject previousPrefab))
@@ -94,7 +94,7 @@ public class SumonMonsterPointer : MonoBehaviour
        {
           cardPrefab.gameObject.SetActive(true);
           SetSummonPointerEffect();
-          selectedMonster = cardPrefab;
+          selectedCardPrefab = cardPrefab;
           currentCard = selectedCard;
        }
     }
@@ -110,16 +110,16 @@ public class SumonMonsterPointer : MonoBehaviour
     }
     public void UnactiveCurrentPrefab()
     {
-        if (selectedMonster != null)
+        if (selectedCardPrefab != null)
         {
             var currentCardData = currentCard.CardData;
             if (cardPrefabs.TryGetValue(currentCardData.CardName, out GameObject currentPrefab))
             {
                 currentPrefab.gameObject.SetActive(false);
-                selectedMonster = null;
+                selectedCardPrefab = null;
             }
         }
         currentCard = null;
-
     }
+
 }

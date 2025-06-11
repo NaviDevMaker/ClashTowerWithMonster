@@ -1,25 +1,29 @@
+using Cysharp.Threading.Tasks;
+using Game.Monsters.BigEyeMonster;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
 using static UnityEngine.Rendering.HableCurve;
 
+public interface IMonster { }
 namespace Game.Monsters
 {
-    public class MonsterControllerBase<T> : UnitBase, IMonster where T : MonsterControllerBase<T>
+    public class MonsterControllerBase<T> : UnitBase, IMonster,ISummonbable where T : MonsterControllerBase<T>
     {
         [SerializeField] MonsterAnimatorPar monsterAnimPar;
         public Animator animator { get; private set; }
         public MonsterAnimatorPar MonsterAnimPar { get => monsterAnimPar; }
+        public bool isSummoned { get; set; } = false;
 
         public IdleStateBase<T> IdleState;
         public ChaseStateBase<T> ChaseState;
         public AttackStateBase<T> AttackState;
         public DeathStateBase<T> DeathState;
         StateMachineBase<T> currentState;
-        AddForceToUnit<MonsterControllerBase<T>> addForceToUnit;
+        protected AddForceToUnit<MonsterControllerBase<T>> addForceToUnit;
         protected override void Start()
         {
             base.Start();
-            addForceToUnit = new AddForceToUnit<MonsterControllerBase<T>>(this);
+            addForceToUnit = new AddForceToUnit<MonsterControllerBase<T>>(this, StatusData.PushAmount);
             animator = GetComponent<Animator>();
             ChangeState(IdleState);
         }
@@ -28,18 +32,21 @@ namespace Game.Monsters
         protected override void Update()
         {
             base.Update();
+            if (isSummoned)
+            {
+                currentState.OnUpdate();
+            }
             if (isDead && currentState != DeathState)
             {
                 ChangeToDeathState();
             }
             Debug.Log(currentState);
-            currentState.OnUpdate();
-
+          
         }
 
         private void FixedUpdate()
         {
-            addForceToUnit.KeepDistance();
+            if(isSummoned) addForceToUnit.KeepDistance(moveType);
         }
         public virtual void ChangeState(StateMachineBase<T> nextState)
         {
@@ -49,15 +56,6 @@ namespace Game.Monsters
             currentState.OnEnter();
             Debug.Log($"{currentState}Ç™OnenterÇ…ÇÕÇ¢ÇËÇ‹ÇµÇΩ");
         }
-        //protected virtual void Initialize(int owner = -1){
-
-        //   if(owner !=-1) SetMonsterSide(owner);
-        //}
-
-        //bool isMyMonster()
-        //{
-        //    return ownerID == 0;
-        //}
 
         public float GetAnimClipLength()
         {
@@ -110,15 +108,9 @@ namespace Game.Monsters
                 Gizmos.color = Color.cyan;
 
                 // ë»â~ÇXZïΩñ Ç…ï`âÊÅiëOï˚Çå¸Ç¢ÇƒÇÈÇ∆ÇÕå¿ÇÁÇ»Ç¢ÇÃÇ≈ÅAä»à’Åj
-                DrawEllipse(transform.position, radiusX, radiusZ, 32);
+                DrawEllipse(transform.position,rangeX,rangeZ, 32);
             }
         }
-
-        void OnDrawGizmosSelected()
-        {
-           
-        }
-
         // ë»â~ï`âÊä÷êî
         void DrawEllipse(Vector3 center, float radiusX, float radiusZ, int segments)
         {

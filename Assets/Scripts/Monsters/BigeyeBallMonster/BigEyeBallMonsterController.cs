@@ -6,6 +6,9 @@ namespace Game.Monsters.BigEyeMonster
 {
     public class BigEyeBallMonsterController : MonsterControllerBase<BigEyeBallMonsterController>
     {
+        private void Awake()
+        {
+        }
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         protected override void Start()
         {

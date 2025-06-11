@@ -12,7 +12,7 @@ public class HandManager : MonoBehaviour
     Card nextCard;
     List<Card> currentHand;
     
-    [SerializeField] SumonMonsterPointer sumonMonsterPointer;
+    [SerializeField] SummonMonsterPointer sumonMonsterPointer;
     [SerializeField] MyHandField handFieid;
     [SerializeField] EnergyGageController energyGageController;
     bool visible = true;

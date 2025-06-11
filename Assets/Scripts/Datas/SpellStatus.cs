@@ -3,9 +3,9 @@ using UnityEngine;
 [CreateAssetMenu]
 public class SpellStatus : ScriptableObject
 {
-    [SerializeField] float damage;
+    [SerializeField] int damage;
     [SerializeField] float pushAmount;
 
-    public float Damage => damage;
+    public int Damage => damage;
     public float PushAmount => pushAmount;
 }

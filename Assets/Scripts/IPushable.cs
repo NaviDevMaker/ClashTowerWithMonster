@@ -2,11 +2,11 @@ using UnityEngine;
 
 public interface IPushable
 {
-    Transform pushbleTransform { get; }
-    float radiusX { get; }
-    float radiusZ{get;}
-    float prioritizedRadius { get; }
+    float rangeX { get; }
+    float rangeZ{get;}
+    float prioritizedRange { get; }
 
+    bool isKnockBacked { get; set; }
     MoveType moveType { get; }
 
 }

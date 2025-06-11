@@ -10,7 +10,7 @@ using UnityEngine.Events;
 using UnityEngine.InputSystem.XR;
 
 
-
+public interface IPlayer { }
 namespace Game.Players
 {
     ///<summary>
@@ -34,16 +34,18 @@ namespace Game.Players
 
         public StateMachineBase<T> currentState { get;private set; }
         public StateMachineBase<T> previousState { get; private set; } = null;
+
         public CancellationTokenSource cls = new CancellationTokenSource();
 
         public UnityAction<bool> OnAttackingPlayer;
         public UnityAction<bool> OnDeathPlayer;
 
-        AddForceToUnit<PlayerControllerBase<T>> addForceToUnit;
+        protected AddForceToUnit<PlayerControllerBase<T>> addForceToUnit;
         protected override void Start()
         {
+            Time.timeScale = 0.5f;//å„Ç≈è¡ÇµÇƒ
+            addForceToUnit = new AddForceToUnit<PlayerControllerBase<T>>(this, StatusData.PushAmount);
             animator = GetComponent<Animator>();
-            addForceToUnit = new AddForceToUnit<PlayerControllerBase<T>>(this);
             base.Start();
             ChangeState(IdleState);
             CheckEnemyState?.OnEnter();
@@ -53,7 +55,7 @@ namespace Game.Players
         {       
             Debug.Log(currentState);
             base.Update();
-            addForceToUnit.KeepDistance();
+            addForceToUnit.KeepDistance(moveType);
             SetPlayerHeight();
             if (isDead && currentState != DeathState) ChangeState(DeathState);
             CheckEnemyState?.OnUpdate();
@@ -83,7 +85,7 @@ namespace Game.Players
 
             Gizmos.DrawRay(transform.position, transform.forward *2.0f);
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, prioritizedRadius);
+            Gizmos.DrawWireSphere(transform.position, prioritizedRange);
         }
         public void ChangeState(StateMachineBase<T> nextState)
         {

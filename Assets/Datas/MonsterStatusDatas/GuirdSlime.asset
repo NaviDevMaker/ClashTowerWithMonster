@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackAmount: 3
   hp: 300
+  pushAmount: 10
   chaseRange: 0
   attackRange: 1
   moveSpeed: 3

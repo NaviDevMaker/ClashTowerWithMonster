@@ -20,7 +20,6 @@ namespace Game.Monsters
         GameObject targetEnemy = null;
 
         bool reachTargetEnemy = false;
-
         protected float flyingOffsetY = 0f;
         CancellationTokenSource cts = new CancellationTokenSource();
         SemaphoreSlim moveSemaphoreSlim = new SemaphoreSlim(1, 1);
@@ -36,6 +35,23 @@ namespace Game.Monsters
         }
         public override void OnUpdate()
         {
+
+            if(controller.isKnockBacked)
+            {
+                try
+                {
+                    cts?.Cancel();
+                    controller.ChangeState(this);
+                    Debug.Log("ノックバックされたよ");
+                }
+                catch (ObjectDisposedException)
+                {
+
+                }
+
+                return;
+            }
+
             Debug.Log(targetEnemy);
             if (reachTargetEnemy)
             {
@@ -67,7 +83,6 @@ namespace Game.Monsters
 
         async UniTask ChaseTarget()
         {
-
             try
             {
                 await moveSemaphoreSlim.WaitAsync();
@@ -89,7 +104,6 @@ namespace Game.Monsters
                 var offset = Vector3.zero;
                 var targetPos = Vector3.zero;
                 //var myselfPos = controller.transform.position + Vector3.up * flyingOffsetY;
-
                 Tween moveTween = null;
                 UniTask moveTask = default;
                 if (target == targetEnemy)
@@ -117,6 +131,10 @@ namespace Game.Monsters
 
                         while (!moveTask.Status.IsCompleted() && !cts.IsCancellationRequested)
                         {
+                            var isDead = controller.isDead;
+                            var isKnockBacked = controller.isKnockBacked;
+                            if (isDead) { cts?.Cancel();  break; }
+                            if(isKnockBacked) { cts?.Cancel(); break; }
                             if (Vector3.Distance(controller.transform.position, targetPos) <= controller.MonsterStatus.AttackRange
                               || targetEnemy == null)
                             {
@@ -148,9 +166,6 @@ namespace Game.Monsters
                     targetPos = targetCollider.ClosestPoint(controller.transform.position);
                     targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
                     Debug.Log(targetPos);
-                   
-
-
                       
                         while (Vector3.Distance(controller.transform.position, targetPos) > controller.MonsterStatus.AttackRange)
                         {
@@ -170,7 +185,20 @@ namespace Game.Monsters
 
                             while (!moveTask.Status.IsCompleted() && !cts.IsCancellationRequested)
                             {
-                                if(Vector3.Distance(controller.transform.position, targetPos) <= controller.MonsterStatus.AttackRange)
+                                var isKnockBacked = controller.isKnockBacked;
+                                var isDead = controller.isDead;
+                            　　　
+                                //if (isKnockBacked)
+                                //{
+                                    //cts?.Cancel();
+                                    //controller.ChangeState(this);
+                                    //Debug.Log("ノックバックされたよ");
+                                    //break;
+                                //}
+                            
+                                if (isDead) { cts?.Cancel(); break; }
+
+                                if (Vector3.Distance(controller.transform.position, targetPos) <= controller.MonsterStatus.AttackRange)
                                 {
                                     Debug.Log("敵に到着");
                                     cts?.Cancel();
@@ -179,14 +207,13 @@ namespace Game.Monsters
                                 }
                                 await UniTask.Yield();
                             }
-
                             //キャンセルしても上のTaskはawaitしていないからここまで進み、下のawait moveTaskに到達するとエラーが出てしまうのでここでbreak
                             if (cts.IsCancellationRequested)
                             {
+                                Debug.Log("ノックバックされました");
                                 moveTween.Kill();
                                 break;
                             }
-
                             //基本的にはここまでキャンセルされず到達する
                             await moveTask;
                         }
@@ -194,6 +221,7 @@ namespace Game.Monsters
             }
             finally
             {
+                Debug.Log("おおかかｃｄｈｃｄｓｈかしあｊか");
                 moveSemaphoreSlim.Release();
                 cts?.Dispose();
             }
@@ -203,11 +231,10 @@ namespace Game.Monsters
         {
             reachTargetEnemy = true;
 
-            AttackStateBase<T> attackState = controller.AttackState as AttackStateBase<T>;
+            AttackStateBase<T> attackState = controller.AttackState;
             var unitBase = target.GetComponent<UnitBase>();
 
             attackState.target = unitBase;
-            //attackState.towerTargetPos = targetPos;
             attackState.flyingOffsetY = flyingOffsetY;
         }
         Vector3 GetPerTargetPos(Vector3 currentPos, Vector3 direction)
@@ -246,11 +273,9 @@ namespace Game.Monsters
                 {
                     Debug.LogWarning("すでにDisposeされてるため、Cancelはスキップされました: " + ex.Message);
                 }
-                //cts = null;
                 ChaseTarget().Forget();
             }
         }
-
     }
 
 

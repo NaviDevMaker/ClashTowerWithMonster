@@ -11,17 +11,10 @@ using System;
 public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
 {
 
-    enum UnitType
-    { 
-       monster,
-       tower,
-       player,
-    }
-    public float radiusX { get; private set; } = 0f;
-    public float radiusZ { get; private set; } = 0f;
+    public float rangeX { get; private set; } = 0f;
+    public float rangeZ { get; private set; } = 0f;
 
-    public Transform pushbleTransform => transform;
-    public float prioritizedRadius { get; private set; }
+    public float prioritizedRange { get; private set; }
 
     public MoveType moveType { get; protected set; }
     HPbar hPBar = null;
@@ -72,14 +65,16 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
     public UnitScale UnitScale { get => unitScale;}
     public Vector3 myScale => transform.localScale;
 
+    public UnitType UnitType { get => unitType;}
+
     List<Material[]> meshMaterials = new List<Material[]>();
     List<Color[]> originalMaterialColors = new List<Color[]>();
 
-
-    private void Awake()
+    public bool isKnockBacked { get; set; } = false;
+    protected virtual void Awake()
     {
         SetRadius();
-        prioritizedRadius = radiusX >= radiusZ ? radiusX : radiusZ;
+        prioritizedRange = rangeX >= rangeZ ? rangeX : rangeZ;
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected virtual void Start()
@@ -209,9 +204,10 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
     {
        var collider = GetComponent<Collider>();
         if (collider == null) return;
+        Debug.Log(gameObject.name);
         var bounds = collider.bounds;
-        radiusX = bounds.extents.x;
-        radiusZ = bounds.extents.z;
+        rangeX = bounds.extents.x;
+        rangeZ = bounds.extents.z;
     }
     void SetMaterialColors()
     {
@@ -251,6 +247,11 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
             }
         }
     }
+
+    internal bool TryGetComponent(Type type, out IUnitDamagable damageable)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public enum Side
@@ -266,4 +267,11 @@ public enum UnitScale
     large,
     player,
     tower,
+}
+
+public enum UnitType
+{
+    monster,
+    tower,
+    player,
 }

@@ -5,7 +5,6 @@ namespace Game.Players.Sword
 {
     public class SwordPlayerController : PlayerControllerBase<SwordPlayerController>
     {
-  
         public override void Initialize(int owner)
         {
             moveType = MoveType.Walk;

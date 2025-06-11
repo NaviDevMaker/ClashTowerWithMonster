@@ -139,7 +139,7 @@ public class TowerControlller :UnitBase
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, TowerStatus.SearchRadius);
         Gizmos.color = Color.cyan;
-        DrawEllipse(transform.position, radiusX, radiusZ, 32);
+        DrawEllipse(transform.position, rangeX, rangeZ, 32);
     }
 
     void DrawEllipse(Vector3 center, float radiusX, float radiusZ, int segments)
