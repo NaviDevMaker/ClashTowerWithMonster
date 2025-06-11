@@ -55,13 +55,16 @@ namespace Game.Players
         {       
             Debug.Log(currentState);
             base.Update();
-            addForceToUnit.KeepDistance(moveType);
             SetPlayerHeight();
             if (isDead && currentState != DeathState) ChangeState(DeathState);
             CheckEnemyState?.OnUpdate();
             currentState?.OnUpdate();
         }
 
+        void FixedUpdate()
+        {
+            addForceToUnit.KeepDistance(moveType);
+        }
         void SetPlayerHeight()
         {
             if (Physics.Raycast(transform.position + Vector3.up * 10.0f, Vector3.down, out var hit, Mathf.Infinity, Layers.groundLayer))

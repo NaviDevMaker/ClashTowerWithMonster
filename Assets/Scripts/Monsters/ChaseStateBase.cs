@@ -20,6 +20,7 @@ namespace Game.Monsters
         GameObject targetEnemy = null;
 
         bool reachTargetEnemy = false;
+        bool isChasing = false;
         protected float flyingOffsetY = 0f;
         CancellationTokenSource cts = new CancellationTokenSource();
         SemaphoreSlim moveSemaphoreSlim = new SemaphoreSlim(1, 1);
@@ -35,7 +36,7 @@ namespace Game.Monsters
         }
         public override void OnUpdate()
         {
-
+            Debug.Log(isChasing);
             if(controller.isKnockBacked)
             {
                 try
@@ -58,7 +59,7 @@ namespace Game.Monsters
                 controller.ChangeState(nextState);
                 return;
             }
-            if (myMonsterType == MonsterAttackType.ToEveryThing) ChangeTargetEnemy();
+            if (myMonsterType == MonsterAttackType.ToEveryThing) EvaluateNewTargetAndChase();
         }
         public override void OnExit()
         {
@@ -83,6 +84,8 @@ namespace Game.Monsters
 
         async UniTask ChaseTarget()
         {
+            if (isChasing) return;
+            isChasing = true;
             try
             {
                 await moveSemaphoreSlim.WaitAsync();
@@ -132,9 +135,7 @@ namespace Game.Monsters
                         while (!moveTask.Status.IsCompleted() && !cts.IsCancellationRequested)
                         {
                             var isDead = controller.isDead;
-                            var isKnockBacked = controller.isKnockBacked;
                             if (isDead) { cts?.Cancel();  break; }
-                            if(isKnockBacked) { cts?.Cancel(); break; }
                             if (Vector3.Distance(controller.transform.position, targetPos) <= controller.MonsterStatus.AttackRange
                               || targetEnemy == null)
                             {
@@ -185,17 +186,8 @@ namespace Game.Monsters
 
                             while (!moveTask.Status.IsCompleted() && !cts.IsCancellationRequested)
                             {
-                                var isKnockBacked = controller.isKnockBacked;
                                 var isDead = controller.isDead;
                             　　　
-                                //if (isKnockBacked)
-                                //{
-                                    //cts?.Cancel();
-                                    //controller.ChangeState(this);
-                                    //Debug.Log("ノックバックされたよ");
-                                    //break;
-                                //}
-                            
                                 if (isDead) { cts?.Cancel(); break; }
 
                                 if (Vector3.Distance(controller.transform.position, targetPos) <= controller.MonsterStatus.AttackRange)
@@ -222,6 +214,7 @@ namespace Game.Monsters
             finally
             {
                 Debug.Log("おおかかｃｄｈｃｄｓｈかしあｊか");
+                isChasing = false;
                 moveSemaphoreSlim.Release();
                 cts?.Dispose();
             }
@@ -244,7 +237,7 @@ namespace Game.Monsters
             return targetPos;
         }
 
-        void ChangeTargetEnemy()
+        void EvaluateNewTargetAndChase()
         {
             var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(controller.gameObject, controller.MonsterStatus.ChaseRange);
 
@@ -260,7 +253,8 @@ namespace Game.Monsters
             {
                 var newTarget = filterdArray[0].gameObject;
                 //同じ敵なら何もしない
-                if (targetEnemy == filterdArray[0].gameObject || targetTower == filterdArray[0].gameObject) return;
+                if ((targetEnemy == newTarget || targetTower == newTarget)
+                    && isChasing) return;
                 Debug.Log("ターゲット変更");
                 targetEnemy = newTarget;
 
@@ -277,7 +271,5 @@ namespace Game.Monsters
             }
         }
     }
-
-
 }
 
