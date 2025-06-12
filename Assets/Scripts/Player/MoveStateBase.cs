@@ -14,9 +14,11 @@ namespace Game.Players
         public MoveStateBase(T controller) : base(controller) { }
         public bool isMoving = false;//true
         public bool isPressedA = false;
+        Vector3 offset = new Vector3(0, 0.3f, 0);
         SemaphoreSlim semaphore = new SemaphoreSlim(1,1);
 
         CancellationTokenSource cls = null;
+        bool isChecked = false;
         public override void OnEnter()
         {
             cls = controller.cls;
@@ -29,8 +31,13 @@ namespace Game.Players
                 Move().Forget();
             }
         }
-        public override void OnUpdate()
+        public override  void OnUpdate()
         {
+            if (!CheckMovable())
+            {
+                cls?.Cancel();
+                isMoving = false;
+            }
             Debug.Log($"animation.spped{controller.animator.speed}");
             if (InputManager.IsClickedMoveAndAutoAttack()) //Input.GetMouseButtonUp(0) && Input.GetKey(KeyCode.A)
             {
@@ -43,6 +50,7 @@ namespace Game.Players
             }
             else if(InputManager.IsCllikedMoveButton())
             {
+                Debug.Log("方向変更");
                 controller.cls.Cancel();
                 controller.cls.Dispose();
                 controller.cls = new CancellationTokenSource();
@@ -52,7 +60,6 @@ namespace Game.Players
             }
             if (!isMoving) controller.ChangeState(nextState);
         }
-
         public override void OnExit()
         {
             controller.animator.SetBool(controller.AnimatorPar.Move, false);
@@ -61,13 +68,13 @@ namespace Game.Players
 
         async UniTask Move()
         {
-            if(!controller.animator.GetBool(controller.AnimatorPar.Move)) controller.animator.SetBool(controller.AnimatorPar.Move, true);
-
+            if (!controller.animator.GetBool(controller.AnimatorPar.Move)) controller.animator.SetBool(controller.AnimatorPar.Move, true);
+            Debug.Log("呼ばれてるた,PlayerのMoveが");
             controller.cls = new CancellationTokenSource();
             cls = controller.cls;
             try
             {
-                await semaphore.WaitAsync(cancellationToken:cls.Token);
+                await semaphore.WaitAsync(cancellationToken: cls.Token);
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 var hits = Physics.RaycastAll(ray);
                 if (hits.Length > 0)
@@ -81,41 +88,70 @@ namespace Game.Players
                             var targetPos = hit.point;
                             var direction = targetPos - controller.transform.position;
                             if (direction != Vector3.zero) controller.transform.rotation = Quaternion.LookRotation(direction);
-                            var moveTween = controller.transform.DOMove(targetPos, Vector3.Distance(controller.transform.position, targetPos) / controller.PlayerStatus.MoveSpeed)
+                            if (!CheckMovable()) break;
+                            var moveSpeed = controller.PlayerStatus.MoveSpeed;
+                            //while ((targetPos - controller.transform.position).sqrMagnitude > 0.01f && !cls.IsCancellationRequested)
+                            //{
+                            //    if(cls.IsCancellationRequested)
+                            //    {
+                            //        break;
+                            //    }
+                            //    var move = Vector3.MoveTowards(controller.transform.position, targetPos,moveSpeed * Time.deltaTime);
+                            //    if (!CheckMovable(move)) break;
+                            //    controller.transform.position = move;
+                            //    await UniTask.Yield();
+                            //}
+
+                            //await UniTask.Yield();
+                            var moveTween = controller.transform.DOMove(targetPos, Vector3.Distance(controller.transform.position, targetPos) / moveSpeed)
                                 .SetEase(Ease.Linear);
                             var task = moveTween.ToUniTask(cancellationToken: cls.Token);
-                            while((controller.transform.position - targetPos).magnitude > Mathf.Epsilon && !cls.IsCancellationRequested)
-                            {
-                                if (!CheckMovable()) { moveTween.Kill();break; }
-                            }
+                            //while (!cls.IsCancellationRequested && !task.Status.IsCompleted())
+                            //{
+                            //    Debug.Log($"確認中だよ＝＝＝＝");
+                            //    if (!CheckMovable()) return;
+                            //    await UniTask.Yield();
+                            //}
+                            //if (cls.IsCancellationRequested)
+                            //{
+                            //    Debug.Log("tweenがkillされました");
+                            //    moveTween.Kill();
+                            //}
                             await task;
-                            //transform.position = targetPos;
+                            Debug.Log(cls.IsCancellationRequested);
                         }
-                        break;
                     }
                 }
             }
             finally
             {
+                Debug.Log("おーーーーーーーいおわったよーーーーーーーーー");
                 semaphore.Release();
-                if(!cls.IsCancellationRequested) isMoving = false;
+                if (!cls.IsCancellationRequested) isMoving = false;
             }
-        }  
-        
+        }
         bool CheckMovable()
         {
             var rayDistance = controller.PlayerStatus.AttackRange;
-            if(Physics.Raycast(controller.transform.position,controller.transform.forward,rayDistance,Layers.buildingLayer))
+            if (Physics.Raycast(controller.transform.position + offset, controller.transform.forward, rayDistance, Layers.buildingLayer))
             {
                 Debug.Log("通れません");
-                cls?.Cancel();
-                isMoving = false;
-                controller.ChangeState(nextState);
                 return false;
             }
 
             return true;
         }
+        //bool CheckMovable(Vector3 perTargetPos)
+        //{
+        //    var rayDistance = controller.PlayerStatus.AttackRange;
+        //    if (Physics.CheckSphere(perTargetPos,rayDistance, Layers.buildingLayer))
+        //    {
+        //        Debug.Log("通れません");
+        //        return false;
+        //    }
+
+        //    return true;
+        //}
     }         
 }
 
