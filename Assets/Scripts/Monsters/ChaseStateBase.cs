@@ -84,7 +84,7 @@ namespace Game.Monsters
 
         async UniTask ChaseTarget()
         {
-            if (isChasing) return;
+            if (isChasing || controller.isKnockBacked) return;
             isChasing = true;
             try
             {

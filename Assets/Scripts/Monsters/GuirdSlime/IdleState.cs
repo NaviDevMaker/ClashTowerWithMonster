@@ -5,7 +5,7 @@ namespace Game.Monsters.GuirdSlime
 {
     public class IdleState : IdleStateBase<GuirdSlimeController>
     {
-        public IdleState(GuirdSlimeController slime) : base(slime) { }
+        public IdleState(GuirdSlimeController guirdSlime) : base(guirdSlime) { }
 
 
         public override void OnEnter()

@@ -31,12 +31,12 @@ namespace Game.Spells
 
         private void Update()
         {
-            if(Input.GetKeyDown(KeyCode.Space)) Spell().Forget();
-            //if (isSummoned && !isSpellInvoked) 
-            //{
-            //    Spell().Forget();
-            //    isSpellInvoked = true;
-            //}
+            //f(Input.GetKeyDown(KeyCode.Space)) Spell().Forget();
+            if (isSummoned && !isSpellInvoked)
+            {
+                Spell().Forget();
+                isSpellInvoked = true;
+            }
         }
         void SetRange()
         {
@@ -63,7 +63,7 @@ namespace Game.Spells
         void Initialize()
         {
             spellDamageHelper = new SpellDamageHelper(this);
-            addForceToUnit = new AddForceToUnit<SpellBase>(this, SpellStatus.PushAmount);
+            addForceToUnit = new AddForceToUnit<SpellBase>(this, SpellStatus.PushAmount,spellStatus.SpellDuration);
             moveType = MoveType.Spell;
             SetRange();
             SetDuration();

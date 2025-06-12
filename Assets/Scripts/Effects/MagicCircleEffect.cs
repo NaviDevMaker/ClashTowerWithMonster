@@ -4,6 +4,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System.Threading;
+using UnityEngine.Rendering.PostProcessing;
 
 public class MagicCircleEffect
 {
@@ -35,15 +36,28 @@ public class MagicCircleEffect
             await UniTask.Yield(cancellationToken:cancellationToken);
         }
     }
-    public IEnumerator SummonEffect(Vector3 particlePos)
+    public IEnumerator SummonEffect(Vector3 particlePos,CardType cardType)
     {
         var particleObj = UnityEngine.Object.Instantiate(summonParticle, particlePos, Quaternion.identity);
         var particle = particleObj.GetComponentInChildren<ParticleSystem>();
+
+        if(cardType == CardType.Monster) particle.Play();
         var duration = particle.main.duration;
 
-        float totalAmount = 360f;
-        float perRotateAmount = totalAmount / duration;
         var baseParticleObj = particleObj.transform.GetChild(1).gameObject;
+
+        if(cardType == CardType.Spell)
+        {
+            var hexColor = "#6A5ACD";
+            Color newColor;
+            ColorUtility.TryParseHtmlString(hexColor,out newColor);
+            var childParticle = baseParticleObj.GetComponent<ParticleSystem>();
+            if(childParticle != null)
+            {
+                var main = childParticle.main;
+                main.startColor = newColor;
+            }
+        }
         var originalScale = baseParticleObj.transform.localScale;
         UnityEngine.Object.Destroy(particleObj, duration);
 

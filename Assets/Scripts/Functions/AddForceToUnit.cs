@@ -2,16 +2,19 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 
 public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
 {
     T me;
     float pushAmount;
-    public AddForceToUnit(T me,float pushAmount)
+    float spellDuration;
+    public AddForceToUnit(T me,float pushAmount,float spellDuration = default)
     {
         this.me = me;
         this.pushAmount = pushAmount;
+        if(spellDuration != 0) this.spellDuration = spellDuration;
     }
 
     void CompareEachUnit(UnitBase other)
@@ -50,8 +53,14 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
             else if ((other is IPlayer || other is IMonster) && me is ISpells)
             {
                 Debug.Log("呪文発動");
-                targetPos_other = other.transform.position - push;
-                other.transform.position = Vector3.MoveTowards(other.transform.position, targetPos_other, pushAmount * Time.deltaTime);
+                other.isKnockBacked = true;
+                push = push * pushAmount;
+                targetPos_other = other.transform.position + push;
+                var tween = other.transform.DOMove(targetPos_other,spellDuration);//
+                var tweenTask = tween.ToUniTask();
+                var waitTime = UniTask.Delay(TimeSpan.FromSeconds(spellDuration));
+                await UniTask.WhenAll(waitTime,tweenTask); // 例: 0.2秒間ノックバック中
+                other.isKnockBacked = false;
             }
             else if(other is IPlayer || other is IMonster)
             {

@@ -31,7 +31,6 @@ namespace Game.Players
         }
         public override void OnUpdate()
         {
-            if(!CheckMovable()) return;
             Debug.Log($"animation.spped{controller.animator.speed}");
             if (InputManager.IsClickedMoveAndAutoAttack()) //Input.GetMouseButtonUp(0) && Input.GetKey(KeyCode.A)
             {
@@ -70,18 +69,29 @@ namespace Game.Players
             {
                 await semaphore.WaitAsync(cancellationToken:cls.Token);
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(ray, out RaycastHit hit))
+                var hits = Physics.RaycastAll(ray);
+                if (hits.Length > 0)
                 {
-                    var hitLayer = 1 << hit.collider.gameObject.layer;
-                    if (Layers.groundLayer == hitLayer)
+                    foreach (var hit in hits)
                     {
-                        Debug.Log("ƒqƒbƒg");
-                        var targetPos = hit.point;
-                        var direction = targetPos - controller.transform.position;
-                        if (direction != Vector3.zero) controller.transform.rotation = Quaternion.LookRotation(direction);
-                        await controller.transform.DOMove(targetPos, Vector3.Distance(controller.transform.position, targetPos) / controller.PlayerStatus.MoveSpeed)
-                            .SetEase(Ease.Linear).ToUniTask(cancellationToken: cls.Token);
-                        //transform.position = targetPos;
+                        var hitLayer = 1 << hit.collider.gameObject.layer;
+                        if (Layers.groundLayer == hitLayer)
+                        {
+                            Debug.Log("ƒqƒbƒg");
+                            var targetPos = hit.point;
+                            var direction = targetPos - controller.transform.position;
+                            if (direction != Vector3.zero) controller.transform.rotation = Quaternion.LookRotation(direction);
+                            var moveTween = controller.transform.DOMove(targetPos, Vector3.Distance(controller.transform.position, targetPos) / controller.PlayerStatus.MoveSpeed)
+                                .SetEase(Ease.Linear);
+                            var task = moveTween.ToUniTask(cancellationToken: cls.Token);
+                            while((controller.transform.position - targetPos).magnitude > Mathf.Epsilon && !cls.IsCancellationRequested)
+                            {
+                                if (!CheckMovable()) { moveTween.Kill();break; }
+                            }
+                            await task;
+                            //transform.position = targetPos;
+                        }
+                        break;
                     }
                 }
             }

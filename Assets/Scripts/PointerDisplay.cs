@@ -58,29 +58,34 @@ public class PointerDisplay:MonoBehaviour
     async UniTask DisplayTargetPoint()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        var hits = Physics.RaycastAll(ray);
+        if (hits.Length > 0)
         {
-            var hitLayer = 1 << hit.collider.gameObject.layer;
-            if (Layers.groundLayer == hitLayer)
+            foreach (var hit in hits)
             {
-                ParticleSystem particle = null;
-                try
+                var hitLayer = 1 << hit.collider.gameObject.layer;
+                if (Layers.groundLayer == hitLayer)
                 {
-                    arrow.SetActive(true);
-                    Debug.Log("ƒqƒbƒg");
-                    var targetPos = hit.point;
-                    transform.position = targetPos;
-                    var genePos = targetPos + new Vector3(0f, offsetY, 0f);
-                    particle = Instantiate(pointedPositionParticle, genePos, Quaternion.identity);
-                    var move = transform.DOMoveY(transform.position.y + upAmount, floatTime).SetLoops(2, LoopType.Yoyo).ToUniTask(cancellationToken: cls.Token);
-                    var wait = UniTask.Delay(TimeSpan.FromSeconds(destroyTime),cancellationToken:cls.Token);
-                    await UniTask.WhenAll(move, wait);
-                }
-                finally
-                {
-                   if(particle != null) Destroy(particle.gameObject);
-                   arrow.SetActive(false);
-                }            
+                    ParticleSystem particle = null;
+                    try
+                    {
+                        arrow.SetActive(true);
+                        Debug.Log("ƒqƒbƒg");
+                        var targetPos = hit.point;
+                        transform.position = targetPos;
+                        var genePos = targetPos + new Vector3(0f, offsetY, 0f);
+                        particle = Instantiate(pointedPositionParticle, genePos, Quaternion.identity);
+                        var move = transform.DOMoveY(transform.position.y + upAmount, floatTime).SetLoops(2, LoopType.Yoyo).ToUniTask(cancellationToken: cls.Token);
+                        var wait = UniTask.Delay(TimeSpan.FromSeconds(destroyTime), cancellationToken: cls.Token);
+                        await UniTask.WhenAll(move, wait);
+                    }
+                    finally
+                    {
+                        if (particle != null) Destroy(particle.gameObject);
+                        arrow.SetActive(false);
+                    }
+                    break;
+                }        
             }
         }
     }

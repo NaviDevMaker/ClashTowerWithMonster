@@ -15,6 +15,7 @@ public class SummonMonsterPointer : MonoBehaviour
     public UnityAction OnPointerUp;
     public Func<bool> CheckCanSetMonster;
     public UnityAction<Card> OnSummonMonster;
+    bool onTheField = false;
 
     Vector3 particlePos = Vector3.zero;
     CancellationTokenSource cts = new CancellationTokenSource();
@@ -24,7 +25,7 @@ public class SummonMonsterPointer : MonoBehaviour
         if ((InputManager.IsClickedSummonButton() && CheckCanSetMonster.Invoke()) 
             || InputManager.IsClickedSummonButtonOnHandField())
         {
-            if(selectedCardPrefab != null)
+            if(selectedCardPrefab != null && onTheField)
             {
                 SetMonsterOnField();
             }           
@@ -33,6 +34,7 @@ public class SummonMonsterPointer : MonoBehaviour
     void LateUpdate()
     {
         SumonPointDisplay();
+        PrefabActiveChange();
     }
 
     public void GetMonsterPrefab(List<Card> hands)
@@ -47,24 +49,38 @@ public class SummonMonsterPointer : MonoBehaviour
     void SumonPointDisplay()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        var hits = Physics.RaycastAll(ray);
+        if(hits.Length > 0)
         {
-            var hitLayer = 1 << hit.collider.gameObject.layer;
-            if (Layers.groundLayer == hitLayer)
+            foreach (var hit in hits)
             {
-                Debug.Log("ヒット");
-                var targetPos = hit.point;
-                if (selectedCardPrefab != null)
+                var hitLayer = 1 << hit.collider.gameObject.layer;
+                if (Layers.groundLayer == hitLayer)
                 {
-                    selectedCardPrefab.gameObject.transform.position = targetPos;
-                    particlePos = targetPos;
-                    targetPos.y += 0.5f;
-                    summonPointerParticle.transform.position = targetPos;
+                    onTheField = true;
+                    Debug.Log("ヒット");
+                    var targetPos = hit.point;
+                    if (selectedCardPrefab != null)
+                    {
+                        if (summonPointerParticle != null)
+                        {
+                            if (!summonPointerParticle.activeSelf) summonPointerParticle.gameObject.SetActive(true);
+                        }
+                        selectedCardPrefab.gameObject.transform.position = targetPos;
+                        particlePos = targetPos;
+                        targetPos.y += 0.5f;
+                        summonPointerParticle.transform.position = targetPos;
+                    }
+                    break;
                 }
-            }
-        } 
+            }        
+        }
+        else
+        {
+            onTheField = false;
+            EnactivePointerEffect();
+        }
     }
-
     void SetMonsterOnField()
     {
         summonPointerParticle.gameObject.SetActive(false);
@@ -75,28 +91,31 @@ public class SummonMonsterPointer : MonoBehaviour
 
         var summonbable = obj.GetComponent<ISummonbable>();
         summonbable.isSummoned = true;
-        StartCoroutine(EffectManager.Instance.magicCircleEffect.SummonEffect(particlePos));
+        StartCoroutine(EffectManager.Instance.magicCircleEffect.SummonEffect(particlePos,currentCard.CardData.CardType));
         OnSummonMonster?.Invoke(currentCard);
         OnPointerUp?.Invoke();
     }
     
+    //選ばれているカードが変更されたとき
     public void SetMonsterPrefab(Card selectedCard)
     {
-       if(selectedCardPrefab != null)
-       {
+       
+        if (selectedCardPrefab != null)
+        {
           var currentCardData = currentCard.CardData;
+          //前回のプレファブを非表示
           if (cardPrefabs.TryGetValue(currentCardData.CardName, out GameObject previousPrefab))
           {              
                previousPrefab.gameObject.SetActive(false);
           }
-       }
-       if(cardPrefabs.TryGetValue(selectedCard.CardData.CardName,out GameObject cardPrefab))
-       {
-          cardPrefab.gameObject.SetActive(true);
-          SetSummonPointerEffect();
-          selectedCardPrefab = cardPrefab;
-          currentCard = selectedCard;
-       }
+        }
+        if(cardPrefabs.TryGetValue(selectedCard.CardData.CardName,out GameObject cardPrefab))
+        {
+              cardPrefab.gameObject.SetActive(true);
+              SetSummonPointerEffect();
+              selectedCardPrefab = cardPrefab;
+              currentCard = selectedCard;
+        }
     }
 
     void SetSummonPointerEffect()
@@ -120,6 +139,23 @@ public class SummonMonsterPointer : MonoBehaviour
             }
         }
         currentCard = null;
+    }
+
+    public void EnactivePointerEffect()
+    {
+        if(summonPointerParticle != null) summonPointerParticle.SetActive(false);
+    }
+
+    void PrefabActiveChange()
+    {
+        if (selectedCardPrefab != null)
+        {
+            var currentCardData = currentCard.CardData;
+            if (cardPrefabs.TryGetValue(currentCardData.CardName, out GameObject currentPrefab))
+            {
+                currentPrefab.gameObject.SetActive(onTheField);
+            }
+        }
     }
 
 }

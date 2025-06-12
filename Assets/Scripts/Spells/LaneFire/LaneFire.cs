@@ -15,7 +15,7 @@ namespace Game.Spells.LaneFire
             particle.Play();
             await UniTask.Delay(TimeSpan.FromSeconds(spellDuration));
             particle.Stop();
-            //Destroy(gameObject);
+            Destroy(gameObject);
         }
     }
 }

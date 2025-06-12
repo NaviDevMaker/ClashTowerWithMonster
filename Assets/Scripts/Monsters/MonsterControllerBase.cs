@@ -22,13 +22,12 @@ namespace Game.Monsters
         protected AddForceToUnit<MonsterControllerBase<T>> addForceToUnit;
         protected override void Start()
         {
+            Debug.Log("‚Š‚ƒ‚„‚³‚ƒ‚„‚“‚ˆ‚‹‚ƒ‚“‚„‚Š‚„‚“‚ƒ‚“‚„‚‹‚“‚„‚Ž");
             base.Start();
             addForceToUnit = new AddForceToUnit<MonsterControllerBase<T>>(this, StatusData.PushAmount);
             animator = GetComponent<Animator>();
             ChangeState(IdleState);
         }
-
-
         protected override void Update()
         {
             base.Update();

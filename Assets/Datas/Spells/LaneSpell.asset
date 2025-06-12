@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: LaneSpell
   m_EditorClassIdentifier: 
   damage: 5
-  pushAmount: 30
+  pushAmount: 2.5
+  spellDuration: 0.5

@@ -40,6 +40,7 @@ public class HandManager : MonoBehaviour
         if(InputManager.IsClickedResetSelectedCard())
         {
             ResetCardHands();
+            sumonMonsterPointer.EnactivePointerEffect();
         }
     }
     void Set()

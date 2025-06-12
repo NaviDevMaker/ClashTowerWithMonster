@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using System;
 using UnityEngine;
 
        
@@ -23,6 +24,8 @@ namespace Game.Monsters.BigEyeMonster
 
         protected override async UniTask OnEnterProcess()
         {
+            Func<bool> isSummoned = (() => controller.isSummoned);
+           await UniTask.WaitUntil(isSummoned);
            await base.OnEnterProcess();
         }
     }
