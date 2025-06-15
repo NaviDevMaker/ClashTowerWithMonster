@@ -185,7 +185,12 @@ public class TowerControlller :UnitBase
         archer.isDestroyedTower = true;
         DeathMoveExecuter deathMoveExecuter = new DeathMoveExecuter();
         await UniTask.WaitUntil(() => isSettedLength);
-        deathMoveExecuter.ExecuteDeathAction_Tower(this,deathActionLength).Forget();
+        deathMoveExecuter.ExecuteDeathAction_Tower(this, deathActionLength).Forget();
+        var timeScaleAmount = 0.25f;
+        Time.timeScale = timeScaleAmount;
+        var delay = 0.5f;
+        await UniTask.Delay(TimeSpan.FromSeconds(delay));
+        Time.timeScale = 1f;
     }
 
     void SetLength(float animLength, float animSpeed)

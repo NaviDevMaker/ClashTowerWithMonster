@@ -17,4 +17,4 @@ MonoBehaviour:
   energy: 1
   cardName: 0
   cardPrefab: {fileID: 9104634994834796329, guid: 78e67fcd51025e542b75c667f13b88d2, type: 3}
-  cardType: 0
+  cardType: 1

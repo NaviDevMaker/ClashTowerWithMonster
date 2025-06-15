@@ -62312,7 +62312,7 @@ GameObject:
   - component: {fileID: 2953325579178404395}
   - component: {fileID: 1565475661463852031}
   - component: {fileID: 2894430976060482367}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: SpellParent
   m_TagString: Untagged
   m_Icon: {fileID: 0}

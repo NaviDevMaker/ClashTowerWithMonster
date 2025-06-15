@@ -10,8 +10,8 @@ namespace Game.Spells
         [SerializeField] SpellStatus spellStatus;
 
         protected float spellDuration = 0f;
-        public float rangeX { get; private set; }
-        public float rangeZ { get; private set; }
+        public float rangeX { get; protected set; }
+        public float rangeZ { get; protected set; }
         public float prioritizedRange { get; protected set; }
        
         public MoveType moveType { get; protected set; }
@@ -38,7 +38,7 @@ namespace Game.Spells
                 isSpellInvoked = true;
             }
         }
-        void SetRange()
+        protected virtual void SetRange()
         {
             var collider = GetComponent<Collider>();
             if (collider == null) return;

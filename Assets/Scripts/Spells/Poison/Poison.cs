@@ -6,9 +6,23 @@ namespace Game.Spells.Poison
 {
     public class Poison : SpellBase
     {
+        float scaleAmount = 10f;
+        protected override void SetRange()
+        {
+            var collider = GetComponent<SphereCollider>();
+            if (collider == null) return;
+            var colliderRadius = collider.radius;
+            Debug.Log(colliderRadius);
+            rangeX = colliderRadius * scaleAmount;
+            rangeZ = colliderRadius * scaleAmount;
+            Debug.Log("スペルのレンジ取得！！！！！！！！！");
+            prioritizedRange = rangeX >= rangeZ ? rangeX : rangeZ;
+        }
         protected override async UniTaskVoid Spell()
         {
+            var scaleDuration = 0.5f;
             particle.Play();
+            transform.DOScale(Vector3.one * scaleAmount, scaleDuration);
             var time = 0f;
             var damageInterval = 0f;
             var isFirstHit = false;

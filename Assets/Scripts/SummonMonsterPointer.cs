@@ -5,13 +5,18 @@ using UnityEngine.Events;
 using System;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using Game.Spells;
+using System.Linq;
 public class SummonMonsterPointer : MonoBehaviour
 {
     GameObject summonPointerParticle;
     GameObject selectedCardPrefab;
     Dictionary<CardName,GameObject> cardPrefabs = new Dictionary<CardName, GameObject>();
+    //最初に場所を示すプレファブのほうのISummonbableを取得する
+    Dictionary<CardName, SpellBase> summonbables = new Dictionary<CardName,SpellBase>();
     Card currentCard;
 
+    LineRenderer lineRenderer;
     public UnityAction OnPointerUp;
     public Func<bool> CheckCanSetMonster;
     public UnityAction<Card> OnSummonMonster;
@@ -19,7 +24,12 @@ public class SummonMonsterPointer : MonoBehaviour
 
     Vector3 particlePos = Vector3.zero;
     CancellationTokenSource cts = new CancellationTokenSource();
-    
+    ISummonbable summonbable;
+    private void Start()
+    {
+        lineRenderer = GetComponentInChildren<LineRenderer>();
+        Debug.Log(lineRenderer);
+    }
     private void Update()
     {
         if ((InputManager.IsClickedSummonButton() && CheckCanSetMonster.Invoke()) 
@@ -27,7 +37,7 @@ public class SummonMonsterPointer : MonoBehaviour
         {
             if(selectedCardPrefab != null && onTheField)
             {
-                SetMonsterOnField();
+                SetCardOnField();
             }           
         }
     }
@@ -43,6 +53,10 @@ public class SummonMonsterPointer : MonoBehaviour
         {
             var prefab = Instantiate(card.CardData.CardPrefab);
             cardPrefabs[card.CardData.CardName] = prefab;
+            if(card.CardData.CardType == CardType.Spell)
+            {
+                summonbables[card.CardData.CardName] = prefab.GetComponent<SpellBase>();
+            }
             prefab.gameObject.SetActive(false);
         }
     }
@@ -52,6 +66,20 @@ public class SummonMonsterPointer : MonoBehaviour
         var hits = Physics.RaycastAll(ray);
         if(hits.Length > 0)
         {
+            //Spellのレイヤーだけの時はそれはgroundにhitしてないことを意味する
+            if(hits.Length == 1)
+            {
+                var hit = hits.FirstOrDefault().collider.gameObject;
+                var hitLayer = 1 << hit.gameObject.layer;
+                var hitOnlySpell = hitLayer == Layers.spellLayer;
+                if (hitOnlySpell)
+                {
+                    onTheField = false;
+                    EnactivePointerEffect();
+                    EnableLineRenderer();
+                    return;
+                }
+            }
             foreach (var hit in hits)
             {
                 var hitLayer = 1 << hit.collider.gameObject.layer;
@@ -66,30 +94,37 @@ public class SummonMonsterPointer : MonoBehaviour
                         {
                             if (!summonPointerParticle.activeSelf) summonPointerParticle.gameObject.SetActive(true);
                         }
+                        targetPos.y += 0.5f;
                         selectedCardPrefab.gameObject.transform.position = targetPos;
                         particlePos = targetPos;
-                        targetPos.y += 0.5f;
+                        //targetPos.y += 0.5f;//場合によっては直して
                         summonPointerParticle.transform.position = targetPos;
+
+                        if (currentCard.CardData.CardType == CardType.Spell) DrawSpellRange(targetPos);
+                        else EnableLineRenderer();
                     }
                     break;
                 }
             }        
         }
         else
-        {
+        {          
             onTheField = false;
             EnactivePointerEffect();
+            EnableLineRenderer();
         }
     }
-    void SetMonsterOnField()
+    void SetCardOnField()
     {
-        summonPointerParticle.gameObject.SetActive(false);
+        EnactivePointerEffect();
+        EnableLineRenderer();
+
         cts.Cancel();
         cts.Dispose();
         cts = new CancellationTokenSource();
         var obj = Instantiate(selectedCardPrefab, selectedCardPrefab.transform.position,selectedCardPrefab.transform.rotation);
 
-        var summonbable = obj.GetComponent<ISummonbable>();
+        summonbable = obj.GetComponent<ISummonbable>();
         summonbable.isSummoned = true;
         StartCoroutine(EffectManager.Instance.magicCircleEffect.SummonEffect(particlePos,currentCard.CardData.CardType));
         OnSummonMonster?.Invoke(currentCard);
@@ -109,12 +144,15 @@ public class SummonMonsterPointer : MonoBehaviour
                previousPrefab.gameObject.SetActive(false);
           }
         }
-        if(cardPrefabs.TryGetValue(selectedCard.CardData.CardName,out GameObject cardPrefab))
-        {
-              cardPrefab.gameObject.SetActive(true);
+        var selectedCardData = selectedCard.CardData;
+        if(cardPrefabs.TryGetValue(selectedCardData.CardName,out GameObject cardPrefab))
+        {           
+               cardPrefab.gameObject.SetActive(true);//if(selectedCardData.CardType == CardType.Monster)
+              //else if(selectedCardData.CardType == CardType.Spell) cardPrefab.gameObject.SetActive(false);
               SetSummonPointerEffect();
               selectedCardPrefab = cardPrefab;
               currentCard = selectedCard;
+              if (selectedCardData.CardType == CardType.Spell) cardPrefab.gameObject.SetActive(false);
         }
     }
 
@@ -146,6 +184,11 @@ public class SummonMonsterPointer : MonoBehaviour
         if(summonPointerParticle != null) summonPointerParticle.SetActive(false);
     }
 
+    public void EnableLineRenderer()
+    {
+        if (lineRenderer != null) lineRenderer.enabled = false;
+    }
+
     void PrefabActiveChange()
     {
         if (selectedCardPrefab != null)
@@ -153,9 +196,32 @@ public class SummonMonsterPointer : MonoBehaviour
             var currentCardData = currentCard.CardData;
             if (cardPrefabs.TryGetValue(currentCardData.CardName, out GameObject currentPrefab))
             {
-                currentPrefab.gameObject.SetActive(onTheField);
+               currentPrefab.gameObject.SetActive(onTheField);//if(currentCardData.CardType == CardType.Monster) 
             }
         }
     }
 
+    void DrawSpellRange(Vector3 center)
+    {
+        if(!lineRenderer.enabled) lineRenderer.enabled = true;
+        var radiusX = 0f;
+        var radiusZ = 0f;
+        if(summonbables.TryGetValue(currentCard.CardData.CardName,out var spellBase))
+        {
+            radiusX = spellBase.rangeX;
+            radiusZ = spellBase.rangeZ;
+        }
+        var segument = 100;
+        lineRenderer.positionCount = segument + 1;
+        lineRenderer.loop = true;
+        for (int i = 0; i <= segument; i++)
+        {
+            var angle = ((float)i / segument) * Mathf.PI * 2;
+            var x = Mathf.Cos(angle) * radiusX;
+            var z = Mathf.Sin(angle) * radiusZ;
+            var nextPos = new Vector3(x, 0, z) + center;
+            nextPos.y = Terrain.activeTerrain.SampleHeight(nextPos);
+            lineRenderer.SetPosition(i, nextPos);
+        }
+    }
 }

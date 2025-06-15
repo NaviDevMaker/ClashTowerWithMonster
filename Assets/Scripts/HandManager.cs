@@ -41,6 +41,7 @@ public class HandManager : MonoBehaviour
         {
             ResetCardHands();
             sumonMonsterPointer.EnactivePointerEffect();
+            sumonMonsterPointer.EnableLineRenderer();
         }
     }
     void Set()

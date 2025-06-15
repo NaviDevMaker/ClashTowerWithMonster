@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2197388870865272991}
   - component: {fileID: 5693858419214230880}
   - component: {fileID: 8446709751967206724}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: BoundShield
   m_TagString: Untagged
   m_Icon: {fileID: 0}

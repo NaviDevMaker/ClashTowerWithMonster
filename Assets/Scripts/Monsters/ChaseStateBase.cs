@@ -64,6 +64,7 @@ namespace Game.Monsters
         {
             reachTargetEnemy = false;
             targetEnemy = null;
+            targetTower = null;
             controller.animator.SetBool(controller.MonsterAnimPar.Chase, false);
             //cts?.Dispose();
         }
@@ -91,7 +92,12 @@ namespace Game.Monsters
 
         async UniTask ChaseTarget()
         {
-            if (isChasing || controller.isKnockBacked) return;
+            if (targetTower == null)
+            {
+                Debug.LogError("ゲームセットです");
+                return;
+            }
+                if (isChasing || controller.isKnockBacked) return;
             isChasing = true;
             try
             {
@@ -108,7 +114,8 @@ namespace Game.Monsters
                 GameObject target = default;
                 if (targetEnemy == null) target = targetTower;
                 else target = targetEnemy;
-                Debug.Log($"追跡対象: {target.name}");
+                
+                if(target != null) Debug.Log($"追跡対象: {target.name}");
                 var moveStep = controller.MonsterStatus.MoveStep;
                 var perPixelMoveTime = (1 / moveStep) / controller.MonsterStatus.MoveSpeed;
                 var offset = Vector3.zero;
@@ -125,7 +132,8 @@ namespace Game.Monsters
                     targetPos = target.transform.position;
                     targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
 
-                    while (Vector3.Distance(controller.transform.position, targetPos) > controller.MonsterStatus.AttackRange)
+                    while (Vector3.Distance(controller.transform.position, targetPos) > controller.MonsterStatus.AttackRange
+                        && target != null)
                     {
                         targetPos = target.transform.position;
                         targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
@@ -170,12 +178,14 @@ namespace Game.Monsters
                     var targetCollider = target.GetComponent<Collider>();
                   
                     Debug.Log("タワーを追跡中");
-                  
+
+                    if (target == null || targetCollider == null) return;
                     targetPos = targetCollider.ClosestPoint(controller.transform.position);
                     targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
                     Debug.Log(targetPos);
                       
-                        while (Vector3.Distance(controller.transform.position, targetPos) > controller.MonsterStatus.AttackRange)
+                        while (Vector3.Distance(controller.transform.position, targetPos) > controller.MonsterStatus.AttackRange
+                         && target != null)
                         {
 
                             targetPos = targetCollider.ClosestPoint(controller.transform.position);
