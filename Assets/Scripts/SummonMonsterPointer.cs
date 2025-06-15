@@ -87,7 +87,7 @@ public class SummonMonsterPointer : MonoBehaviour
         cts.Cancel();
         cts.Dispose();
         cts = new CancellationTokenSource();
-        var obj = Instantiate(selectedCardPrefab, selectedCardPrefab.transform.position, Quaternion.identity);
+        var obj = Instantiate(selectedCardPrefab, selectedCardPrefab.transform.position,selectedCardPrefab.transform.rotation);
 
         var summonbable = obj.GetComponent<ISummonbable>();
         summonbable.isSummoned = true;

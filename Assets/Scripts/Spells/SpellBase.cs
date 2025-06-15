@@ -21,7 +21,7 @@ namespace Game.Spells
         protected AddForceToUnit<SpellBase> addForceToUnit;
         bool isSpellInvoked = false;
         protected ParticleSystem particle;
-        protected SpellDamageHelper spellDamageHelper { get; private set;}
+        protected SpellDamageHelper spellDamageHelper { get;private set;}
         public bool isKnockBacked { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
         void Start()
@@ -31,7 +31,7 @@ namespace Game.Spells
 
         private void Update()
         {
-            //f(Input.GetKeyDown(KeyCode.Space)) Spell().Forget();
+            if(Input.GetKeyDown(KeyCode.Space)) Spell().Forget();
             if (isSummoned && !isSpellInvoked)
             {
                 Spell().Forget();
@@ -48,7 +48,7 @@ namespace Game.Spells
             Debug.Log("スペルのレンジ取得！！！！！！！！！");
             prioritizedRange = rangeX >= rangeZ ? rangeX : rangeZ;
         }
-        void SetDuration()
+        protected virtual void SetDuration()
         {
             var particle = transform.GetChild(0).GetComponent<ParticleSystem>();
             this.particle = particle;
@@ -60,10 +60,9 @@ namespace Game.Spells
             await UniTask.CompletedTask;
         }
 
-        void Initialize()
+        protected virtual void Initialize()
         {
             spellDamageHelper = new SpellDamageHelper(this);
-            addForceToUnit = new AddForceToUnit<SpellBase>(this, SpellStatus.PushAmount,spellStatus.SpellDuration);
             moveType = MoveType.Spell;
             SetRange();
             SetDuration();

@@ -67,7 +67,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
 
     public UnitType UnitType { get => unitType;}
 
-    List<Material[]> meshMaterials = new List<Material[]>();
+   public  List<Material[]> meshMaterials { get; private set; } = new List<Material[]>();
     List<Color[]> originalMaterialColors = new List<Color[]>();
 
     public bool isKnockBacked { get; set; } = false;
@@ -154,7 +154,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
     {
         hPBar.gameObject.SetActive(false);
     }
-    public void DestroyAll()
+    public virtual void DestroyAll()
     {
         Destroy(this.gameObject);
         Destroy(hPBar.gameObject);

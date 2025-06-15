@@ -17,12 +17,13 @@ public class TowerControlller :UnitBase
     
     int setGunCount = 5;
     List<GunMover> shotGuns = new List<GunMover>();
-
-    
+    float deathActionLength = 0f;
+    bool isSettedLength = false;
     enum State
     {
        Search,
        Stay,
+       Death,
     }
 
     State state;
@@ -37,6 +38,11 @@ public class TowerControlller :UnitBase
 
     protected override void Update()
     {
+        if(isDead && state != State.Death)
+        {
+            state = State.Death;
+            DeathAction();
+        }
         base.Update();
           
         ChangeEnemy();
@@ -55,7 +61,7 @@ public class TowerControlller :UnitBase
     void SearchEnemy()
     {
   
-          var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(this.gameObject,TowerStatus.SearchRadius);
+        var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(this.gameObject,TowerStatus.SearchRadius);
 
         sortedArray.ToList().ForEach((c) => Debug.Log(c.gameObject.name));
         if (sortedArray != null)
@@ -164,7 +170,7 @@ public class TowerControlller :UnitBase
     public override void Initialize(int owner = -1)
     {
         base.Initialize(owner);
-        //SetTowerSide(owner);
+        archer.OnDestoryedTower += SetLength;
         SetGun();
         archer.shotDuration = TowerStatus.ShotDuration;
     }
@@ -173,13 +179,27 @@ public class TowerControlller :UnitBase
     {
         base.Damage(damage);
     }
-   
-}
 
-public enum TowerSide
-{
-    PlayerSide,
-    EnemySide,
-}
+    async void DeathAction()
+    {
+        archer.isDestroyedTower = true;
+        DeathMoveExecuter deathMoveExecuter = new DeathMoveExecuter();
+        await UniTask.WaitUntil(() => isSettedLength);
+        deathMoveExecuter.ExecuteDeathAction_Tower(this,deathActionLength).Forget();
+    }
 
+    void SetLength(float animLength, float animSpeed)
+    {
+        var length  = animLength * animSpeed;
+        deathActionLength = length;
+
+        isSettedLength = true;
+    }
+
+    public override void DestroyAll()
+    {
+        base.DestroyAll();
+        Destroy(archer.gameObject);
+    }
+}
 

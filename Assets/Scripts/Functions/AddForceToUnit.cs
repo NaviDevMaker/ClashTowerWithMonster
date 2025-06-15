@@ -9,12 +9,12 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
 {
     T me;
     float pushAmount;
-    float spellDuration;
-    public AddForceToUnit(T me,float pushAmount,float spellDuration = default)
+    float pushDuration;
+    public AddForceToUnit(T me,float pushAmount,float pushDuration = default)
     {
         this.me = me;
         this.pushAmount = pushAmount;
-        if(spellDuration != 0) this.spellDuration = spellDuration;
+        if(pushDuration != 0) this.pushDuration = pushDuration;
     }
 
     void CompareEachUnit(UnitBase other)
@@ -56,9 +56,9 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
                 other.isKnockBacked = true;
                 push = push * pushAmount;
                 targetPos_other = other.transform.position + push;
-                var tween = other.transform.DOMove(targetPos_other,spellDuration);//
+                var tween = other.transform.DOMove(targetPos_other,pushDuration);//
                 var tweenTask = tween.ToUniTask();
-                var waitTime = UniTask.Delay(TimeSpan.FromSeconds(spellDuration));
+                var waitTime = UniTask.Delay(TimeSpan.FromSeconds(pushDuration));
                 await UniTask.WhenAll(waitTime,tweenTask); // 例: 0.2秒間ノックバック中
                 other.isKnockBacked = false;
             }

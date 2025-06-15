@@ -16,4 +16,5 @@ MonoBehaviour:
   energyImage: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
   energy: 2
   cardName: 1
-  cardPrefab: {fileID: 5179299482268108422, guid: 6276bcb0acf05e043a0abe90d73c6f31, type: 3}
+  cardPrefab: {fileID: 3609052509276532235, guid: 9bf61367ec90e764bbd5d311af6098a6, type: 3}
+  cardType: 1

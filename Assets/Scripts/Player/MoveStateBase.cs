@@ -141,17 +141,6 @@ namespace Game.Players
 
             return true;
         }
-        //bool CheckMovable(Vector3 perTargetPos)
-        //{
-        //    var rayDistance = controller.PlayerStatus.AttackRange;
-        //    if (Physics.CheckSphere(perTargetPos,rayDistance, Layers.buildingLayer))
-        //    {
-        //        Debug.Log("’Ê‚ê‚Ü‚¹‚ñ");
-        //        return false;
-        //    }
-
-        //    return true;
-        //}
     }         
 }
 

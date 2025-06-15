@@ -93,7 +93,7 @@ namespace Game.Monsters
                 var collider = target.GetComponent<Collider>();
                 targetPos = collider.ClosestPoint(controller.transform.position);
                 targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
-                canAttack = (targetPos - controller.transform.position).magnitude <= attackRange;// && !isDead;
+                canAttack = (targetPos - controller.transform.position).magnitude <= attackRange && !isDead;// && !isDead;
             }
             else if (target is IMonster || target is IPlayer)
             {

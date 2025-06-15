@@ -13,7 +13,6 @@ namespace Game.Monsters
 {
     public class ChaseStateBase<T> : StateMachineBase<T> where T : MonsterControllerBase<T>
     {
-        TowerSide targetTowerSide = TowerSide.EnemySide;
         public ChaseStateBase(T controller) : base(controller) { }
 
         GameObject targetTower = null;
@@ -74,12 +73,20 @@ namespace Game.Monsters
             TowerControlller[] targetTowers = GameObject.FindObjectsByType<TowerControlller>(sortMode: FindObjectsSortMode.None);
 
             List<TowerControlller> toList = new List<TowerControlller>(targetTowers);
-            toList = toList.OrderBy(tower => Vector3.Distance(controller.transform.position, tower.transform.position)).ToList();
-            foreach (var tower in toList)
-            {
-                if (tower.Side == controller.Side) continue;
-                else targetTower = tower.gameObject; break;
-            }
+            toList = toList
+                .Where(tower =>
+                { 
+                    var isDead = tower.isDead;
+                    var side = tower.Side;
+                    return !isDead && side != controller.Side;
+                }) 
+                .OrderBy(tower => Vector3.Distance(controller.transform.position, tower.transform.position)).ToList();
+            if (toList.Count > 0) targetTower = toList[0].gameObject;          
+            //foreach (var tower in toList)
+            //{
+            //    if (tower.Side == controller.Side) continue;
+            //    else targetTower = tower.gameObject; break;
+            //}
         }
 
         async UniTask ChaseTarget()
@@ -248,7 +255,11 @@ namespace Game.Monsters
                 return enemyType != controller.Side && !isDead;// 
             }).ToArray();
 
-            if (filterdArray.Length == 0) targetEnemy = null;
+            if (filterdArray.Length == 0)
+            {
+                targetEnemy = null;
+                if(targetTower != null && !isChasing) ChaseTarget().Forget();
+            }
             else
             {
                 var newTarget = filterdArray[0].gameObject;

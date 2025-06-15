@@ -16,11 +16,16 @@ public class DeathEffect
    {
         var unitPos = unit.gameObject.transform.position;
         Renderer meshRenderer = default;
-        if (unit is UnitBase)
+        var body = 0;
+        if (unit is IMonster || unit is IPlayer)
         {
            var unitBase = unit as UnitBase;
-           var body = 0;
-           meshRenderer = unitBase.MySkinnedMeshes[body];
+           meshRenderer =  unitBase.MySkinnedMeshes[body];
+        }
+        else if(unit.GetType() == typeof(TowerControlller))
+        {
+            var unitBase = unit as UnitBase;     
+            meshRenderer = unitBase.MyMeshes[body];
         }
         else if(unit.GetType() == typeof(ArcherController))
         {

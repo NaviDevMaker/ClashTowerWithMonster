@@ -18,6 +18,7 @@ namespace Game.Players
         }
         public override void OnUpdate()
         {
+            Debug.Log(controller.MoveState.isPressedA);
             CheckEnemyExistInRange();
             if (target != null && controller.currentState != controller.AttackState
                 && !controller.isDead)

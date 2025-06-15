@@ -7,6 +7,11 @@ namespace Game.Spells.LaneFire
 {
     public class LaneFire : SpellBase
     {
+        protected override void Initialize()
+        {
+            base.Initialize();
+            addForceToUnit = new AddForceToUnit<SpellBase>(this, SpellStatus.PushAmount, SpellStatus.PerPushDurationAndStunTime);
+        }
         protected override async UniTaskVoid Spell()
         {
             Debug.Log("ファイア発動！！！！！！！！！");
