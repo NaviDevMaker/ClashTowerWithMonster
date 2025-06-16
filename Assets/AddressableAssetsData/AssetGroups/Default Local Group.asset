@@ -15,8 +15,18 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 7c80cd3f0bd795b4a83c5b977aa6dcff
   m_SerializeEntries:
+  - m_GUID: 38072ce4e59183242ac2306561ecb5f4
+    m_Address: HPBar/Enemy_Middle
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 475974a9d2b0ee24bac04799beded24c
     m_Address: Effects/HitEffect
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6276bcb0acf05e043a0abe90d73c6f31
+    m_Address: Prefabs/Monsters/Slime
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

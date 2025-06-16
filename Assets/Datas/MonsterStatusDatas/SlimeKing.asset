@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fc3a4cf668f94af43ac12651ed3879c0, type: 3}
-  m_Name: BigeyeMonster
+  m_Name: SlimeKing
   m_EditorClassIdentifier: 
-  attackAmount: 5
-  hp: 100
+  attackAmount: 20
+  hp: 50
   pushAmount: 10
-  chaseRange: 5
+  chaseRange: 7
   summonWaitTime: 1
-  attackRange: 1
-  moveSpeed: 4
+  attackRange: 3
+  moveSpeed: 3
   moveStep: 1
   attackType: 0
   monsterAttackType: 0
-  monsterMoveType: 1
+  monsterMoveType: 0

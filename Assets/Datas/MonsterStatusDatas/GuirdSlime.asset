@@ -16,6 +16,7 @@ MonoBehaviour:
   hp: 300
   pushAmount: 10
   chaseRange: 0
+  summonWaitTime: 1
   attackRange: 1
   moveSpeed: 3
   moveStep: 0.5

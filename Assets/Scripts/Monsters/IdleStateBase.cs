@@ -8,7 +8,6 @@ namespace Game.Monsters
     public class IdleStateBase<T> : StateMachineBase<T> where T : MonsterControllerBase<T>
     {
         public IdleStateBase(T controler) : base(controler) { }
-        float summonWaitTime = 1.0f;
         bool isEndSummon = false;
         public override void OnEnter() { }
         public override void OnUpdate()
@@ -20,6 +19,7 @@ namespace Game.Monsters
         //idleの処理のみ同じだからこのメソッドの後に親クラスでは召喚時効果などを呼び出す
         protected virtual async UniTask OnEnterProcess()
         {
+            var summonWaitTime = controller.MonsterStatus.SummonWaitTime;
             Func<bool> isSummoned = (() => controller.isSummoned);
             await UniTask.WaitUntil(isSummoned);
             AllResetBoolProparty();

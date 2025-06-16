@@ -94,7 +94,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
         }
     }
 
-    //将来プレイヤー側から呼ぶためにpublic
+    //将来プレイヤー側から呼ぶためにpublic 本来はstartではよばないから気を付けてね
     public virtual void Initialize(int owner)
     {
 
@@ -167,6 +167,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
             case UnitScale.small:
                 return 2.0f;
             case UnitScale.middle:
+                return 4.0f;
             case UnitScale.large:
                 return 1.0f;
             case UnitScale.tower:
@@ -184,9 +185,11 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
         switch (UnitScale)
         {
             case UnitScale.small:
-               hpBar = await SetFieldFromAssets.SetField<GameObject>("HPBar/Enemy_Small");
+               　hpBar = await SetFieldFromAssets.SetField<GameObject>("HPBar/Enemy_Small");
                 return hpBar;
             case UnitScale.middle:
+                hpBar = await SetFieldFromAssets.SetField<GameObject>("HPBar/Enemy_Middle");
+                return hpBar;
             case UnitScale.large:
                 return hpBar;
             case UnitScale.tower:

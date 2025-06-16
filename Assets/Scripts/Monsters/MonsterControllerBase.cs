@@ -33,7 +33,7 @@ namespace Game.Monsters
             base.Update();
             if (isSummoned)
             {
-                currentState.OnUpdate();
+                currentState?.OnUpdate();
             }
             if (isDead && currentState != DeathState)
             {

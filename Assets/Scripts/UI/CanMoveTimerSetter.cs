@@ -29,18 +29,24 @@ public class CanMoveTimerSetter:MonoBehaviour
         if(timer == null) timer = await SetFieldFromAssets.SetField<GameObject>("UI/Timer");
 
         var scale = targetUnit.UnitScale;
+        var meshBounds = targetUnit.MySkinnedMeshes[0].bounds.size;
+        var timerPerScale = 0.007f;
         var size = Vector3.zero;
+
         switch (scale)
         {
             case UnitScale.small:
-                size = Vector3.one * 0.007f;
+                size = Vector3.one * timerPerScale;
                 break;
             case UnitScale.middle:
+                size = Vector3.one * timerPerScale * 2f;
+                break;
             case UnitScale.large:
+                size = Vector3.one * timerPerScale * 3f;
                 break;
         }
 
-        var pos = targetUnit.transform.position + Vector3.up;
+        var pos = targetUnit.transform.position + Vector3.up * meshBounds.y;
         var timerObj = Instantiate(this.timer, pos, Quaternion.identity);
         timerObj.transform.localScale = size;
         var parent = timerObj.transform.GetChild(0);

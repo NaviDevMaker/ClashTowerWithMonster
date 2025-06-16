@@ -4,6 +4,7 @@ using UnityEngine;
 public class MonsterStatusData : StatusData
 {   
     [SerializeField] float chaseRange;
+    [SerializeField] float summonWaitTime;
     [Tooltip("‚±‚Ìƒ‚ƒ“ƒXƒ^[‚ÌCollider‚Ì”¼ŒaˆÈã(‰Ÿ‚µo‚µ”»’è‚æ‚è‘å‚«‚¢)‚É‚µ‚È‚¢‚Æ‰Ÿ‚µo‚³‚ê‚éŠÖŒW‚Å‰i‰“‚ÉUŒ‚ƒ‚[ƒh‚É“ü‚ç‚È‚¢‚©‚ç‚»‚±‚¾‚¯‚æ‚ë‚µ‚­‰´")]
     [SerializeField] float attackRange;
     [SerializeField] float moveSpeed;
@@ -18,6 +19,7 @@ public class MonsterStatusData : StatusData
     public AttackType AttackType { get => attackType;}
     public MonsterAttackType MonsterAttackType { get => monsterAttackType;}
     public MonsterMoveType MonsterMoveType { get => monsterMoveType;}
+    public float SummonWaitTime { get => summonWaitTime;}
 }
 //UŒ‚‚Ìí—Ş
 public enum AttackType
