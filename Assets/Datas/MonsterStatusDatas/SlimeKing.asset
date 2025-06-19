@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc3a4cf668f94af43ac12651ed3879c0, type: 3}
   m_Name: SlimeKing
   m_EditorClassIdentifier: 
-  attackAmount: 20
-  hp: 50
+  attackAmount: 10
+  hp: 200
   pushAmount: 10
   chaseRange: 7
   summonWaitTime: 1

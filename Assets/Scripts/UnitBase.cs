@@ -10,7 +10,14 @@ using System.Linq;
 using System;
 public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
 {
-
+    public class StatusCondition : IStatusCondition
+    {
+        public StatusEffect Paresis { get; set; }
+        public StatusCondition()
+        {
+            Paresis = new StatusEffect();
+        }
+    }
     public float rangeX { get; private set; } = 0f;
     public float rangeZ { get; private set; } = 0f;
 
@@ -23,6 +30,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
     [SerializeField] List<SkinnedMeshRenderer> mySkinnedMeshes;
     [SerializeField] List<MeshRenderer> myMeshes;
     [SerializeField] StatusData statusData;
+    public StatusCondition statusCondition { get; private set; }
     int currentHP = 0;
     int maxHP = 0;
 
@@ -97,8 +105,8 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
     //将来プレイヤー側から呼ぶためにpublic 本来はstartではよばないから気を付けてね
     public virtual void Initialize(int owner)
     {
-
        if(owner != -1) SetUnitSide(owner);
+        statusCondition = new StatusCondition();
     }
     void SetUnitSide(int owner)
     {

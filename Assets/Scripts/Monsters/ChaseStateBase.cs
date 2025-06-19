@@ -97,7 +97,7 @@ namespace Game.Monsters
                 Debug.LogError("ゲームセットです");
                 return;
             }
-                if (isChasing || controller.isKnockBacked) return;
+            if (isChasing || controller.isKnockBacked) return;
             isChasing = true;
             try
             {
@@ -123,19 +123,28 @@ namespace Game.Monsters
                 //var myselfPos = controller.transform.position + Vector3.up * flyingOffsetY;
                 Tween moveTween = null;
                 UniTask moveTask = default;
+
+                var targetCollider = target.GetComponent<Collider>();
+                targetPos = targetCollider.ClosestPoint(controller.transform.position);//target.transform.position;
+                targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
+
+                if(Vector3.Distance(controller.transform.position,targetPos) <= controller.MonsterStatus.AttackRange)
+                {
+                    Debug.Log("ステートに入った瞬間に範囲内だったため、即攻撃へ");
+                    SetAttackStateField(target, targetPos);
+                    return;
+                }
                 if (target == targetEnemy)
                 {
-
                     Debug.Log("敵を追跡中");
                     //targetPos = target.transform.position;
 
-                    targetPos = target.transform.position;
-                    targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
 
+                    //var myRadius = controller.GetComponent<Collider>().bounds.extents.magnitude;
                     while (Vector3.Distance(controller.transform.position, targetPos) > controller.MonsterStatus.AttackRange
                         && target != null)
                     {
-                        targetPos = target.transform.position;
+                        targetPos = targetCollider.ClosestPoint(controller.transform.position);//.transform.position;
                         targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
                         Debug.Log($"自分{controller.transform.position}相手{targetPos}");
                         var direction = (targetPos - controller.transform.position).normalized;
@@ -147,9 +156,13 @@ namespace Game.Monsters
                         moveTween = controller.transform.DOMove(perTargetPos, perPixelMoveTime);
                         moveTask = moveTween.ToUniTask(cancellationToken: cts.Token);
 
+                        Debug.DrawLine(controller.transform.position, targetPos, Color.yellow); //で目視確認
+
                         while (!moveTask.Status.IsCompleted() && !cts.IsCancellationRequested)
                         {
                             var isDead = controller.isDead;
+                            //var simpleDistance = Vector3.Distance(controller.transform.position, targetPos);
+                            //var correntDistance = simpleDistance - myRadius;
                             if (isDead) { cts?.Cancel();  break; }
                             if (Vector3.Distance(controller.transform.position, targetPos) <= controller.MonsterStatus.AttackRange
                               || targetEnemy == null)
@@ -175,13 +188,13 @@ namespace Game.Monsters
                 }
                 else if (target == targetTower)
                 {
-                    var targetCollider = target.GetComponent<Collider>();
+                    //var targetCollider = target.GetComponent<Collider>();
                   
                     Debug.Log("タワーを追跡中");
 
                     if (target == null || targetCollider == null) return;
-                    targetPos = targetCollider.ClosestPoint(controller.transform.position);
-                    targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
+                    //targetPos = targetCollider.ClosestPoint(controller.transform.position);
+                    //targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
                     Debug.Log(targetPos);
                       
                         while (Vector3.Distance(controller.transform.position, targetPos) > controller.MonsterStatus.AttackRange

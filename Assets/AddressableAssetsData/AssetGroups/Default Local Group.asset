@@ -45,6 +45,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 917b75c47d774004991fa37e8fcc9ba7
+    m_Address: Effects/ParesisEffect
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 97b46f6b1d0d0c747b470385482b593b
     m_Address: Effects/BaseMagic
     m_ReadOnly: 0

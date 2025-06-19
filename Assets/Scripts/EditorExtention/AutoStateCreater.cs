@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 public class AutoStateCreater : EditorWindow
 {
     [MenuItem("Tools/Auto State Creater")]
@@ -8,12 +9,6 @@ public class AutoStateCreater : EditorWindow
     static void OpenWindow()
     {
         GetWindow<AutoStateCreater>("State Scripts Creater");
-    }
-
-    enum UnitType
-    {
-       Monster,
-       Player,
     }
 
     string[] stateNames_Monster = { "IdleState", "ChaseState", "AttackState", "DeathState" };
@@ -35,18 +30,18 @@ public class AutoStateCreater : EditorWindow
                     true);
                 var currentFolderName = lastFolderNames[i];
                 var lastFolderNameToAdd = EditorGUILayout.TextField(
-                    new GUIContent("Last Folder Name", "置きたいFolderを設定します"), 
+                    new GUIContent("Last Folder Name", "置きたいFolderを設定します"),
                     currentFolderName);
                 var currentNameSpaceName = lastNameSpaceNames[i];
                 var nameSpaceToAdd = EditorGUILayout.TextField(
-                    new GUIContent("Last Name Space Name", "生成するスクリプトのnamespaceを設定します"), 
+                    new GUIContent("Last Name Space Name", "生成するスクリプトのnamespaceを設定します"),
                     currentNameSpaceName);
                 unitBases[i] = unitBaseToAdd;
                 lastFolderNames[i] = lastFolderNameToAdd;
                 lastNameSpaceNames[i] = nameSpaceToAdd;
             }
             GUILayout.Space(5);
-           
+
         }
         if (GUILayout.Button("Add Unit Field"))
         {
@@ -58,7 +53,7 @@ public class AutoStateCreater : EditorWindow
 
         if (GUILayout.Button("Create States"))
         {
-            for (int i = 0; i < unitBases.Count;i++)
+            for (int i = 0; i < unitBases.Count; i++)
             {
                 var classType = unitBases[i].GetType();
                 var classTypeName = classType.Name;
@@ -67,7 +62,7 @@ public class AutoStateCreater : EditorWindow
                 {
                     foreach (var name in stateNames_Monster)
                     {
-                        
+
                         var className = name;
                         var folderName = lastFolderNames[i];
                         var folderPath = $"Assets/Scripts/Monsters/{folderName}";
@@ -78,7 +73,13 @@ public class AutoStateCreater : EditorWindow
                             AssetDatabase.SaveAssets();
                             AssetDatabase.Refresh();
                         }
-                        CreateStates(classTypeName, className,folderName,folderPath,nameSpaceName);
+                        string fullPath = System.IO.Path.Combine(folderPath, $"{className}.cs");
+                        if (System.IO.File.Exists(fullPath))
+                        {
+                            Debug.LogError($"This state class name is {className}.cs is already exists!!");
+                            continue;
+                        }
+                        CreateStates(classTypeName, className, fullPath, nameSpaceName);
                     }
                 }
                 else if (unitBases[i] is IPlayer)
@@ -97,29 +98,141 @@ public class AutoStateCreater : EditorWindow
                             AssetDatabase.SaveAssets();
                             AssetDatabase.Refresh();
                         }
-                        CreateStates(classTypeName, className, folderName, folderPath,nameSpaceName);
+                        string fullPath = System.IO.Path.Combine(folderPath, $"{className}.cs");
+                        if (System.IO.File.Exists(fullPath))
+                        {
+                            Debug.LogError($"This state class name is {className}.cs is already exists!!");
+                            continue;
+                        }
+                        CreateStates(classTypeName, className, fullPath, nameSpaceName);
                     }
                 }
             }
         }
-
-        void CreateStates(string classTypeName, string className,string folderName,string path,string nameSpaceName)
+    }
+    void CreateStates(string classTypeName,string className,string fullPath,string namespaceName)
+    {
+        //string fullPath = System.IO.Path.Combine(path, $"{className}.cs");
+        //if (System.IO.File.Exists(fullPath))
+        //{
+        //     Debug.LogError($"This state class name is {className}.cs is already exists!!");
+        //     return;
+        //}
+        //var baseClassName = $"{className}Base<{classTypeName}>";
+        var content = className switch
         {
-            string fullPath = System.IO.Path.Combine(path, $"{className}.cs");
-            if (System.IO.File.Exists(fullPath))
-            {
-                Debug.LogError($"This state class name is {className}.cs is already exists!!");
-                return;
-            }
-            var baseClassName = $"{className}Base<{classTypeName}>";
-            var content = $@"using UnityEngine;
-
+            "IdleState" => IdleStateScriptContent(classTypeName,namespaceName),
+            "ChaseState" => ChaseStateScriptContent(classTypeName,namespaceName),
+            "AttackState" => AttackStateScriptContent(classTypeName,namespaceName),
+            "DeathState" => DeathStateScriptContent(classTypeName,namespaceName),
+             _ => null
+        };//$@"using UnityEngine;
+        if (content == null) return;
        
-namespace {nameSpaceName}
+//namespace {nameSpaceName}
+//{{
+//    public class {className} : {baseClassName}
+//    {{
+//        public {className}({classTypeName} controller) : base(controller) {{ }}
+
+//        public override void OnEnter()
+//        {{
+//            base.OnEnter();
+//        }}
+//        public override void OnUpdate()
+//        {{
+//            base.OnUpdate();
+//        }}
+//        public override void OnExit()
+//        {{
+//            base.OnExit();
+//        }}
+//    }}
+
+//}}";
+
+
+            System.IO.File.WriteAllText(fullPath, content);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+    }
+    
+    string IdleStateScriptContent(string classTypeName,string namespaceName)
+    {
+        var content = $@"using UnityEngine;
+using Cysharp.Threading.Tasks;
+namespace {namespaceName}
 {{
-    public class {className} : {baseClassName}
+    public class IdleState : IdleStateBase<{classTypeName}>
     {{
-        public {className}({classTypeName} controller) : base(controller) {{ }}
+        public IdleState({classTypeName} controller) : base(controller) {{ }}
+
+
+        public override void OnEnter()
+        {{
+            OnEnterProcess().Forget();
+        }}
+        public override void OnUpdate()
+        {{
+           base.OnUpdate();
+        }}
+        public override void OnExit()
+        {{
+            base.OnExit();
+        }}
+        protected override async UniTask OnEnterProcess()
+        {{
+            await base.OnEnterProcess();
+        }}
+
+    }}
+
+}}";
+        return content;
+    }
+
+    string AttackStateScriptContent(string classTypeName,string namespaceName)
+    {
+        
+        var content = $@"using UnityEngine;
+
+namespace {namespaceName}
+{{
+    public class AttackState : AttackStateBase<{classTypeName}>
+    {{
+        public AttackState({classTypeName} controller) : base(controller) {{ }}
+
+        public override void OnEnter()
+        {{
+            base.OnEnter();
+
+            //This paremetars are examples,so please change it to your preference!!
+            if(attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<{classTypeName}>(controller, this, clipLength, 10, 1.0f);      
+        }}
+        public override void OnUpdate()
+        {{
+            base.OnUpdate();
+        }}
+        public override void OnExit()
+        {{
+            base.OnExit();
+        }}
+    }}
+
+}}";
+
+        return content;
+    }
+
+    string ChaseStateScriptContent(string classTypeName, string namespaceName)
+    {
+        var content = $@"using UnityEngine;
+
+namespace {namespaceName}
+{{
+    public class ChaseState : ChaseStateBase<{classTypeName}>
+    {{
+        public ChaseState({classTypeName} controller) : base(controller) {{ }}
 
         public override void OnEnter()
         {{
@@ -136,11 +249,35 @@ namespace {nameSpaceName}
     }}
 
 }}";
+        return content;
+    }
 
+    string DeathStateScriptContent(string classTypeName, string namespaceName)
+    {
+        var content = $@"using UnityEngine;
 
-            System.IO.File.WriteAllText(fullPath, content);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-        }
+namespace {namespaceName}
+{{
+    public class DeathState : DeathStateBase<{classTypeName}>
+    {{
+        public DeathState({classTypeName} controller) : base(controller) {{ }}
+
+        public override void OnEnter()
+        {{
+            stateAnimSpeed = 1.0f;
+            base.OnEnter();
+        }}
+        public override void OnUpdate()
+        {{
+            base.OnUpdate();
+        }}
+        public override void OnExit()
+        {{
+            base.OnExit();
+        }}
+    }}
+
+}}";
+        return content;
     }
 }

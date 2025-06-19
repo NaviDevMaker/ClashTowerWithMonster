@@ -7,10 +7,11 @@ using static UnityEngine.Rendering.HableCurve;
 public interface IMonster { }
 namespace Game.Monsters
 {
+
     public class MonsterControllerBase<T> : UnitBase, IMonster,ISummonbable where T : MonsterControllerBase<T>
     {
         [SerializeField] MonsterAnimatorPar monsterAnimPar;
-        public Animator animator { get; private set; }
+        public Animator animator { get; private set;}
         public MonsterAnimatorPar MonsterAnimPar { get => monsterAnimPar; }
         public bool isSummoned { get; set; } = false;
 

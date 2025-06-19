@@ -2,6 +2,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
+using UnityEditor.Build.Pipeline;
 
 namespace Game.Monsters
 {
@@ -13,16 +14,17 @@ namespace Game.Monsters
         public UnitBase target;
         public float flyingOffsetY = 0f;
         float attackRange = 0f;
-        CancellationTokenSource cts;
+        protected CancellationTokenSource cts;
 
         public int maxFrame = 0;
         public int attackEndFrame = 0;
         public float attackEndNomTime = 0f;
         public float interval = 0f;
-        bool isAttacking = false;
+        protected bool isAttacking = false;
        
         public override void OnEnter()
         {
+            Debug.Log("Attackに入りました");
             if (attackRange == 0f) attackRange = GetAttackRange();
             cts = new CancellationTokenSource();
             controller.animator.SetBool(controller.MonsterAnimPar.Attack, true);
@@ -33,7 +35,7 @@ namespace Game.Monsters
         }
         public override void OnUpdate()
         {
-            var state = controller.animator.GetCurrentAnimatorStateInfo(0);
+            CheckParesis();
             //Debug.Log($"[アニメ状態] name: {state.fullPathHash}, time: {state.normalizedTime}, looping: {state.loop}");
             if (!isAttacking)
             {
@@ -52,7 +54,7 @@ namespace Game.Monsters
             cts?.Dispose();
         }
 
-        async UniTask Attack_Simple()
+        protected virtual async UniTask Attack_Simple()
         {
             controller.animator.speed = 1.0f;
             Debug.Log(target.gameObject.name);
@@ -88,19 +90,19 @@ namespace Game.Monsters
             var targetPos = Vector3.zero;
             var isDead = target.isDead;
 
-            if (target is TowerControlller)
-            {
+            //if (target is TowerControlller)
+            //{
                 var collider = target.GetComponent<Collider>();
                 targetPos = collider.ClosestPoint(controller.transform.position);
                 targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
                 canAttack = (targetPos - controller.transform.position).magnitude <= attackRange && !isDead;// && !isDead;
-            }
-            else if (target is IMonster || target is IPlayer)
-            {
-                targetPos = target.transform.position;
-                targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
-                canAttack = (targetPos - controller.transform.position).magnitude <= attackRange && !isDead;// 
-            }
+            //}
+            //else if (target is IMonster || target is IPlayer)
+            //{
+            //    targetPos = target.transform.position;
+            //    targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
+            //    canAttack = (targetPos - controller.transform.position).magnitude <= attackRange && !isDead;// 
+            //}
                 Debug.Log($"[距離チェック] 距離: {canAttack}, 射程: {controller.MonsterStatus.AttackRange}");
             if (!canAttack)
             {
@@ -139,6 +141,22 @@ namespace Game.Monsters
             controller.animator.SetBool(controller.MonsterAnimPar.Attack, false);
         }
 
+        void CheckParesis()
+        {
+            var paresis = controller.statusCondition.Paresis.isActive;
+            var currentAnimatorSpeed = controller.animator.speed;
+            var notZeroSpeed = currentAnimatorSpeed != 0;
+            if (paresis && notZeroSpeed)
+            {
+                Debug.Log("麻痺中です");
+                controller.animator.speed = 0.5f;
+            }
+            else if (!paresis && notZeroSpeed)
+            {
+                Debug.Log("麻痺が治りました");
+                controller.animator.speed = 1.0f;
+            }
+        }
         public void Attack()
         {
             if (controller.MonsterStatus.AttackType == AttackType.Simple) Attack_Simple().Forget();
