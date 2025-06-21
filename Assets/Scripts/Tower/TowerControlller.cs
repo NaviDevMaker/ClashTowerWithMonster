@@ -10,7 +10,9 @@ using Game.Monsters.Archer;
 using UnityEngine.InputSystem.Android;
 using System;
 
-public class TowerControlller :UnitBase
+public interface IBuilding { }
+
+public class TowerControlller :UnitBase,IBuilding
 {
     [SerializeField] ArcherController archer;
     UnitBase targetEnemy;

@@ -13,9 +13,13 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
     public class StatusCondition : IStatusCondition
     {
         public StatusEffect Paresis { get; set; }
+        public StatusEffect BuffSpeed { get; set; }
+        public StatusEffect BuffPower { get; set; }
         public StatusCondition()
         {
             Paresis = new StatusEffect();
+            BuffSpeed = new StatusEffect();
+            BuffPower = new StatusEffect();
         }
     }
     public float rangeX { get; private set; } = 0f;

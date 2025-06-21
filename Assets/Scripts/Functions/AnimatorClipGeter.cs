@@ -8,6 +8,7 @@ public static class AnimatorClipGeter
         var clips = controller.animationClips;
         foreach (var clip in clips)
         {
+            Debug.Log(clip.name);
             if (clip.name == wantClipName) return clip;
         }
 

@@ -115,7 +115,7 @@ public class GunMover:LongDistanceAttack<TowerControlller>
     async UniTask HitEffect()
     {
         var duration = hit.main.duration;
-        hit.gameObject.transform.SetParent(target.transform);
+        //hit.gameObject.transform.SetParent(target.transform);
         hit.gameObject.transform.position = transform.position;
         hit.gameObject.SetActive(true);
         hit.Play();

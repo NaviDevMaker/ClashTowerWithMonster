@@ -13,6 +13,7 @@ namespace Game.Monsters
         //Vector3 towerTargetPos;
         public UnitBase target;
         public float flyingOffsetY = 0f;
+        int attackAmount = 0;
         float attackRange = 0f;
         protected CancellationTokenSource cts;
 
@@ -21,21 +22,27 @@ namespace Game.Monsters
         public float attackEndNomTime = 0f;
         public float interval = 0f;
         protected bool isAttacking = false;
-       
+        bool isSettedEventClip = false;
         public override void OnEnter()
         {
+            attackAmount = controller.BuffStatus(BuffType.Power, controller.MonsterStatus.AttackAmount);
             Debug.Log("Attackに入りました");
-            if (attackRange == 0f) attackRange = GetAttackRange();
-            cts = new CancellationTokenSource();
+            if (attackRange == 0f)
+            {
+                attackRange = GetAttackRange();
+            }
+                cts = new CancellationTokenSource();
             controller.animator.SetBool(controller.MonsterAnimPar.Attack, true);
             if (clipLength == 0)
             {
                 clipLength = controller.GetAnimClipLength();
             }
+            if(!isSettedEventClip) ChangeClipForAnimationEvent();
         }
         public override void OnUpdate()
         {
-            CheckParesis();
+            attackAmount = controller.BuffStatus(BuffType.Power,controller.MonsterStatus.AttackAmount);
+            controller.CheckParesis_Monster(controller.animator);
             //Debug.Log($"[アニメ状態] name: {state.fullPathHash}, time: {state.normalizedTime}, looping: {state.loop}");
             if (!isAttacking)
             {
@@ -50,38 +57,44 @@ namespace Game.Monsters
         public override void OnExit()
         {
             controller.animator.speed = 1.0f;
+            controller.animator.SetBool(controller.MonsterAnimPar.Attack, false);
             cts?.Cancel();
             cts?.Dispose();
         }
 
         protected virtual async UniTask Attack_Simple()
         {
-            controller.animator.speed = 1.0f;
-            Debug.Log(target.gameObject.name);
-            //var animDuration = clipLength * animationSpeed;
-            var startNormalizeTime = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-            Func<bool> wait = (() =>
+            try
             {
-                var now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                return now - startNormalizeTime >= attackEndNomTime;
-            });
-            Func<bool> waitEnd = (() =>
-            {
-                var now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                return now - startNormalizeTime >= 1.0f;
-            });
-            await UniTask.WaitUntil(wait, cancellationToken: cts.Token);//,);
-            if (target != null && target.TryGetComponent<IUnitDamagable>(out var unitDamagable))
-            {
-                Debug.Log($"{controller.gameObject.name}のアタック");
-                unitDamagable.Damage(controller.MonsterStatus.AttackAmount);
-                EffectManager.Instance.hitEffect.GenerateHitEffect(target);
+                await UniTask.WaitUntil(() => controller.animator.GetCurrentAnimatorStateInfo(0).IsName(controller.MonsterAnimPar.attackAnimClipName), cancellationToken: cts.Token);
+                controller.animator.speed = 1.0f;
+                Debug.Log(target.gameObject.name);
+                //var animDuration = clipLength * animationSpeed;
+                var startNormalizeTime = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                Func<bool> wait = (() =>
+                {
+                    var now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                    return now - startNormalizeTime >= attackEndNomTime;
+                });
+                //Func<bool> waitEnd = (() =>
+                //{
+                //    var now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                //    return now - startNormalizeTime >= 1.0f;
+                //});
+                await UniTask.WaitUntil(wait, cancellationToken: cts.Token);//,);
+                if (target != null && target.TryGetComponent<IUnitDamagable>(out var unitDamagable))
+                {
+                    Debug.Log($"{controller.gameObject.name}のアタック");
+                    unitDamagable.Damage(attackAmount);
+                    EffectManager.Instance.hitEffect.GenerateHitEffect(target);
+                }
+                //await UniTask.WaitUntil(waitEnd, cancellationToken: cts.Token);
             }
-            await UniTask.WaitUntil(waitEnd, cancellationToken: cts.Token);
-            controller.animator.speed = 0f;
-            await UniTask.Delay(TimeSpan.FromSeconds(interval), cancellationToken: cts.Token);
-            isAttacking = false;
-            Debug.Log("dsacdsscsad");
+            catch (OperationCanceledException) { }
+            finally
+            {
+               if(cts.IsCancellationRequested) isAttacking = false;
+            }
         }
         void MoveToChaseState()
         {
@@ -138,28 +151,66 @@ namespace Game.Monsters
             nextState = controller.ChaseState;
             isAttacking = false;
             controller.ChangeState(nextState);
-            controller.animator.SetBool(controller.MonsterAnimPar.Attack, false);
+            //controller.animator.SetBool(controller.MonsterAnimPar.Attack, false);//ここに必要かもしれないから必要だったらコメントアウト消して
         }
 
-        void CheckParesis()
-        {
-            var paresis = controller.statusCondition.Paresis.isActive;
-            var currentAnimatorSpeed = controller.animator.speed;
-            var notZeroSpeed = currentAnimatorSpeed != 0;
-            if (paresis && notZeroSpeed)
-            {
-                Debug.Log("麻痺中です");
-                controller.animator.speed = 0.5f;
-            }
-            else if (!paresis && notZeroSpeed)
-            {
-                Debug.Log("麻痺が治りました");
-                controller.animator.speed = 1.0f;
-            }
-        }
+        //void CheckParesis()
+        //{
+        //    var paresis = controller.statusCondition.Paresis.isActive;
+        //    var currentAnimatorSpeed = controller.animator.speed;
+        //    var notZeroSpeed = currentAnimatorSpeed != 0;
+        //    if (paresis && notZeroSpeed)
+        //    {
+        //        Debug.Log("麻痺中です");
+        //        controller.animator.speed = 0.5f;
+        //    }
+        //    else if (!paresis && notZeroSpeed)
+        //    {
+        //        Debug.Log("麻痺が治りました");
+        //        controller.animator.speed = 1.0f;
+        //    }
+        //}
+
         public void Attack()
         {
             if (controller.MonsterStatus.AttackType == AttackType.Simple) Attack_Simple().Forget();
+        }
+
+        public async void StopAnimFromEvent()
+        {
+            Debug.Log("イベントが呼ばれました");
+            controller.animator.speed = 0f;
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(interval), cancellationToken: cts.Token);
+            }
+            catch (ObjectDisposedException) { }
+            catch (OperationCanceledException) { }
+            finally 
+            {
+                isAttacking = false;
+            }
+        }
+
+        void ChangeClipForAnimationEvent()
+        {
+            var clipName = controller.MonsterAnimPar.attackAnimClipName;
+            var attackMotionClip = AnimatorClipGeter.GetAnimationClip(controller.animator,clipName);
+            var eventSetTime = clipLength - 0.01f;
+
+            var originalController = controller.animator.runtimeAnimatorController;
+            var overrideController = new AnimatorOverrideController(originalController);
+            controller.animator.runtimeAnimatorController = overrideController;
+
+            var newClip = UnityEngine.Object.Instantiate(attackMotionClip);
+            AnimationEvent animationEvent = new AnimationEvent();
+            animationEvent.functionName = "StopAnimation_AttackState";
+            newClip.name = clipName + "_PlusEvent";
+            animationEvent.time = eventSetTime;
+            newClip.AddEvent(animationEvent);
+
+            overrideController[attackMotionClip.name] = newClip;
+            isSettedEventClip = true;
         }
     }
 

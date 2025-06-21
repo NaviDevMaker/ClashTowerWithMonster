@@ -20,12 +20,14 @@ namespace Game.Monsters
 
         bool reachTargetEnemy = false;
         bool isChasing = false;
+        int moveSpeed = 0;
         protected float flyingOffsetY = 0f;
-        CancellationTokenSource cts = new CancellationTokenSource();
+        public CancellationTokenSource cts = new CancellationTokenSource();
         SemaphoreSlim moveSemaphoreSlim = new SemaphoreSlim(1, 1);
         MonsterAttackType myMonsterType;
         public override void OnEnter()
         {
+            moveSpeed = controller.BuffStatus(BuffType.Speed, (int)controller.MonsterStatus.MoveSpeed);
             myMonsterType = controller.MonsterStatus.MonsterAttackType;
             cts = new CancellationTokenSource();
             controller.animator.SetBool(controller.MonsterAnimPar.Chase, true);
@@ -35,6 +37,9 @@ namespace Game.Monsters
         }
         public override void OnUpdate()
         {
+            moveSpeed = controller.BuffStatus(BuffType.Speed, (int)controller.MonsterStatus.MoveSpeed);
+            var isBuffed = controller.statusCondition.BuffSpeed.isActive;
+            if (isBuffed) { var newSpeed = 1.3f; controller.animator.speed = newSpeed; }
             Debug.Log(isChasing);
             if(controller.isKnockBacked)
             {
@@ -117,7 +122,6 @@ namespace Game.Monsters
                 
                 if(target != null) Debug.Log($"’ÇÕ‘ÎÛ: {target.name}");
                 var moveStep = controller.MonsterStatus.MoveStep;
-                var perPixelMoveTime = (1 / moveStep) / controller.MonsterStatus.MoveSpeed;
                 var offset = Vector3.zero;
                 var targetPos = Vector3.zero;
                 //var myselfPos = controller.transform.position + Vector3.up * flyingOffsetY;
@@ -144,6 +148,7 @@ namespace Game.Monsters
                     while (Vector3.Distance(controller.transform.position, targetPos) > controller.MonsterStatus.AttackRange
                         && target != null)
                     {
+                        var perPixelMoveTime = (1 / moveStep) / moveSpeed;
                         targetPos = targetCollider.ClosestPoint(controller.transform.position);//.transform.position;
                         targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
                         Debug.Log($"Ž©•ª{controller.transform.position}‘ŠŽè{targetPos}");
@@ -200,6 +205,7 @@ namespace Game.Monsters
                         while (Vector3.Distance(controller.transform.position, targetPos) > controller.MonsterStatus.AttackRange
                          && target != null)
                         {
+                            var perPixelMoveTime = (1 / moveStep) / moveSpeed;
 
                             targetPos = targetCollider.ClosestPoint(controller.transform.position);
                             targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;

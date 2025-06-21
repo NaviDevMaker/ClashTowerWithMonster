@@ -19,7 +19,7 @@ namespace Game.Monsters
         public ChaseStateBase<T> ChaseState;
         public AttackStateBase<T> AttackState;
         public DeathStateBase<T> DeathState;
-        StateMachineBase<T> currentState;
+        protected StateMachineBase<T> currentState { get; private set;}
         protected AddForceToUnit<MonsterControllerBase<T>> addForceToUnit;
         protected override void Start()
         {
@@ -126,9 +126,13 @@ namespace Game.Monsters
                 {
                     Gizmos.DrawLine(prevPoint, nextPoint);
                 }
-
                 prevPoint = nextPoint;
             }
+        }
+        //アニメーションのスピードをnormalizetime>= 1.0のときに0にしたいからそれをclipのeventにつける
+        public void StopAnimation_AttackState()
+        {
+            AttackState.StopAnimFromEvent();
         }
     }
 }

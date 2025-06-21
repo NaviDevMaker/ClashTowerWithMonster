@@ -26,32 +26,41 @@ namespace Game.Monsters.EvilMushroom
 
         protected override async UniTask Attack_Simple()
         {
-            controller.animator.speed = 1.0f;
-            Debug.Log(target.gameObject.name);
-            //var animDuration = clipLength * animationSpeed;
-            var startNormalizeTime = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-            Func<bool> wait = (() =>
+            try
             {
-                var now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                return now - startNormalizeTime >= attackEndNomTime;
-            });
-            Func<bool> waitEnd = (() =>
-            {
-                var now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                return now - startNormalizeTime >= 1.0f;
-            });
-            await UniTask.WaitUntil(wait, cancellationToken: cts.Token);//,);
-            if (target != null && target.TryGetComponent<IUnitDamagable>(out var unitDamagable))
-            {
-                Debug.Log($"{controller.gameObject.name}のアタック");
-                unitDamagable.Damage(controller.MonsterStatus.AttackAmount);
-                ParesisTarget();
-                EffectManager.Instance.hitEffect.GenerateHitEffect(target);
+                await UniTask.WaitUntil(() => controller.animator.GetCurrentAnimatorStateInfo(0)
+           .IsName(controller.MonsterAnimPar.attackAnimClipName), cancellationToken: cts.Token);
+                controller.animator.speed = 1.0f;
+                Debug.Log(target.gameObject.name);
+                //var animDuration = clipLength * animationSpeed;
+                var startNormalizeTime = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                Func<bool> wait = (() =>
+                {
+                    var now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                    return now - startNormalizeTime >= attackEndNomTime;
+                });
+                //Func<bool> waitEnd = (() =>
+                //{
+                //    var now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                //    return now - startNormalizeTime >= 1.0f;
+                //});
+                await UniTask.WaitUntil(wait, cancellationToken: cts.Token);//,);
+                if (target != null && target.TryGetComponent<IUnitDamagable>(out var unitDamagable))
+                {
+                    Debug.Log($"{controller.gameObject.name}のアタック");
+                    unitDamagable.Damage(controller.MonsterStatus.AttackAmount);
+                    ParesisTarget();
+                    EffectManager.Instance.hitEffect.GenerateHitEffect(target);
+                }
             }
-            await UniTask.WaitUntil(waitEnd, cancellationToken: cts.Token);
-            controller.animator.speed = 0f;
-            await UniTask.Delay(TimeSpan.FromSeconds(interval), cancellationToken: cts.Token);
-            isAttacking = false;
+            catch (OperationCanceledException) { }
+            finally
+            {
+                if(cts.IsCancellationRequested) isAttacking = false;
+            }
+            //await UniTask.WaitUntil(waitEnd, cancellationToken: cts.Token);
+            //controller.animator.speed = 0f;
+            //await UniTask.Delay(TimeSpan.FromSeconds(interval), cancellationToken: cts.Token);
             Debug.Log("dsacdsscsad");
         }
 

@@ -25,13 +25,33 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 587f94d59d46b03479f97e005d8a83f6
+    m_Address: Effects/Buff_SpeedEffect
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6276bcb0acf05e043a0abe90d73c6f31
     m_Address: Prefabs/Monsters/Slime
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 63bd04a2bd173f8498156606ed5ce24a
+    m_Address: Effects/BuffAuraEffect _Speed
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 67ff53c65c02ba34684438a51d84dc60
     m_Address: HPBar/Player
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 756730fa4378c104297cf437164666e0
+    m_Address: Effects/BuffAuraEffect_Power
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 75a1d8ee501c75049b7ccdef0c450f4b
+    m_Address: Effects/Buff_PowerEffect
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

@@ -48,8 +48,12 @@ namespace Game.Players
                 var playerAttackType = controller.PlayerStatus.PlayerAttackType;
                 if(playerAttackType == PlayerAttackType.OnlyGroundedEnemy)
                 {
-                    var unitMoveType = cmp.MonsterStatus?.MonsterMoveType;
-                    return unitSide == Side.EnemySide && !isDead && unitMoveType == MonsterMoveType.Walk;
+                    if(cmp is IMonster)
+                    {
+                        var unitMoveType = cmp.MonsterStatus?.MonsterMoveType;
+                        if (unitMoveType == MonsterMoveType.Fly) return false;
+                    }
+                    return unitSide == Side.EnemySide && !isDead;
                 }
                 return unitSide == Side.EnemySide && !isDead;
             }).ToArray();
@@ -64,8 +68,7 @@ namespace Game.Players
             if (target == firstEnemy) return;
             var newTarget = firstEnemy;
             target = newTarget;
-            attackState.target = target;
-            
+            attackState.target = target;           
         }
     }
 
