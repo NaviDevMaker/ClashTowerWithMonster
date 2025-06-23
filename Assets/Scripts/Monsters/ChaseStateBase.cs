@@ -41,7 +41,7 @@ namespace Game.Monsters
             var isBuffed = controller.statusCondition.BuffSpeed.isActive;
             if (isBuffed) { var newSpeed = 1.3f; controller.animator.speed = newSpeed; }
             Debug.Log(isChasing);
-            if(controller.isKnockBacked)
+            if(controller.isKnockBacked_Monster)
             {
                 try
                 {
@@ -102,7 +102,7 @@ namespace Game.Monsters
                 Debug.LogError("ゲームセットです");
                 return;
             }
-            if (isChasing || controller.isKnockBacked) return;
+            if (isChasing || controller.isKnockBacked_Spell) return;
             isChasing = true;
             try
             {
@@ -170,7 +170,7 @@ namespace Game.Monsters
                             //var correntDistance = simpleDistance - myRadius;
                             if (isDead) { cts?.Cancel();  break; }
                             if (Vector3.Distance(controller.transform.position, targetPos) <= controller.MonsterStatus.AttackRange
-                              || targetEnemy == null)
+                              || targetEnemy == null || controller.isKnockBacked_Spell)
                             {
                                 Debug.Log("敵に到着 || ターゲットが範囲外にいきました");
 
@@ -226,7 +226,8 @@ namespace Game.Monsters
                             　　　
                                 if (isDead) { cts?.Cancel(); break; }
 
-                                if (Vector3.Distance(controller.transform.position, targetPos) <= controller.MonsterStatus.AttackRange)
+                                if (Vector3.Distance(controller.transform.position, targetPos) <= controller.MonsterStatus.AttackRange
+                                      || controller.isKnockBacked_Spell)
                                 {
                                     Debug.Log("敵に到着");
                                     cts?.Cancel();

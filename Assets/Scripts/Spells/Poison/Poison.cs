@@ -6,17 +6,10 @@ namespace Game.Spells.Poison
 {
     public class Poison : SpellBase
     {
-        float scaleAmount = 10f;
         protected override void SetRange()
         {
-            var collider = GetComponent<SphereCollider>();
-            if (collider == null) return;
-            var colliderRadius = collider.radius;
-            Debug.Log(colliderRadius);
-            rangeX = colliderRadius * scaleAmount;
-            rangeZ = colliderRadius * scaleAmount;
-            Debug.Log("スペルのレンジ取得！！！！！！！！！");
-            prioritizedRange = rangeX >= rangeZ ? rangeX : rangeZ;
+            scaleAmount = 10f;
+            base.SetRange();
         }
         protected override async UniTaskVoid Spell()
         {
@@ -28,12 +21,12 @@ namespace Game.Spells.Poison
             var isFirstHit = false;
             while(time <spellDuration)
             {
-                if (!isFirstHit) { spellDamageHelper.DamageToUnit(); isFirstHit = true; }
+                if (!isFirstHit) { spellEffectHelper.EffectToUnit(); isFirstHit = true; }
                 time += Time.deltaTime;
                 damageInterval += Time.deltaTime;
                 if(damageInterval >= 1.0f)
                 {
-                    spellDamageHelper.DamageToUnit();
+                    spellEffectHelper.EffectToUnit();
                     damageInterval = 0f;
                 }
 
@@ -53,16 +46,15 @@ namespace Game.Spells.Poison
             DestroyAll();
         }
 
-        async void DestroyAll()
+        protected override async void DestroyAll()
         {
             Destroy(gameObject);
-            while(particle.IsAlive())
+            while (particle.IsAlive())
             {
                 await UniTask.Yield();
             }
             Destroy(particle.gameObject);
         }
-
     }
 }
 

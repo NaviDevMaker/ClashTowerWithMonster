@@ -60,5 +60,13 @@ public class HPbar : MonoBehaviour
         LitBar();
     }
 
+    public void HealHP(int maxHP,int currentHP)
+    {
+        Debug.Log("ëùÇ‚ÇµÇ‹Ç∑");
+        if(currentHP == maxHP) return;
+        hpImage.fillAmount = (float)currentHP /(float)maxHP;
+        LitBar();
+    }
+
 
 }

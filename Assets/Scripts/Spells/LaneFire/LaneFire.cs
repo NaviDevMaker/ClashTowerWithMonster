@@ -10,13 +10,14 @@ namespace Game.Spells.LaneFire
         protected override void Initialize()
         {
             base.Initialize();
+            pushEffectUnit = PushEffectUnit.OnlyEnemyUnit;
             addForceToUnit = new AddForceToUnit<SpellBase>(this, SpellStatus.PushAmount, SpellStatus.PerPushDurationAndStunTime);
         }
         protected override async UniTaskVoid Spell()
         {
             Debug.Log("ファイア発動！！！！！！！！！");
             addForceToUnit.KeepDistance(moveType);
-            spellDamageHelper.DamageToUnit();
+            spellEffectHelper.EffectToUnit();
             particle.Play();
             await UniTask.Delay(TimeSpan.FromSeconds(spellDuration));
             particle.Stop();

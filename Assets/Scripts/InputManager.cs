@@ -55,9 +55,21 @@ public static class InputManager
    {
         return Input.GetKeyDown(KeyCode.W);
    }
-
+    /// <summary>
+    /// ポインターのエフェクトが終わる前にPlayerがボタン(左クリック)を押したときにeffectのtaskをキャンセルする
+    /// </summary>
     public static bool IsClikedNextMovePreparation()
     {
         return Input.GetMouseButtonDown(0);
     }
+
+    public static bool IsClickedLeftRotateCameraButton()
+    {
+        return Input.GetKey(KeyCode.Alpha1);
+    }
+    public static bool IsClickedRightRotateCameraButton()
+    {
+        return Input.GetKey(KeyCode.Alpha2);
+    }
+
 }

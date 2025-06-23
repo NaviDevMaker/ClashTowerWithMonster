@@ -8,7 +8,7 @@ using UnityEditor.Build;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
+public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
 {
     public class StatusCondition : IStatusCondition
     {
@@ -82,7 +82,8 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
    public  List<Material[]> meshMaterials { get; private set; } = new List<Material[]>();
     List<Color[]> originalMaterialColors = new List<Color[]>();
 
-    public bool isKnockBacked { get; set; } = false;
+    public bool isKnockBacked_Monster { get; set; } = false;
+    public bool isKnockBacked_Spell { get; set; } = false;
     protected virtual void Awake()
     {
         SetRadius();
@@ -103,6 +104,11 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
             hPBar.gameObject.SetActive(true);
             hPBar.ReduceHP(maxHP, currentHP);
             isDisplayedHpBar=true;
+        }
+        else if(isDisplayedHpBar && currentHP == maxHP && hPBar != null)
+        {
+            hPBar.gameObject.SetActive(false);
+            isDisplayedHpBar = false;
         }
     }
 
@@ -143,6 +149,9 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
                 cmp.offsetY = offsetY;
                 currentHP = StatusData.Hp;
                 maxHP = currentHP;
+                //currentHP = currentHP / 2;//テスト用だから後で消してね
+                //cmp.ReduceHP(maxHP,currentHP);//後で消してね
+                //cmp.gameObject.SetActive(true);//あとで消してね
             }
 
         }
@@ -161,6 +170,12 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
         }
 
         LitBody();
+    }
+    public void Heal(int heal)
+    {
+        currentHP += heal;
+        if (currentHP >= maxHP) currentHP = maxHP;
+        hPBar.HealHP(maxHP, currentHP);
     }
     public void EnableHpBar()
     {
@@ -262,17 +277,13 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
             }
         }
     }
-
-    internal bool TryGetComponent(Type type, out IUnitDamagable damageable)
-    {
-        throw new NotImplementedException();
-    }
 }
 
+[Flags]
 public enum Side
 {
-    PlayerSide,
-    EnemySide,
+    PlayerSide = 1 << 0,
+    EnemySide = 1 << 1,
 }
 //大きさによってつけるHPバーの大きさを変える
 public enum UnitScale

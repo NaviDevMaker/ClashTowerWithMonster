@@ -33,7 +33,7 @@ public class DeathMoveExecuter
         {
             foreach (var material in materials)
             {
-                FadeOutColor(clipLengthBySpeed, cts.Token, material);
+               FadeOutHelper.FadeOutColor(clipLengthBySpeed, cts.Token, material).Forget();
             }
         }
 
@@ -62,7 +62,7 @@ public class DeathMoveExecuter
         {
             foreach (var material in materials)
             {
-                FadeOutColor(clipLengthBySpeed, cts.Token, material);
+               FadeOutHelper.FadeOutColor(clipLengthBySpeed, cts.Token, material).Forget();
             }
         }
 
@@ -87,7 +87,7 @@ public class DeathMoveExecuter
         var mesh = archer.MyMesh;
         foreach (var material in mesh.materials)
         {
-            FadeOutColor(clipLengthBySpeed, token, material);
+           FadeOutHelper.FadeOutColor(clipLengthBySpeed, token, material).Forget();
         }
         EffectManager.Instance.deathEffect.GenerateDeathEffect(archer, clipLength);
         await UniTask.Delay(TimeSpan.FromSeconds(clipLength));
@@ -109,16 +109,7 @@ public class DeathMoveExecuter
                 Debug.Log(material.name.Trim());
                 if (material.HasProperty("_Surface"))
                 {
-                    Debug.Log("プロパティを発見しました");
-                    // SurfaceType = Transparent 相当の設定
-                    material.SetOverrideTag("RenderType", "Transparent");
-                    material.SetInt("_Surface", 1); // 0:Opaque, 1:Transparent（URP用）
-                    material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-                    material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-                    material.DisableKeyword("_SURFACE_TYPE_OPAQUE");
-                    material.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                    material.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                    material.SetFloat("_ZWrite", 0); // 透過オブジェクトはZWriteを切る
+                    FadeOutHelper.ChangeToTranparent(material);
                 }
                 else
                 {
@@ -126,7 +117,7 @@ public class DeathMoveExecuter
                 }
             }
             Debug.Log(length);
-             FadeOutColor(length, cts.Token,material);
+            FadeOutHelper.FadeOutColor(length, cts.Token,material).Forget();
         }
         EffectManager.Instance.deathEffect.GenerateDeathEffect(tower, length);
         tower.EnableHpBar();
@@ -135,40 +126,40 @@ public class DeathMoveExecuter
         cts.Dispose();
         tower.DestroyAll();
     }
-    async void FadeOutColor(float clipLengthBySpeed, CancellationToken cancellationToken, Material material)
-    {
-        Debug.Log("Playerのフェイドアウト開始");
-        var time = 0f;
-        var meshMaterial = material;
+    //async void FadeOutColor(float fadeDuration, CancellationToken cancellationToken, Material material)
+    //{
+    //    Debug.Log("Playerのフェイドアウト開始");
+    //    var time = 0f;
+    //    var meshMaterial = material;
 
      
-        var startColor = meshMaterial.color;
-        var startAlpha = startColor.a;
+    //    var startColor = meshMaterial.color;
+    //    var startAlpha = startColor.a;
 
-        try
-        {
-            while (time <= clipLengthBySpeed && !cancellationToken.IsCancellationRequested)
-            {
-                var lerpedTime = time / clipLengthBySpeed;
-                var color = startColor;
-                color.a = Mathf.Lerp(startAlpha, 0f, lerpedTime);
+    //    try
+    //    {
+    //        while (time <= fadeDuration && !cancellationToken.IsCancellationRequested)
+    //        {
+    //            var lerpedTime = time / fadeDuration;
+    //            var color = startColor;
+    //            color.a = Mathf.Lerp(startAlpha, 0f, lerpedTime);
 
-                meshMaterial.color = color;
-                //Debug.Log(meshMaterial.color.a);
-                time += Time.deltaTime;
-                await UniTask.Yield(cancellationToken: cancellationToken);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            Debug.Log("色変更キャンセルされました");
-        }
-        finally
-        {
-            var finalColor = startColor;
-            finalColor.a = 0f;
-            meshMaterial.color = finalColor;
-            Debug.Log(meshMaterial.color.a);
-        }
-    }
+    //            meshMaterial.color = color;
+    //            //Debug.Log(meshMaterial.color.a);
+    //            time += Time.deltaTime;
+    //            await UniTask.Yield(cancellationToken: cancellationToken);
+    //        }
+    //    }
+    //    catch (OperationCanceledException)
+    //    {
+    //        Debug.Log("色変更キャンセルされました");
+    //    }
+    //    finally
+    //    {
+    //        var finalColor = startColor;
+    //        finalColor.a = 0f;
+    //        meshMaterial.color = finalColor;
+    //        Debug.Log(meshMaterial.color.a);
+    //    }
+    //}
 }

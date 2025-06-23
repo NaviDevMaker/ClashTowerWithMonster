@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8a239925fcf1ad469339f64de9ade20, type: 3}
   m_Name: LaneSpell
   m_EditorClassIdentifier: 
-  damage: 150
+  effectAmount: 90
   pushAmount: 2.5
   perPushDurationAndStunTime: 1.5
+  spellType: 1

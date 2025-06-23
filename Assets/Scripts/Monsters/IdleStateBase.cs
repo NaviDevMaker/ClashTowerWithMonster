@@ -24,7 +24,7 @@ namespace Game.Monsters
             await UniTask.WaitUntil(isSummoned);
             AllResetBoolProparty();
             nextState = controller.ChaseState;
-            CanMoveTimerSetter.Instance.StartTimer(summonWaitTime, controller).Forget();
+            TimerSetter.Instance.StartSummonTimer(summonWaitTime, controller).Forget();
             await UniTask.Delay(TimeSpan.FromSeconds(summonWaitTime));
             isEndSummon = true;
         }

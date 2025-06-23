@@ -13,6 +13,7 @@ namespace Game.Spells.BoundShield
         protected override void Initialize()
         {
             base.Initialize();
+            pushEffectUnit = PushEffectUnit.OnlyEnemyUnit;
             addForceToUnit = new AddForceToUnit<SpellBase>(this, SpellStatus.PushAmount, SpellStatus.PerPushDurationAndStunTime);
         }
         protected override void SetDuration()
