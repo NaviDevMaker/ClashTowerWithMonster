@@ -8,7 +8,7 @@ namespace Game.Monsters
     public class IdleStateBase<T> : StateMachineBase<T> where T : MonsterControllerBase<T>
     {
         public IdleStateBase(T controler) : base(controler) { }
-        bool isEndSummon = false;
+        protected bool isEndSummon = false;
         public override void OnEnter() { }
         public override void OnUpdate()
         {
@@ -29,7 +29,7 @@ namespace Game.Monsters
             isEndSummon = true;
         }
 
-        void AllResetBoolProparty()
+        protected virtual void AllResetBoolProparty()
         {
             controller.animator.SetBool(controller.MonsterAnimPar.Chase, false);
             controller.animator.SetBool(controller.MonsterAnimPar.Attack, false);

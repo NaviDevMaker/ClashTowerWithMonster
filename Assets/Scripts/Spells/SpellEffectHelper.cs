@@ -9,7 +9,7 @@ public class SpellEffectHelper
     public SpellEffectHelper(SpellBase spellBase)
     {
         this.spellBase = spellBase;
-        if (spellBase != null) spellType = spellBase.SpellStatus.SpellType;
+        if (spellBase != null) spellType = spellBase._SpellStatus.SpellType;
     }
     void CompareEachUnit(UnitBase other)
     {
@@ -26,14 +26,13 @@ public class SpellEffectHelper
         float minDistance = effectiveRadius_me + effectiveRadius_other;
         var distance = vector.magnitude;
 
-        EffectToEachUnit(other, distance, minDistance, direction);
+        if (distance >= minDistance) return;
+        EffectToEachUnit(other,direction);
     }
 
-    void EffectToEachUnit(UnitBase other, float distance, float minDistance, Vector3 direction)
+    public void EffectToEachUnit(UnitBase other, Vector3 direction)
     {
-        if (distance >= minDistance) return;
-
-       var effectAmount = spellBase.SpellStatus.EffectAmont;
+       var effectAmount = spellBase._SpellStatus.EffectAmont;
         var canDamageToUnit = spellType.HasFlag(SpellType.Damage) || spellType.HasFlag(SpellType.DamageToEveryThing);
        if(canDamageToUnit)
        {
@@ -42,7 +41,7 @@ public class SpellEffectHelper
                damageable.Damage(effectAmount);
            }
        }
-       else if(spellBase.SpellStatus.SpellType == SpellType.Heal)
+       else if(spellBase._SpellStatus.SpellType == SpellType.Heal)
        {
            if(other.TryGetComponent<IUnitHealable>(out var healable))
            {
@@ -58,7 +57,7 @@ public class SpellEffectHelper
         if (filteredList.Count == 0) return;
         filteredList.ForEach(cmp => CompareEachUnit(cmp));
     }
-    List<UnitBase> GetUnitInRange()
+    public List<UnitBase> GetUnitInRange()
     {
         var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(spellBase.gameObject, spellBase.prioritizedRange);
         if (sortedArray.Length == 0) return new List<UnitBase>();

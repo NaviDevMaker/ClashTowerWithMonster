@@ -9,9 +9,6 @@ namespace Game.Spells
 {
     public class SpellBase : MonoBehaviour, IPushable,ISpells, ISummonbable
     {
-
-        [SerializeField] SpellStatus spellStatus;
-
         protected float spellDuration = 0f;
         public float rangeX { get; protected set; }
         public float rangeZ { get; protected set; }
@@ -20,7 +17,7 @@ namespace Game.Spells
         public float prioritizedRange { get; protected set; }
         protected float scaleAmount;
         public MoveType moveType { get; protected set; }
-        public SpellStatus SpellStatus { get => spellStatus;}
+        public SpellStatus _SpellStatus { get; protected set; }
         public bool isSummoned { get; set; } = false;
 
         protected AddForceToUnit<SpellBase> addForceToUnit;

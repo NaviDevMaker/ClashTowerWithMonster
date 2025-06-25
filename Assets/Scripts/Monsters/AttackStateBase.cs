@@ -13,7 +13,7 @@ namespace Game.Monsters
         //Vector3 towerTargetPos;
         public UnitBase target;
         public float flyingOffsetY = 0f;
-        int attackAmount = 0;
+        protected int attackAmount = 0;
         float attackRange = 0f;
         protected CancellationTokenSource cts;
 
@@ -25,7 +25,8 @@ namespace Game.Monsters
         bool isSettedEventClip = false;
         public override void OnEnter()
         {
-            attackAmount = controller.BuffStatus(BuffType.Power, controller.MonsterStatus.AttackAmount);
+            attackAmount = controller.statusCondition != null ? controller.BuffStatus(BuffType.Power, controller.MonsterStatus.AttackAmount)
+                : controller.MonsterStatus.AttackAmount;
             Debug.Log("AttackÇ…ì¸ÇËÇ‹ÇµÇΩ");
             if (attackRange == 0f)
             {
@@ -41,7 +42,8 @@ namespace Game.Monsters
         }
         public override void OnUpdate()
         {
-            attackAmount = controller.BuffStatus(BuffType.Power,controller.MonsterStatus.AttackAmount);
+            attackAmount = controller.statusCondition != null ? controller.BuffStatus(BuffType.Power, controller.MonsterStatus.AttackAmount)
+                : controller.MonsterStatus.AttackAmount;
             controller.CheckParesis_Monster(controller.animator);
             //Debug.Log($"[ÉAÉjÉÅèÛë‘] name: {state.fullPathHash}, time: {state.normalizedTime}, looping: {state.loop}");
             if (!isAttacking)

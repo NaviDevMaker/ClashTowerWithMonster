@@ -73,7 +73,7 @@ namespace Game.Monsters.EvilMushroom
                
                 var interval = controller.statusCondition.Paresis.inverval;
                 statusCondition.Paresis.isActive = true;
-                var attackedCount = statusCondition.Paresis.isAttackedCount;
+                var attackedCount = statusCondition.Paresis.isEffectedCount;
                 EffectManager.Instance.statusConditionEffect.paresisEffect.GenerateParesisEffect(target, attackCount: attackedCount);
                 attackedCount++;
                 await UniTask.Delay(TimeSpan.FromSeconds(interval));

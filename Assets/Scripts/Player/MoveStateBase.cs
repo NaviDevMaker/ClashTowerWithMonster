@@ -85,6 +85,7 @@ namespace Game.Players
                 {
                     foreach (var hit in hits)
                     {
+                        if (hit.collider == null) return;
                         var hitLayer = 1 << hit.collider.gameObject.layer;
                         if (Layers.groundLayer == hitLayer)
                         {

@@ -9,12 +9,13 @@ public class BombBarrel : SpellBase
 {
     List<GameObject> chunks = new List<GameObject>();
     Transform barrelMainbody = null;
-    protected override void Initialize()
+    protected override async void Initialize()
     {
+        _SpellStatus = await SetFieldFromAssets.SetField<SpellStatus>("Datas/Spells/BombBarrel");
         base.Initialize();
         pushEffectUnit = PushEffectUnit.AllUnit;
         particle = transform.GetChild(0).GetComponent<ParticleSystem>();
-        addForceToUnit = new AddForceToUnit<SpellBase>(this, SpellStatus.PushAmount, SpellStatus.PerPushDurationAndStunTime);
+        addForceToUnit = new AddForceToUnit<SpellBase>(this, _SpellStatus.PushAmount, _SpellStatus.PerPushDurationAndStunTime);
     }
     protected override async UniTaskVoid Spell()
     {

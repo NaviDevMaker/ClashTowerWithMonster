@@ -10,11 +10,12 @@ namespace Game.Spells.BoundShield
     {
         VisualEffect boumndShieldEffect;
 
-        protected override void Initialize()
+        protected override async void Initialize()
         {
+            _SpellStatus = await SetFieldFromAssets.SetField<SpellStatus>("Datas/Spells/BoundShield");
             base.Initialize();
             pushEffectUnit = PushEffectUnit.OnlyEnemyUnit;
-            addForceToUnit = new AddForceToUnit<SpellBase>(this, SpellStatus.PushAmount, SpellStatus.PerPushDurationAndStunTime);
+            addForceToUnit = new AddForceToUnit<SpellBase>(this, _SpellStatus.PushAmount, _SpellStatus.PerPushDurationAndStunTime);
         }
         protected override void SetDuration()
         {

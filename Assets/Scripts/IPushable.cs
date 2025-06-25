@@ -14,10 +14,11 @@ public interface IPushable
 /// <summary>
 /// Monster,‚Ü‚½‚ÍPlayer‚Ìê‡‚Íwalk‚©fly‚©‚ğw’èAspell‚Ìê‡‚ÍSpell
 /// </summary>
+[Flags]
 public enum MoveType
 {
-   Walk,
-   Fly,
-   Spell,
+   Walk = 1 << 0,
+   Fly = 1 << 1,
+   Spell = 1 << 2,
 }
 

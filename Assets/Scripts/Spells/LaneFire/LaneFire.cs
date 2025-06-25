@@ -7,11 +7,12 @@ namespace Game.Spells.LaneFire
 {
     public class LaneFire : SpellBase
     {
-        protected override void Initialize()
+        protected override async void Initialize()
         {
+            _SpellStatus = await SetFieldFromAssets.SetField<SpellStatus>("Datas/Spells/LaneSpell");
             base.Initialize();
             pushEffectUnit = PushEffectUnit.OnlyEnemyUnit;
-            addForceToUnit = new AddForceToUnit<SpellBase>(this, SpellStatus.PushAmount, SpellStatus.PerPushDurationAndStunTime);
+            addForceToUnit = new AddForceToUnit<SpellBase>(this, _SpellStatus.PushAmount, _SpellStatus.PerPushDurationAndStunTime);
         }
         protected override async UniTaskVoid Spell()
         {

@@ -6,6 +6,11 @@ namespace Game.Spells.Poison
 {
     public class Poison : SpellBase
     {
+        protected override async void Initialize()
+        {
+            _SpellStatus = await SetFieldFromAssets.SetField<SpellStatus>("Datas/Spells/Poison");
+            base.Initialize();
+        }
         protected override void SetRange()
         {
             scaleAmount = 10f;

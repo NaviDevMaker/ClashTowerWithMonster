@@ -9,8 +9,9 @@ using UnityEngine.Rendering.PostProcessing;
 public class Heal : SpellBase
 {
     List<ParticleSystem> particleList = new List<ParticleSystem>();
-    protected override void Initialize()
+    protected override async void Initialize()
     {
+        _SpellStatus = await SetFieldFromAssets.SetField<SpellStatus>("Datas/Spells/Heal");
         base.Initialize();
         particle = GetComponent<ParticleSystem>();
     }

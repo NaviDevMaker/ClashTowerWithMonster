@@ -18,7 +18,8 @@ public static class BuffUnitMethods
         {
             var isDead = unit.isDead;
             var side = unit.Side;
-            if (isDead || side == Side.EnemySide) return false;
+            var effectiveSide = Side.PlayerSide;
+            if (isDead || (side & effectiveSide) == 0) return false;
             var isBuffed = buffType == BuffType.Power ? unit.statusCondition.BuffPower.isActive :
                     buffType == BuffType.Speed ? unit.statusCondition.BuffSpeed.isActive : false;
             var isUnit = unit is IMonster || unit is IPlayer;

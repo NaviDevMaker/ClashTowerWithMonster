@@ -98,12 +98,19 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
         if (sortedArray.Length == 0) return new List<UnitBase>();
         List<UnitBase> filteredList = new List<UnitBase>();
         var myType = me.moveType;
+        var effectiveSide = myType switch
+        {
+            MoveType.Walk => MoveType.Walk,
+            MoveType.Fly => MoveType.Fly,
+            _ => default
+        };
+
         foreach (var unit in sortedArray)
         {
             var isDead = unit.isDead;
-            var fly = unit.moveType == MoveType.Fly;
+            //var fly = unit.moveType == MoveType.Fly;
             if (isDead) continue;
-            if (myType == MoveType.Fly && !fly) continue;
+            if ((effectiveSide & myType) == 0) continue;
             filteredList.Add(unit);
         }
 

@@ -15,11 +15,13 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
         public StatusEffect Paresis { get; set; }
         public StatusEffect BuffSpeed { get; set; }
         public StatusEffect BuffPower { get; set; }
+        public StatusEffect DemonCurse { get; set; }
         public StatusCondition()
         {
             Paresis = new StatusEffect();
             BuffSpeed = new StatusEffect();
             BuffPower = new StatusEffect();
+            DemonCurse = new StatusEffect();
         }
     }
     public float rangeX { get; private set; } = 0f;
@@ -44,7 +46,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
     public Side Side;
     //
     public int ownerID = -1;
-    public bool isDead { get; private set; } = false;
+    public bool isDead { get; protected set; } = false;
     public List<SkinnedMeshRenderer> MySkinnedMeshes { get => mySkinnedMeshes;}
     public List<MeshRenderer> MyMeshes { get => myMeshes;}
     public MonsterStatusData MonsterStatus
@@ -116,7 +118,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
     public virtual void Initialize(int owner)
     {
        if(owner != -1) SetUnitSide(owner);
-        statusCondition = new StatusCondition();
+       statusCondition = new StatusCondition();
     }
     void SetUnitSide(int owner)
     {
@@ -179,12 +181,12 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
     }
     public void EnableHpBar()
     {
-        hPBar.gameObject.SetActive(false);
+       if(hPBar != null) hPBar.gameObject.SetActive(false);
     }
     public virtual void DestroyAll()
     {
         Destroy(this.gameObject);
-        Destroy(hPBar.gameObject);
+        if(hPBar != null) Destroy(hPBar.gameObject);
     }
 
     float GetHPBarOffsetY()
@@ -239,7 +241,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
         rangeX = bounds.extents.x;
         rangeZ = bounds.extents.z;
     }
-    void SetMaterialColors()
+    protected void SetMaterialColors()
     {
         if (MySkinnedMeshes.Count != 0) MySkinnedMeshes.ForEach(mesh => meshMaterials.Add(mesh.materials));
         if (MyMeshes.Count != 0) MyMeshes.ForEach(mesh => meshMaterials.Add(mesh.materials));

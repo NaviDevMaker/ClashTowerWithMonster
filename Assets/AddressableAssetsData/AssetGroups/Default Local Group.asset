@@ -25,6 +25,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4d870858bdaac734fa7bfb335ae38abb
+    m_Address: Datas/Spells/ToxicCurse
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 587f94d59d46b03479f97e005d8a83f6
     m_Address: Effects/Buff_SpeedEffect
     m_ReadOnly: 0
@@ -65,6 +70,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8912e155f4f81bc42a57689c571d9466
+    m_Address: Datas/Spells/Poison
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 917b75c47d774004991fa37e8fcc9ba7
     m_Address: Effects/ParesisEffect
     m_ReadOnly: 0
@@ -85,13 +95,38 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c702202bc0ab0984d8622729f139b21d
+    m_Address: Monsters/SpellDemon
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dfb17cbd7707bb048a3edae692a7d3f1
     m_Address: UI/SummonTimer
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f537149191670534391f65d213f8a670
+    m_Address: Datas/Spells/BombBarrel
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f6d98ff8f2a81ef458ed4ef1a2ab48a2
+    m_Address: Datas/Spells/BoundShield
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fc9ef5c220e1b3f4f86c661e80cabb44
+    m_Address: Datas/Spells/LaneSpell
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fd54b1f72ac770c408b15c2aabca1739
     m_Address: UI/SpellTimer
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ffeb3dc355baa0c4eac827f7d31462dc
+    m_Address: Datas/Spells/Heal
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
