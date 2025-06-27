@@ -15,6 +15,11 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 7c80cd3f0bd795b4a83c5b977aa6dcff
   m_SerializeEntries:
+  - m_GUID: 1151aa4b5201a1749ae9aa147c04dca2
+    m_Address: Effects/ExplosionEffect
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 38072ce4e59183242ac2306561ecb5f4
     m_Address: HPBar/Enemy_Middle
     m_ReadOnly: 0
@@ -95,6 +100,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b79c188a16d454e40aa69ff34887d8b9
+    m_Address: Datas/Spells/Meteo
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c28f07ecadd16aa45b73365811d327c1
+    m_Address: Spells/Meteo
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c702202bc0ab0984d8622729f139b21d
     m_Address: Monsters/SpellDemon
     m_ReadOnly: 0
@@ -102,6 +117,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dfb17cbd7707bb048a3edae692a7d3f1
     m_Address: UI/SummonTimer
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ebe380a102bda034e8ac0812fe92bf78
+    m_Address: Effects/Poison-Smoke
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

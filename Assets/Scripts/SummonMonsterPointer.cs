@@ -8,6 +8,7 @@ using System.Threading;
 using Game.Spells;
 using System.Linq;
 using Unity.VisualScripting;
+using static UnityEngine.UI.CanvasScaler;
 public class SummonMonsterPointer : MonoBehaviour
 {
     GameObject summonPointerParticle;
@@ -100,6 +101,7 @@ public class SummonMonsterPointer : MonoBehaviour
                     onTheField = true;
                     Debug.Log("ÉqÉbÉg");
                     var targetPos = hit.point;
+                    var unitTargetPos = hit.point;
                     if (selectedCardPrefab != null)
                     {
                         if (summonPointerParticle != null)
@@ -107,7 +109,16 @@ public class SummonMonsterPointer : MonoBehaviour
                             if (!summonPointerParticle.activeSelf) summonPointerParticle.gameObject.SetActive(true);
                         }
                         targetPos.y += 0.5f;
-                        selectedCardPrefab.gameObject.transform.position = targetPos;
+                        unitTargetPos.y += 0.5f;
+                        if(unitBases.TryGetValue(currentCard.CardData.CardName,out var unitBase))
+                        {
+                            if(unitBase.UnitType == UnitType.monster && unitBase.FlyingMonsterStatus != null)
+                            {
+                                var flyingOffsetY = unitBase.FlyingMonsterStatus.FlyingOffsetY;
+                                unitTargetPos.y += flyingOffsetY;
+                            }
+                        }
+                        selectedCardPrefab.gameObject.transform.position = unitTargetPos;
                         particlePos = targetPos;
                         //targetPos.y += 0.5f;//èÍçáÇ…ÇÊÇ¡ÇƒÇÕíºÇµÇƒ
                         summonPointerParticle.transform.position = targetPos;
@@ -135,9 +146,8 @@ public class SummonMonsterPointer : MonoBehaviour
         cts.Dispose();
         cts = new CancellationTokenSource();
         var obj = Instantiate(selectedCardPrefab, selectedCardPrefab.transform.position,selectedCardPrefab.transform.rotation);
-
-        summonbable = obj.GetComponent<ISummonbable>();
-        summonbable.isSummoned = true;
+       
+        SetStartCondition(obj);
         StartCoroutine(EffectManager.Instance.magicCircleEffect.SummonEffect(particlePos,currentCard.CardData.CardType));
         OnSummonMonster?.Invoke(currentCard);
         OnPointerUp?.Invoke();
@@ -156,7 +166,6 @@ public class SummonMonsterPointer : MonoBehaviour
                 if (currentCardData.CardType == CardType.Monster)
                 {
                     var unit = unitBases[currentCard.CardData.CardName];
-                    AlphaChange(unit,true);
                 }
                previousPrefab.gameObject.SetActive(false);
           }
@@ -166,7 +175,7 @@ public class SummonMonsterPointer : MonoBehaviour
         {
               if (selectedCardData.CardType == CardType.Monster)
               {
-                    var unit = unitBases[currentCard.CardData.CardName];
+                    var unit = unitBases[selectedCardData.CardName];
                     AlphaChange(unit);
               }
               cardPrefab.gameObject.SetActive(true);
@@ -260,6 +269,18 @@ public class SummonMonsterPointer : MonoBehaviour
         material.color = color;
     }
 
+    void SetStartCondition(GameObject obj)
+    {
+        var summondCardData = currentCard.CardData;
+        if (summondCardData.CardType == CardType.Monster)
+        {
+           var unitBase = obj.GetComponent<UnitBase>();
+           if (unitBase != null) AlphaChange(unitBase, true);
+        }
+
+        summonbable = obj.GetComponent<ISummonbable>();
+        summonbable.isSummoned = true;
+    }
     async void RitLineRendererMaterial()
     {
         var material = lineRenderer.material;

@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Meteo
   m_EditorClassIdentifier: 
   effectAmount: 130
-  pushAmount: 1.5
+  pushAmount: 3
   perPushDurationAndStunTime: 0.8
   spellType: 1

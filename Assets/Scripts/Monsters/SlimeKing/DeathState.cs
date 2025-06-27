@@ -9,7 +9,6 @@ namespace Game.Monsters.SlimeKing
 
         public override void OnEnter()
         {
-            stateAnimSpeed = 1.0f;
             SpawnSlime();
             base.OnEnter();
         }

@@ -15,7 +15,7 @@ namespace Game.Monsters.AttackerBoy
         protected override void Awake()
         {
             base.Awake();
-            isSummoned = true;//テスト用だから消して
+            //isSummoned = true;//テスト用だから消して
         }
 
         protected override void Update()

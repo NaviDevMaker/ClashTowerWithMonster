@@ -15,6 +15,9 @@ MonoBehaviour:
   attackAmount: 10
   hp: 0
   pushAmount: 0
+  animaSpeedInfo:
+    attackStateAnimSpeed: 2
+    deathStateAnimSpeed: 1
   chaseRange: 0
   summonWaitTime: 0.1
   attackRange: 0

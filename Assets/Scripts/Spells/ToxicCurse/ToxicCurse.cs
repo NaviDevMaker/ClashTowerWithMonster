@@ -57,7 +57,7 @@ public class ToxicCurse : SpellBase
         var tasks = new List<UniTask>();
         particles.ForEach(p =>
         {
-           var task = WaitUntilParticleDisappear(p);
+           var task = RelatedToParticleProcessHelper.WaitUntilParticleDisappear(p);
            tasks.Add(task);
         });
         await UniTask.WhenAll(tasks);
@@ -68,13 +68,7 @@ public class ToxicCurse : SpellBase
         scaleAmount = 3;
         base.SetRange();
     }
-    async UniTask WaitUntilParticleDisappear(ParticleSystem particle)
-    {
-        while(particle.IsAlive())
-        {
-            await UniTask.Yield();
-        }
-    }
+  
 
     bool CompareUnitInRange(UnitBase other,float reminningTime)
     {

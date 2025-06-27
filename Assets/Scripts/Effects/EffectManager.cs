@@ -17,6 +17,8 @@ public  class EffectManager : SingletonMonobehavier<EffectManager>
    public DeathEffect deathEffect { get; private set;}
    public HitEffect hitEffect { get; private set;}
 
+   public ExplosionEffect expsionEffect { get; private set;}
+
     private void Start()
     {
         Initialize();
@@ -28,5 +30,6 @@ public  class EffectManager : SingletonMonobehavier<EffectManager>
         deathEffect = new DeathEffect();
         hitEffect = new HitEffect();
         statusConditionEffect = new StatusConditionEffect();
+        expsionEffect = new ExplosionEffect();
     }
 }

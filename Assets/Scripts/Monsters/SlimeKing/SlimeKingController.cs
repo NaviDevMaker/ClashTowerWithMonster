@@ -12,7 +12,7 @@ namespace Game.Monsters.SlimeKing
             protected override void Awake()
             {
                 base.Awake();
-                isSummoned = true;//テスト用だから消して
+                //isSummoned = true;//テスト用だから消して
             }
             //public int ID;//テスト用だから消してね
             protected override void Start()

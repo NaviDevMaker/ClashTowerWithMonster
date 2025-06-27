@@ -18,12 +18,12 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
         if(pushDuration != 0) this.pushDuration = pushDuration;
     }
 
-    void CompareEachUnit(UnitBase other)
+    public void CompareEachUnit(UnitBase other)
     {
         var vector = other.transform.position - me.transform.position;
-     
-        var direction = vector.normalized;
 
+        var direction = vector.normalized;
+        Debug.Log(direction);
         float effectiveRadius_me = Mathf.Sqrt(Mathf.Pow(direction.x * me.rangeX, 2) + Mathf.Pow(direction.z * me.rangeZ, 2));
 
         float effectiveRadius_other = Mathf.Sqrt(Mathf.Pow(direction.x * other.rangeX, 2) + Mathf.Pow(direction.z * other.rangeZ, 2));
@@ -31,15 +31,14 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
         //敵からの半径と自分の半径をつなげたとき（お互いが範囲外ぎりぎり）の長さ
         //これ以上範囲に入っていた場合、範囲内にはいっているということになる
         float minDistance = effectiveRadius_me + effectiveRadius_other;
-        var distance = vector.magnitude;
+        var flatVector = new Vector3(vector.x, 0f, vector.z);
+        var distance = flatVector.magnitude;
 
-        PushEachUnit(other,distance,minDistance,direction);      
+        if (distance < minDistance) PushEachUnit(other, distance, minDistance, direction);       
     }
 
-    async void PushEachUnit(UnitBase other, float distance,float minDistance,Vector3 direction)
-    {
-        if (distance < minDistance)
-        {
+     async void PushEachUnit(UnitBase other, float distance,float minDistance,Vector3 direction)
+     {         
             var extraDistance = minDistance - distance;
             var push = direction * extraDistance;
             push.y = 0f;
@@ -55,6 +54,7 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
             else if ((other is IPlayer || other is IMonster) && me is ISpells)
             {
                 Debug.Log("呪文発動");
+                //Debug.Log($" 隕石のPushは{push}");
                 other.isKnockBacked_Spell = true;
                 push = push * pushAmount;
                 targetPos_other = other.transform.position + push;
@@ -75,7 +75,6 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
                 await UniTask.Delay(TimeSpan.FromSeconds(0.1f)); // 例: 0.2秒間ノックバック中
                 me.isKnockBacked_Monster = false;
             }
-        }
     }
     public void KeepDistance(MoveType moveType)
     {

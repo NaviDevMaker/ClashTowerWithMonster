@@ -60,7 +60,7 @@ namespace Game.Monsters.SpellDemon
             if(changeTimeCounter >= changeTime)
             {
                 var scaleAmount = 1.25f;
-                var duration = 0.5f;
+                var duration = 1.0f;
                 changeTimeCounter = 0f;
                 var originalAttackAmount = controller.MonsterStatus.AttackAmount;
                 attackAmount += originalAttackAmount;

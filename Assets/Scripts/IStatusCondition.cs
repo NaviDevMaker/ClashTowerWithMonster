@@ -8,7 +8,7 @@ public class StatusEffect
  
 }
 
-public interface IStatusCondition
-{
-   StatusEffect Paresis { get;}
-}
+//public interface IStatusCondition
+//{
+//   StatusEffect Paresis { get;}
+//}

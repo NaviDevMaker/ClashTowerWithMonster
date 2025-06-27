@@ -3,6 +3,8 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using UnityEditor.Build.Pipeline;
+using static UnityEditor.PlayerSettings;
+using System.Linq;
 
 namespace Game.Monsters
 {
@@ -12,8 +14,8 @@ namespace Game.Monsters
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         //Vector3 towerTargetPos;
         public UnitBase target;
-        public float flyingOffsetY = 0f;
         protected int attackAmount = 0;
+        float stateAnimSpeed = 0f;
         float attackRange = 0f;
         protected CancellationTokenSource cts;
 
@@ -21,7 +23,10 @@ namespace Game.Monsters
         public int attackEndFrame = 0;
         public float attackEndNomTime = 0f;
         public float interval = 0f;
+
+        float leftLengthTime = 0f;
         protected bool isAttacking = false;
+        bool isWaitingLeftTime = false;
         bool isSettedEventClip = false;
         public override void OnEnter()
         {
@@ -30,9 +35,10 @@ namespace Game.Monsters
             Debug.Log("Attackに入りました");
             if (attackRange == 0f)
             {
+                stateAnimSpeed = controller.MonsterStatus.AnimaSpeedInfo.AttackStateAnimSpeed;
                 attackRange = GetAttackRange();
             }
-                cts = new CancellationTokenSource();
+            cts = new CancellationTokenSource();
             controller.animator.SetBool(controller.MonsterAnimPar.Attack, true);
             if (clipLength == 0)
             {
@@ -42,40 +48,46 @@ namespace Game.Monsters
         }
         public override void OnUpdate()
         {
+            Debug.Log($"アニメーターのスピー度は{controller.animator.speed}");
+            Debug.Log($"{isWaitingLeftTime},{isAttacking}");
             attackAmount = controller.statusCondition != null ? controller.BuffStatus(BuffType.Power, controller.MonsterStatus.AttackAmount)
                 : controller.MonsterStatus.AttackAmount;
             controller.CheckParesis_Monster(controller.animator);
             //Debug.Log($"[アニメ状態] name: {state.fullPathHash}, time: {state.normalizedTime}, looping: {state.loop}");
-            if (!isAttacking)
+            if (!isAttacking && !isWaitingLeftTime)
             {
                 isAttacking = true;
                 Attack();
 
             }
             if (controller.MonsterStatus.MonsterMoveType == MonsterMoveType.Fly) LookToTarget();
-            MoveToChaseState();
+             MoveToChaseState();//if(!isWaitingLeftTime)
         }
 
         public override void OnExit()
         {
-            controller.animator.speed = 1.0f;
-            controller.animator.SetBool(controller.MonsterAnimPar.Attack, false);
-            cts?.Cancel();
+            //controller.animator.speed = 1.0f;
+            //cts?.Cancel();
             cts?.Dispose();
+
+            controller.animator.SetBool(controller.MonsterAnimPar.Attack, false);
         }
 
         protected virtual async UniTask Attack_Simple()
         {
+            float startNormalizeTime = 0f;
+            float now = 0f;
             try
             {
+                //if(!controller.animator.GetBool(controller.MonsterAnimPar.Attack)) controller.animator.SetBool(controller.MonsterAnimPar.Attack,true);
                 await UniTask.WaitUntil(() => controller.animator.GetCurrentAnimatorStateInfo(0).IsName(controller.MonsterAnimPar.attackAnimClipName), cancellationToken: cts.Token);
                 controller.animator.speed = 1.0f;
                 Debug.Log(target.gameObject.name);
                 //var animDuration = clipLength * animationSpeed;
-                var startNormalizeTime = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                startNormalizeTime = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
                 Func<bool> wait = (() =>
                 {
-                    var now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                    now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
                     return now - startNormalizeTime >= attackEndNomTime;
                 });
                 //Func<bool> waitEnd = (() =>
@@ -93,24 +105,33 @@ namespace Game.Monsters
                 //await UniTask.WaitUntil(waitEnd, cancellationToken: cts.Token);
             }
             catch (OperationCanceledException) { }
+            catch (ObjectDisposedException) { }
             finally
             {
-               if(cts.IsCancellationRequested) isAttacking = false;
+                if (cts.IsCancellationRequested)
+                {
+                    leftLengthTime = Mathf.Max(0f, (now - startNormalizeTime) * clipLength) / stateAnimSpeed;
+                    isAttacking = false;
+                }
+                else leftLengthTime = 0f;
             }
         }
+
         void MoveToChaseState()
         {
             Debug.Log(target.gameObject.name);
             var canAttack = false;
             var targetPos = Vector3.zero;
             var isDead = target.isDead;
-
             //if (target is TowerControlller)
             //{
-                var collider = target.GetComponent<Collider>();
-                targetPos = collider.ClosestPoint(controller.transform.position);
-                targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
-                canAttack = (targetPos - controller.transform.position).magnitude <= attackRange && !isDead;// && !isDead;
+            var collider = target.GetComponent<Collider>();
+            targetPos = collider.ClosestPoint(controller.transform.position);
+            targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos);
+
+            targetPos = PositionGetter.GetFlatPos(targetPos);
+            var myPos = PositionGetter.GetFlatPos(controller.transform.position);
+            canAttack = (targetPos - myPos).magnitude <= attackRange && !isDead;// && !isDead;
             //}
             //else if (target is IMonster || target is IPlayer)
             //{
@@ -147,15 +168,80 @@ namespace Game.Monsters
             
         }
         
-        void CancelAttack()
+        async void CancelAttack()
         {
             Debug.Log("敵が範囲外に行きました");
-            nextState = controller.ChaseState;
+            cts?.Cancel();
             isAttacking = false;
+            isWaitingLeftTime = true;
+            controller.animator.speed = 1.0f;
+            controller.animator.Play("Idle");
+
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(leftLengthTime), cancellationToken: controller.GetCancellationTokenOnDestroy());
+            }
+            catch(OperationCanceledException)
+            {
+                return;
+            }
+            finally
+            {
+                isWaitingLeftTime = false;
+            }        
+            if(ContinueAttackState())
+            {
+                Debug.Log("新しい敵が見つかりました");
+                controller.animator.Play(controller.MonsterAnimPar.attackAnimClipName);
+                cts = new CancellationTokenSource();
+                isAttacking = true;
+                Attack();
+                return;
+            }
+            nextState = controller.ChaseState;
             controller.ChangeState(nextState);
             //controller.animator.SetBool(controller.MonsterAnimPar.Attack, false);//ここに必要かもしれないから必要だったらコメントアウト消して
         }
 
+        bool ContinueAttackState()
+        {
+
+            var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(controller.gameObject, controller.MonsterStatus.ChaseRange);
+
+            var mySide = controller.Side;
+            var myType = controller.moveType;
+            var effecttiveSide = myType switch
+            {
+                MoveType.Walk => MoveType.Walk,
+                MoveType.Fly => MoveType.Fly | MoveType.Walk,
+                _ => default
+            };
+
+            var filterdArray = sortedArray.Where(cmp =>
+            {
+                var enemySide = cmp.Side;
+                var isDead = cmp.isDead;
+                var moveType = cmp.moveType;
+                if (cmp.TryGetComponent<ISummonbable>(out var summonbable))
+                {
+                    var isSummoned = summonbable.isSummoned;
+                    return enemySide != mySide && !isDead
+                      && (moveType & effecttiveSide) != 0 && isSummoned;// 
+                }
+                return enemySide != mySide && !isDead
+                        && (moveType & effecttiveSide) != 0;// 
+            }).ToArray();
+
+            if(filterdArray.Length > 0)
+            {
+                var newTarget = filterdArray[0];
+                if (target == newTarget) return false;
+                target = newTarget;
+                return true;
+            }
+
+            return false;
+        }
         //void CheckParesis()
         //{
         //    var paresis = controller.statusCondition.Paresis.isActive;

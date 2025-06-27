@@ -2,13 +2,13 @@ using Game.Monsters.Slime;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System;
-
+using DG.Tweening;
 namespace Game.Monsters
 {
     public class IdleStateBase<T> : StateMachineBase<T> where T : MonsterControllerBase<T>
     {
         public IdleStateBase(T controler) : base(controler) { }
-        protected bool isEndSummon = false;
+        public bool isEndSummon = false;
         public override void OnEnter() { }
         public override void OnUpdate()
         {
@@ -25,6 +25,8 @@ namespace Game.Monsters
             AllResetBoolProparty();
             nextState = controller.ChaseState;
             TimerSetter.Instance.StartSummonTimer(summonWaitTime, controller).Forget();
+            await UniTask.Yield();
+            SummonMoveAction();
             await UniTask.Delay(TimeSpan.FromSeconds(summonWaitTime));
             isEndSummon = true;
         }
@@ -33,6 +35,37 @@ namespace Game.Monsters
         {
             controller.animator.SetBool(controller.MonsterAnimPar.Chase, false);
             controller.animator.SetBool(controller.MonsterAnimPar.Attack, false);
+        }
+        async void SummonMoveAction()
+        {
+            Debug.Log("—Ž‰º‚µ‚Ü‚·");
+            var offsetY = 8.0f;
+            var targetPos = controller.transform.position;
+            var appearPos = targetPos + Vector3.up * offsetY;
+            controller.transform.position = appearPos;
+            var moveSpeed = 30.0f;
+            var originalScale = controller.transform.localScale;
+            var scale = new Vector3(originalScale.x * 0.3f, originalScale.y * 3f, originalScale.y * 0.3f);
+            controller.transform.localScale = scale;
+            while((controller.transform.position - targetPos).magnitude > 0.1f)
+            {
+                var currentPos = controller.transform.position;
+                var move = Vector3.MoveTowards(currentPos,targetPos,Time.deltaTime * moveSpeed);
+                controller.transform.position = move;
+
+                if(controller.transform.position.y <= targetPos.y)
+                {
+                    controller.transform.position = targetPos;
+                    break;
+                }
+                await UniTask.Yield(cancellationToken:controller.GetCancellationTokenOnDestroy());
+            }
+
+            var sequence = DOTween.Sequence();
+            var targetScale = new Vector3(originalScale.x, originalScale.y * 0.5f, originalScale.z);
+            var duration = 0.2f;
+            sequence.Append(controller.transform.DOScale(targetScale, duration))
+                .Append(controller.transform.DOScale(originalScale, duration));
         }
     }
 

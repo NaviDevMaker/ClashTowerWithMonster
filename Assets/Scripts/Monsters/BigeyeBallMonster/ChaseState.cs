@@ -9,7 +9,7 @@ namespace Game.Monsters.BigEyeMonster
 
         public override void OnEnter()
         {
-            if (flyingOffsetY == 0) flyingOffsetY = 3.0f;
+            if (flyingOffsetY == 0) flyingOffsetY = controller.FlyingMonsterStatus.FlyingOffsetY;
             base.OnEnter();
         }
         public override void OnUpdate()

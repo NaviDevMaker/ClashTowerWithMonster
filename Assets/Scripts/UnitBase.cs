@@ -10,7 +10,7 @@ using System.Linq;
 using System;
 public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
 {
-    public class StatusCondition : IStatusCondition
+    public class StatusCondition //:IStatusCondition
     {
         public StatusEffect Paresis { get; set; }
         public StatusEffect BuffSpeed { get; set; }
@@ -37,7 +37,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
     [SerializeField] List<MeshRenderer> myMeshes;
     [SerializeField] StatusData statusData;
     public StatusCondition statusCondition { get; private set; }
-    int currentHP = 0;
+    public int currentHP { get; private set;} = 0;
     int maxHP = 0;
 
     bool isDisplayedHpBar = false;
@@ -57,6 +57,17 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
             else return null;
         }
     } 
+
+    public FlyingMonsterStatusData FlyingMonsterStatus
+    {
+        get
+        {
+            if (unitType == UnitType.monster && MonsterStatus.MonsterMoveType == MonsterMoveType.Fly) return StatusData as FlyingMonsterStatusData;
+            else return null;
+        }
+    }
+
+
     public TowerStatusData TowerStatus
     {
         get

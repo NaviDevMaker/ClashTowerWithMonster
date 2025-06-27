@@ -5,6 +5,7 @@ using UnityEngine;
 
 
 public interface ISpells { }
+
 namespace Game.Spells
 {
     public class SpellBase : MonoBehaviour, IPushable,ISpells, ISummonbable

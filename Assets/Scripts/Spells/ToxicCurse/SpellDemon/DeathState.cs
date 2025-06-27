@@ -11,7 +11,6 @@ namespace Game.Monsters.SpellDemon
             controller.transform.SetParent(null);
             Debug.Log($"{controller.animator.speed},€‚Êƒ‚[ƒVƒ‡ƒ“‚É“ü‚è‚Ü‚·");
             SetNormalStatus();
-            stateAnimSpeed = 1.0f;
             base.OnEnter();
         }
         public override void OnUpdate()

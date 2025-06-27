@@ -8,7 +8,6 @@ namespace Game.Monsters.SpeederBoy
 
         public override void OnEnter()
         {
-            stateAnimSpeed = 1.0f;
             base.OnEnter();
         }
         public override void OnUpdate()

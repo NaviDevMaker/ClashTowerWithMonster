@@ -3,13 +3,13 @@ using UnityEngine;
 
 public static class PoolObjectPreserver
 {
-    public static List<GameObject> meteoList = new List<GameObject>();
+    public static List<MeteoMover> meteoList = new List<MeteoMover>();
 
-    public static GameObject MeteoGeter()
+    public static MeteoMover MeteoGeter()
     {
-        foreach (GameObject meteo in meteoList)
+        foreach (var meteo in meteoList)
         {
-            if(!meteo.activeInHierarchy)
+            if(!meteo.gameObject.activeInHierarchy && meteo.IsEndSpellProcess)
             {
                 meteo.gameObject.SetActive(true);
                 return meteo;

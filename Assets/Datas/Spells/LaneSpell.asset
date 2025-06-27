@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: LaneSpell
   m_EditorClassIdentifier: 
   effectAmount: 90
-  pushAmount: 2.5
-  perPushDurationAndStunTime: 1.5
+  pushAmount: 1.5
+  perPushDurationAndStunTime: 0.5
   spellType: 1

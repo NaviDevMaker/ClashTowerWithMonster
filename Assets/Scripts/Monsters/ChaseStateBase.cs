@@ -33,6 +33,7 @@ namespace Game.Monsters
             controller.animator.SetBool(controller.MonsterAnimPar.Chase, true);
             nextState = controller.AttackState;
             SetTargetTower();
+            if (myMonsterType == MonsterAttackType.ToEveryThing) EvaluateNewTargetAndChase();
             ChaseTarget().Forget();
         }
         public override void OnUpdate()
@@ -97,6 +98,7 @@ namespace Game.Monsters
 
         async UniTask ChaseTarget()
         {
+
             if (targetTower == null)
             {
                 Debug.LogError("ゲームセットです");
@@ -131,8 +133,9 @@ namespace Game.Monsters
                 var targetCollider = target.GetComponent<Collider>();
                 targetPos = targetCollider.ClosestPoint(controller.transform.position);//target.transform.position;
                 targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
-
-                if(Vector3.Distance(controller.transform.position,targetPos) <= controller.MonsterStatus.AttackRange)
+                var flatTargetPosition = PositionGetter.GetFlatPos(targetPos);
+                var flatMyPosition = PositionGetter.GetFlatPos(controller.transform.position);
+                if (Vector3.Distance(flatMyPosition, flatTargetPosition) <= controller.MonsterStatus.AttackRange)
                 {
                     Debug.Log("ステートに入った瞬間に範囲内だったため、即攻撃へ");
                     SetAttackStateField(target, targetPos);
@@ -145,15 +148,16 @@ namespace Game.Monsters
 
 
                     //var myRadius = controller.GetComponent<Collider>().bounds.extents.magnitude;
-                    while (Vector3.Distance(controller.transform.position, targetPos) > controller.MonsterStatus.AttackRange
+                    while (Vector3.Distance(flatMyPosition, flatTargetPosition) > controller.MonsterStatus.AttackRange
                         && target != null)
                     {
                         var perPixelMoveTime = (1 / moveStep) / moveSpeed;
                         targetPos = targetCollider.ClosestPoint(controller.transform.position);//.transform.position;
                         targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
-                        Debug.Log($"自分{controller.transform.position}相手{targetPos}");
+                        flatTargetPosition = PositionGetter.GetFlatPos(targetPos);
+                        Debug.Log($"自分{flatMyPosition}相手{flatTargetPosition}");
                         var direction = (targetPos - controller.transform.position).normalized;
-                        var perTargetPos = GetPerTargetPos(controller.transform.position, direction);
+                        var perTargetPos = PositionGetter.GetPerTargetPos(controller.transform.position, direction,flyingOffsetY);
                         var perDirection = perTargetPos - controller.transform.position;
                         var targetRot = Quaternion.LookRotation(perDirection);
                         controller.transform.rotation = targetRot;
@@ -161,15 +165,16 @@ namespace Game.Monsters
                         moveTween = controller.transform.DOMove(perTargetPos, perPixelMoveTime);
                         moveTask = moveTween.ToUniTask(cancellationToken: cts.Token);
 
-                        Debug.DrawLine(controller.transform.position, targetPos, Color.yellow); //で目視確認
+                        Debug.DrawLine(controller.transform.position, flatTargetPosition, Color.yellow); //で目視確認
 
                         while (!moveTask.Status.IsCompleted() && !cts.IsCancellationRequested)
                         {
                             var isDead = controller.isDead;
+                            flatMyPosition = PositionGetter.GetFlatPos(controller.transform.position);
                             //var simpleDistance = Vector3.Distance(controller.transform.position, targetPos);
                             //var correntDistance = simpleDistance - myRadius;
                             if (isDead) { cts?.Cancel();  break; }
-                            if (Vector3.Distance(controller.transform.position, targetPos) <= controller.MonsterStatus.AttackRange
+                            if (Vector3.Distance(flatMyPosition, flatTargetPosition) <= controller.MonsterStatus.AttackRange
                               || targetEnemy == null || controller.isKnockBacked_Spell)
                             {
                                 Debug.Log("敵に到着 || ターゲットが範囲外にいきました");
@@ -211,7 +216,7 @@ namespace Game.Monsters
                             targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
                             var direction = (targetPos - controller.transform.position).normalized;
                             Debug.Log(target.gameObject.name);
-                            var perTargetPos = GetPerTargetPos(controller.transform.position, direction);
+                            var perTargetPos = PositionGetter.GetPerTargetPos(controller.transform.position, direction,flyingOffsetY);
 
                             var perDirection = perTargetPos - controller.transform.position;
                             var targetRot = Quaternion.LookRotation(perDirection);
@@ -265,24 +270,35 @@ namespace Game.Monsters
             var unitBase = target.GetComponent<UnitBase>();
 
             attackState.target = unitBase;
-            attackState.flyingOffsetY = flyingOffsetY;
         }
-        Vector3 GetPerTargetPos(Vector3 currentPos, Vector3 direction)
-        {
-            var targetPos = currentPos + direction;
-            targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
-            return targetPos;
-        }
-
+       
+     
         void EvaluateNewTargetAndChase()
         {
             var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(controller.gameObject, controller.MonsterStatus.ChaseRange);
 
+            var mySide = controller.Side;
+            var myType = controller.moveType;
+            var effecttiveSide = myType switch
+            {
+                MoveType.Walk => MoveType.Walk,
+                MoveType.Fly => MoveType.Fly | MoveType.Walk,
+                _ => default
+            };
+
             var filterdArray = sortedArray.Where(cmp =>
             {
-                var enemyType = cmp.Side;
+                var enemySide = cmp.Side;
                 var isDead = cmp.isDead;
-                return enemyType != controller.Side && !isDead;// 
+                var moveType = cmp.moveType;
+                if(cmp.TryGetComponent<ISummonbable>(out var summonbable))
+                {
+                    var isSummoned = summonbable.isSummoned;
+                    return enemySide != mySide && !isDead
+                      && (moveType & effecttiveSide) != 0 && isSummoned;// 
+                }
+                return enemySide != mySide && !isDead
+                        && (moveType & effecttiveSide) != 0;// 
             }).ToArray();
 
             if (filterdArray.Length == 0)

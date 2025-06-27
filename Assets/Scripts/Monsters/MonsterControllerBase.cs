@@ -20,6 +20,7 @@ namespace Game.Monsters
         public AttackStateBase<T> AttackState;
         public DeathStateBase<T> DeathState;
         protected StateMachineBase<T> currentState { get; private set;}
+        public StateMachineBase<T> previusState { get; private set; }
         protected AddForceToUnit<MonsterControllerBase<T>> addForceToUnit;
         protected override void Start()
         {
@@ -46,12 +47,13 @@ namespace Game.Monsters
 
         private void FixedUpdate()
         {
-            if(isSummoned) addForceToUnit.KeepDistance(moveType);
+            if(isSummoned && IdleState.isEndSummon) addForceToUnit.KeepDistance(moveType);
         }
         public virtual void ChangeState(StateMachineBase<T> nextState)
         {
             currentState?.OnExit();
             Debug.Log($"{currentState}‚ªOnExit‚É‚Í‚¢‚è‚Ü‚µ‚½");
+            previusState = currentState != null? currentState : null;
             currentState = nextState;
             currentState.OnEnter();
             Debug.Log($"{currentState}‚ªOnenter‚É‚Í‚¢‚è‚Ü‚µ‚½");

@@ -1,8 +1,19 @@
 using UnityEngine;
 
+[System.Serializable]
+public class StateAnimaSpeedInfo
+{
+    [SerializeField] float attackStateAnimSpeed;
+    [SerializeField] float deathStateAnimSpeed;
+    public float AttackStateAnimSpeed { get => attackStateAnimSpeed;}
+    public float DeathStateAnimSpeed { get => deathStateAnimSpeed;}
+}
+
 [CreateAssetMenu]
+
 public class MonsterStatusData : StatusData
-{   
+{
+    [SerializeField] StateAnimaSpeedInfo animaSpeedInfo;
     [SerializeField] float chaseRange;
     [SerializeField] float summonWaitTime;
     [Tooltip("‚±‚Ìƒ‚ƒ“ƒXƒ^[‚ÌCollider‚Ì”¼ŒaˆÈã(‰Ÿ‚µo‚µ”»’è‚æ‚è‘å‚«‚¢)‚É‚µ‚È‚¢‚Æ‰Ÿ‚µo‚³‚ê‚éŠÖŒW‚Å‰i‰“‚ÉUŒ‚ƒ‚[ƒh‚É“ü‚ç‚È‚¢‚©‚ç‚»‚±‚¾‚¯‚æ‚ë‚µ‚­‰´")]
@@ -20,6 +31,7 @@ public class MonsterStatusData : StatusData
     public MonsterAttackType MonsterAttackType { get => monsterAttackType;}
     public MonsterMoveType MonsterMoveType { get => monsterMoveType;}
     public float SummonWaitTime { get => summonWaitTime;}
+    public StateAnimaSpeedInfo AnimaSpeedInfo { get => animaSpeedInfo;}
 }
 //UŒ‚‚Ìí—Ş
 public enum AttackType

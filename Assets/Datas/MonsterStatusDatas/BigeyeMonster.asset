@@ -9,17 +9,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc3a4cf668f94af43ac12651ed3879c0, type: 3}
+  m_Script: {fileID: 11500000, guid: e21908263628327479e5e3791827b551, type: 3}
   m_Name: BigeyeMonster
   m_EditorClassIdentifier: 
   attackAmount: 5
   hp: 100
   pushAmount: 10
+  animaSpeedInfo:
+    attackStateAnimSpeed: 1
+    deathStateAnimSpeed: 1
   chaseRange: 5
   summonWaitTime: 1
-  attackRange: 1
-  moveSpeed: 4
+  attackRange: 2.5
+  moveSpeed: 2
   moveStep: 1
   attackType: 0
   monsterAttackType: 0
   monsterMoveType: 1
+  flyingOffsetY: 3
