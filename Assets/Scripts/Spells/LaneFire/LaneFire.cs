@@ -7,11 +7,18 @@ namespace Game.Spells.LaneFire
 {
     public class LaneFire : SpellBase
     {
+        protected override async void Initialize()
+        {
+            _SpellStatus = await SetFieldFromAssets.SetField<SpellStatus>("Datas/Spells/LaneSpell");
+            base.Initialize();
+            pushEffectUnit = PushEffectUnit.OnlyEnemyUnit;
+            addForceToUnit = new AddForceToUnit<SpellBase>(this, _SpellStatus.PushAmount, _SpellStatus.PerPushDurationAndStunTime);
+        }
         protected override async UniTaskVoid Spell()
         {
             Debug.Log("ファイア発動！！！！！！！！！");
             addForceToUnit.KeepDistance(moveType);
-            spellDamageHelper.DamageToUnit();
+            spellEffectHelper.EffectToUnit();
             particle.Play();
             await UniTask.Delay(TimeSpan.FromSeconds(spellDuration));
             particle.Stop();

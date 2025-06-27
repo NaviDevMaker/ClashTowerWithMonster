@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   icon: {fileID: -1975463890, guid: eefba76eb4d339649bbdd33fdf47bf6f, type: 3}
   energyImage: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  energy: 3
+  energy: 1
   cardName: 2
-  cardPrefab: {fileID: 5929072638387010299, guid: f57142de1d6567d408c86d5fcbc63739, type: 3}
-  cardType: 1
+  cardPrefab: {fileID: 7697305663947063803, guid: 68cef395d54253f4189bb285024e9dd8, type: 3}
+  cardType: 0

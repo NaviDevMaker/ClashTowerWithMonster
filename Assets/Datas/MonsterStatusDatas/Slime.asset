@@ -13,9 +13,13 @@ MonoBehaviour:
   m_Name: Slime
   m_EditorClassIdentifier: 
   attackAmount: 10
-  hp: 200
+  hp: 2000
   pushAmount: 10
+  animaSpeedInfo:
+    attackStateAnimSpeed: 1
+    deathStateAnimSpeed: 1
   chaseRange: 5
+  summonWaitTime: 1
   attackRange: 1
   moveSpeed: 3
   moveStep: 1

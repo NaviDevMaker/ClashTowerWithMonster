@@ -17,10 +17,10 @@ public class DeathMoveExecuter
     public async UniTask ExecuteDeathAction_Monster<T>(MonsterControllerBase<T> monsterController,float clipLength,float stateAnimSpeed) where T:MonsterControllerBase<T> 
     {
         
-        var meshesQueue = new Queue<Renderer>(); 
+        //var meshesQueue = new Queue<Renderer>(); 
         
-        if (monsterController.MySkinnedMeshes.Count != 0) monsterController.MySkinnedMeshes.ForEach(mesh => meshesQueue.Enqueue(mesh));
-        if (monsterController.MyMeshes.Count != 0) monsterController.MyMeshes.ForEach(mesh => meshesQueue.Enqueue(mesh));
+        //if (monsterController.MySkinnedMeshes.Count != 0) monsterController.MySkinnedMeshes.ForEach(mesh => meshesQueue.Enqueue(mesh));
+        //if (monsterController.MyMeshes.Count != 0) monsterController.MyMeshes.ForEach(mesh => meshesQueue.Enqueue(mesh));
 
         monsterController.animator.SetTrigger(monsterController.MonsterAnimPar.Death);
         var stateName = monsterController.MonsterAnimPar.deathAnimClipName;
@@ -28,10 +28,13 @@ public class DeathMoveExecuter
         var cts = new CancellationTokenSource();
         var clipLengthBySpeed = clipLength * (1 / monsterController.animator.speed) * (1 / stateAnimSpeed);
 
-        foreach (var mesh in meshesQueue)
+
+        foreach (var materials in monsterController.meshMaterials)
         {
-            var material = mesh.material;
-            FadeOutColor(clipLengthBySpeed, cts.Token, material);
+            foreach (var material in materials)
+            {
+               FadeOutHelper.FadeOutColor(clipLengthBySpeed, cts.Token, material).Forget();
+            }
         }
 
         EffectManager.Instance.deathEffect.GenerateDeathEffect<UnitBase>(monsterController, clipLengthBySpeed);
@@ -39,15 +42,15 @@ public class DeathMoveExecuter
         await UniTask.Delay(TimeSpan.FromSeconds(clipLengthBySpeed));
         cts.Cancel();
         cts.Dispose();
-        //controller.DestroyAll();
+        monsterController.DestroyAll();
     }
     public async UniTask ExecuteDeathAction_Player<T>(PlayerControllerBase<T> playerController, float clipLength, float stateAnimSpeed) where T : PlayerControllerBase<T>
     {
 
         var meshesQueue = new Queue<Renderer>();
 
-        if (playerController.MySkinnedMeshes.Count != 0) playerController.MySkinnedMeshes.ForEach(mesh => meshesQueue.Enqueue(mesh));
-        if (playerController.MyMeshes.Count != 0) playerController.MyMeshes.ForEach(mesh => meshesQueue.Enqueue(mesh));
+        //if (playerController.MySkinnedMeshes.Count != 0) playerController.MySkinnedMeshes.ForEach(mesh => meshesQueue.Enqueue(mesh));
+        //if (playerController.MyMeshes.Count != 0) playerController.MyMeshes.ForEach(mesh => meshesQueue.Enqueue(mesh));
 
         playerController.animator.SetTrigger(playerController.AnimatorPar.Death);
         var stateName = playerController.AnimatorPar.deathAnimClipName;
@@ -55,10 +58,12 @@ public class DeathMoveExecuter
         var cts = new CancellationTokenSource();
         var clipLengthBySpeed = clipLength * (1 / playerController.animator.speed) * (1 / stateAnimSpeed);
 
-        foreach (var mesh in meshesQueue)
+        foreach (var materials in playerController.meshMaterials)
         {
-            var material = mesh.material;
-            FadeOutColor(clipLengthBySpeed, cts.Token, material);
+            foreach (var material in materials)
+            {
+               FadeOutHelper.FadeOutColor(clipLengthBySpeed, cts.Token, material).Forget();
+            }
         }
 
         EffectManager.Instance.deathEffect.GenerateDeathEffect<UnitBase>(playerController, clipLengthBySpeed);
@@ -79,46 +84,82 @@ public class DeathMoveExecuter
         var cts = new CancellationTokenSource();
         var token = cts.Token;
         var clipLengthBySpeed = clipLength * (1 / archer.animator.speed) * (1 / stateAnimSpeed);
-        var material = archer.MyMesh.material;
-        FadeOutColor(clipLengthBySpeed,token, material);
+        var mesh = archer.MyMesh;
+        foreach (var material in mesh.materials)
+        {
+           FadeOutHelper.FadeOutColor(clipLengthBySpeed, token, material).Forget();
+        }
         EffectManager.Instance.deathEffect.GenerateDeathEffect(archer, clipLength);
         await UniTask.Delay(TimeSpan.FromSeconds(clipLength));
         cts.Cancel();
         cts.Dispose();
-        UnityEngine.Object.Destroy(archer.gameObject);
     }
-    async void FadeOutColor(float clipLengthBySpeed, CancellationToken cancellationToken, Material material)
+
+    public async UniTask ExecuteDeathAction_Tower(TowerControlller tower, float length)
     {
-        Debug.Log("Playerのフェイドアウト開始");
-        var time = 0f;
-        var meshMaterial = material;
-        var startColor = meshMaterial.color;
-        var startAlpha = startColor.a;
-
-        try
+        var cts = new CancellationTokenSource();
+        var token = cts.Token;
+        var mesh = tower.MyMeshes[0];
+        for (int i = 0; i < mesh.materials.Length;i++)
         {
-            while (time <= clipLengthBySpeed && !cancellationToken.IsCancellationRequested)
+             var material = mesh.materials[i];
+             //var material = new Material(originalMaterial);
+            if (material.name.StartsWith("Rock_Light"))
             {
-                var lerpedTime = time / clipLengthBySpeed;
-                var color = startColor;
-                color.a = Mathf.Lerp(startAlpha, 0f, lerpedTime);
-
-                meshMaterial.color = color;
-                //Debug.Log(meshMaterial.color.a);
-                time += Time.deltaTime;
-                await UniTask.Yield(cancellationToken: cancellationToken);
+                Debug.Log(material.name.Trim());
+                if (material.HasProperty("_Surface"))
+                {
+                    FadeOutHelper.ChangeToTranparent(material);
+                }
+                else
+                {
+                    Debug.LogWarning("it has no existing proparty!!");
+                }
             }
+            Debug.Log(length);
+            FadeOutHelper.FadeOutColor(length, cts.Token,material).Forget();
         }
-        catch (OperationCanceledException)
-        {
-            Debug.Log("色変更キャンセルされました");
-        }
-        finally
-        {
-            var finalColor = startColor;
-            finalColor.a = 0f;
-            meshMaterial.color = finalColor;
-            Debug.Log(meshMaterial.color.a);
-        }
+        EffectManager.Instance.deathEffect.GenerateDeathEffect(tower, length);
+        tower.EnableHpBar();
+        await UniTask.Delay(TimeSpan.FromSeconds(length));
+        cts.Cancel();
+        cts.Dispose();
+        tower.DestroyAll();
     }
+    //async void FadeOutColor(float fadeDuration, CancellationToken cancellationToken, Material material)
+    //{
+    //    Debug.Log("Playerのフェイドアウト開始");
+    //    var time = 0f;
+    //    var meshMaterial = material;
+
+     
+    //    var startColor = meshMaterial.color;
+    //    var startAlpha = startColor.a;
+
+    //    try
+    //    {
+    //        while (time <= fadeDuration && !cancellationToken.IsCancellationRequested)
+    //        {
+    //            var lerpedTime = time / fadeDuration;
+    //            var color = startColor;
+    //            color.a = Mathf.Lerp(startAlpha, 0f, lerpedTime);
+
+    //            meshMaterial.color = color;
+    //            //Debug.Log(meshMaterial.color.a);
+    //            time += Time.deltaTime;
+    //            await UniTask.Yield(cancellationToken: cancellationToken);
+    //        }
+    //    }
+    //    catch (OperationCanceledException)
+    //    {
+    //        Debug.Log("色変更キャンセルされました");
+    //    }
+    //    finally
+    //    {
+    //        var finalColor = startColor;
+    //        finalColor.a = 0f;
+    //        meshMaterial.color = finalColor;
+    //        Debug.Log(meshMaterial.color.a);
+    //    }
+    //}
 }

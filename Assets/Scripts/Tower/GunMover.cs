@@ -32,8 +32,8 @@ public class GunMover:LongDistanceAttack<TowerControlller>
     IEnumerator MoveToEnemy()
     {
         Debug.Log("Œü‚©‚¢‚Ü‚·");
-        var height = GetTargetHeight();
-        Debug.Log(GetTargetHeight());
+        var height = TargetPositionGetter.GetTargetHeight(target);
+        //Debug.Log(GetTargetHeight());
         trail.Play();
 
        
@@ -102,20 +102,20 @@ public class GunMover:LongDistanceAttack<TowerControlller>
         return position;
     }
 
-    float GetTargetHeight()
-    {
-        Debug.Log(target);
-        var body = 0;
-        Renderer meshRenderer = null;
-        if(target.MySkinnedMeshes.Count != 0) meshRenderer = target.MySkinnedMeshes[body];
-        else if(target.MyMeshes.Count != 0) meshRenderer= target.MyMeshes[body];
-        if (meshRenderer != null) return meshRenderer.bounds.size.y/ 2;
-        else return 1f;
-    }
+    //float GetTargetHeight()
+    //{
+    //    Debug.Log(target);
+    //    var body = 0;
+    //    Renderer meshRenderer = null;
+    //    if(target.MySkinnedMeshes.Count != 0) meshRenderer = target.MySkinnedMeshes[body];
+    //    else if(target.MyMeshes.Count != 0) meshRenderer= target.MyMeshes[body];
+    //    if (meshRenderer != null) return meshRenderer.bounds.size.y/ 2;
+    //    else return 1f;
+    //}
     async UniTask HitEffect()
     {
         var duration = hit.main.duration;
-        hit.gameObject.transform.SetParent(target.transform);
+        //hit.gameObject.transform.SetParent(target.transform);
         hit.gameObject.transform.position = transform.position;
         hit.gameObject.SetActive(true);
         hit.Play();

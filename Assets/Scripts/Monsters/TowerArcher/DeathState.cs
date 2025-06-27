@@ -13,9 +13,10 @@ namespace Game.Monsters.Archer
         DeathMoveExecuter deathMoveExecuter;
         public override void OnEnter()
         {
+            
             deathMoveExecuter = new DeathMoveExecuter();
             clipLength = controller.GetAnimClipLength();
-            //DeathMove().Forget();
+            controller.OnDestoryedTower?.Invoke(clipLength, stateAnimSpeed);
             deathMoveExecuter.ExecuteDeathAction_Archer(controller, clipLength, stateAnimSpeed).Forget();
 
         }

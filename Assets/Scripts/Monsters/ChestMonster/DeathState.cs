@@ -9,7 +9,6 @@ namespace Game.Monsters.ChestMonster
 
         public override void OnEnter()
         {
-            stateAnimSpeed = 0.75f;
             base.OnEnter();
         }
         public override void OnUpdate()

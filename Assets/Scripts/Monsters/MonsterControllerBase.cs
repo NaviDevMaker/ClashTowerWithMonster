@@ -7,10 +7,11 @@ using static UnityEngine.Rendering.HableCurve;
 public interface IMonster { }
 namespace Game.Monsters
 {
+
     public class MonsterControllerBase<T> : UnitBase, IMonster,ISummonbable where T : MonsterControllerBase<T>
     {
         [SerializeField] MonsterAnimatorPar monsterAnimPar;
-        public Animator animator { get; private set; }
+        public Animator animator { get; protected set;}
         public MonsterAnimatorPar MonsterAnimPar { get => monsterAnimPar; }
         public bool isSummoned { get; set; } = false;
 
@@ -18,7 +19,8 @@ namespace Game.Monsters
         public ChaseStateBase<T> ChaseState;
         public AttackStateBase<T> AttackState;
         public DeathStateBase<T> DeathState;
-        StateMachineBase<T> currentState;
+        protected StateMachineBase<T> currentState { get; private set;}
+        public StateMachineBase<T> previusState { get; private set; }
         protected AddForceToUnit<MonsterControllerBase<T>> addForceToUnit;
         protected override void Start()
         {
@@ -33,7 +35,7 @@ namespace Game.Monsters
             base.Update();
             if (isSummoned)
             {
-                currentState.OnUpdate();
+                currentState?.OnUpdate();
             }
             if (isDead && currentState != DeathState)
             {
@@ -45,12 +47,13 @@ namespace Game.Monsters
 
         private void FixedUpdate()
         {
-            if(isSummoned) addForceToUnit.KeepDistance(moveType);
+            if(isSummoned && IdleState.isEndSummon) addForceToUnit.KeepDistance(moveType);
         }
         public virtual void ChangeState(StateMachineBase<T> nextState)
         {
             currentState?.OnExit();
             Debug.Log($"{currentState}がOnExitにはいりました");
+            previusState = currentState != null? currentState : null;
             currentState = nextState;
             currentState.OnEnter();
             Debug.Log($"{currentState}がOnenterにはいりました");
@@ -125,9 +128,13 @@ namespace Game.Monsters
                 {
                     Gizmos.DrawLine(prevPoint, nextPoint);
                 }
-
                 prevPoint = nextPoint;
             }
+        }
+        //アニメーションのスピードをnormalizetime>= 1.0のときに0にしたいからそれをclipのeventにつける
+        public void StopAnimation_AttackState()
+        {
+            AttackState.StopAnimFromEvent();
         }
     }
 }

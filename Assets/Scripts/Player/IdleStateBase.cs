@@ -15,7 +15,13 @@ namespace Game.Players
 
         public override void OnUpdate()
         {
-           if(InputManager.IsCllikedMoveButton()) controller.ChangeState(nextState);
+           if(InputManager.IsClickedMoveAndAutoAttack())
+           {
+                Debug.Log("‰Ÿ‚³‚ê‚Ü‚µ‚½");
+                controller.ChangeState(nextState);
+                controller.MoveState.isPressedA = true;
+           }
+           else if (InputManager.IsCllikedMoveButton()) controller.ChangeState(nextState);
         }
         public override void OnExit()
         {

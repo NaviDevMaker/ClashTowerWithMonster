@@ -18,7 +18,7 @@ public class HitEffect
         if (renderer == null) return;
         var center = renderer.bounds.center;
         var meshSize = renderer.bounds.size;
-        var pos = new Vector3(center.x * target.myScale.x, center.y * target.myScale.y,center.z * target.myScale.z);
+        var pos = new Vector3(center.x,center.y,center.z);//* target.myScale.x,* target.myScale, * target.myScale.z
         var size = new Vector3(meshSize.x * target.myScale.x,meshSize.y * target.myScale.y,meshSize.z * target.myScale.z);
         var particleObj = UnityEngine.Object.Instantiate(hitEffect, pos, Quaternion.identity);
         var particle = particleObj.GetComponent<ParticleSystem>();

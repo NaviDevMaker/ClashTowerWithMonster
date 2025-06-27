@@ -8,9 +8,22 @@ using UnityEditor.Build;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
+public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
 {
-
+    public class StatusCondition //:IStatusCondition
+    {
+        public StatusEffect Paresis { get; set; }
+        public StatusEffect BuffSpeed { get; set; }
+        public StatusEffect BuffPower { get; set; }
+        public StatusEffect DemonCurse { get; set; }
+        public StatusCondition()
+        {
+            Paresis = new StatusEffect();
+            BuffSpeed = new StatusEffect();
+            BuffPower = new StatusEffect();
+            DemonCurse = new StatusEffect();
+        }
+    }
     public float rangeX { get; private set; } = 0f;
     public float rangeZ { get; private set; } = 0f;
 
@@ -23,7 +36,8 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
     [SerializeField] List<SkinnedMeshRenderer> mySkinnedMeshes;
     [SerializeField] List<MeshRenderer> myMeshes;
     [SerializeField] StatusData statusData;
-    int currentHP = 0;
+    public StatusCondition statusCondition { get; private set; }
+    public int currentHP { get; private set;} = 0;
     int maxHP = 0;
 
     bool isDisplayedHpBar = false;
@@ -32,7 +46,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
     public Side Side;
     //
     public int ownerID = -1;
-    public bool isDead { get; private set; } = false;
+    public bool isDead { get; protected set; } = false;
     public List<SkinnedMeshRenderer> MySkinnedMeshes { get => mySkinnedMeshes;}
     public List<MeshRenderer> MyMeshes { get => myMeshes;}
     public MonsterStatusData MonsterStatus
@@ -43,6 +57,17 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
             else return null;
         }
     } 
+
+    public FlyingMonsterStatusData FlyingMonsterStatus
+    {
+        get
+        {
+            if (unitType == UnitType.monster && MonsterStatus.MonsterMoveType == MonsterMoveType.Fly) return StatusData as FlyingMonsterStatusData;
+            else return null;
+        }
+    }
+
+
     public TowerStatusData TowerStatus
     {
         get
@@ -67,10 +92,11 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
 
     public UnitType UnitType { get => unitType;}
 
-    List<Material[]> meshMaterials = new List<Material[]>();
+   public  List<Material[]> meshMaterials { get; private set; } = new List<Material[]>();
     List<Color[]> originalMaterialColors = new List<Color[]>();
 
-    public bool isKnockBacked { get; set; } = false;
+    public bool isKnockBacked_Monster { get; set; } = false;
+    public bool isKnockBacked_Spell { get; set; } = false;
     protected virtual void Awake()
     {
         SetRadius();
@@ -92,13 +118,18 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
             hPBar.ReduceHP(maxHP, currentHP);
             isDisplayedHpBar=true;
         }
+        else if(isDisplayedHpBar && currentHP == maxHP && hPBar != null)
+        {
+            hPBar.gameObject.SetActive(false);
+            isDisplayedHpBar = false;
+        }
     }
 
-    //将来プレイヤー側から呼ぶためにpublic
+    //将来プレイヤー側から呼ぶためにpublic 本来はstartではよばないから気を付けてね
     public virtual void Initialize(int owner)
     {
-
        if(owner != -1) SetUnitSide(owner);
+       statusCondition = new StatusCondition();
     }
     void SetUnitSide(int owner)
     {
@@ -131,6 +162,9 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
                 cmp.offsetY = offsetY;
                 currentHP = StatusData.Hp;
                 maxHP = currentHP;
+                //currentHP = currentHP / 2;//テスト用だから後で消してね
+                //cmp.ReduceHP(maxHP,currentHP);//後で消してね
+                //cmp.gameObject.SetActive(true);//あとで消してね
             }
 
         }
@@ -150,14 +184,20 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
 
         LitBody();
     }
+    public void Heal(int heal)
+    {
+        currentHP += heal;
+        if (currentHP >= maxHP) currentHP = maxHP;
+        hPBar.HealHP(maxHP, currentHP);
+    }
     public void EnableHpBar()
     {
-        hPBar.gameObject.SetActive(false);
+       if(hPBar != null) hPBar.gameObject.SetActive(false);
     }
-    public void DestroyAll()
+    public virtual void DestroyAll()
     {
         Destroy(this.gameObject);
-        Destroy(hPBar.gameObject);
+        if(hPBar != null) Destroy(hPBar.gameObject);
     }
 
     float GetHPBarOffsetY()
@@ -167,6 +207,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
             case UnitScale.small:
                 return 2.0f;
             case UnitScale.middle:
+                return 4.0f;
             case UnitScale.large:
                 return 1.0f;
             case UnitScale.tower:
@@ -184,9 +225,11 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
         switch (UnitScale)
         {
             case UnitScale.small:
-               hpBar = await SetFieldFromAssets.SetField<GameObject>("HPBar/Enemy_Small");
+               　hpBar = await SetFieldFromAssets.SetField<GameObject>("HPBar/Enemy_Small");
                 return hpBar;
             case UnitScale.middle:
+                hpBar = await SetFieldFromAssets.SetField<GameObject>("HPBar/Enemy_Middle");
+                return hpBar;
             case UnitScale.large:
                 return hpBar;
             case UnitScale.tower:
@@ -209,7 +252,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
         rangeX = bounds.extents.x;
         rangeZ = bounds.extents.z;
     }
-    void SetMaterialColors()
+    protected void SetMaterialColors()
     {
         if (MySkinnedMeshes.Count != 0) MySkinnedMeshes.ForEach(mesh => meshMaterials.Add(mesh.materials));
         if (MyMeshes.Count != 0) MyMeshes.ForEach(mesh => meshMaterials.Add(mesh.materials));
@@ -247,17 +290,13 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IPushable
             }
         }
     }
-
-    internal bool TryGetComponent(Type type, out IUnitDamagable damageable)
-    {
-        throw new NotImplementedException();
-    }
 }
 
+[Flags]
 public enum Side
 {
-    PlayerSide,
-    EnemySide,
+    PlayerSide = 1 << 0,
+    EnemySide = 1 << 1,
 }
 //大きさによってつけるHPバーの大きさを変える
 public enum UnitScale

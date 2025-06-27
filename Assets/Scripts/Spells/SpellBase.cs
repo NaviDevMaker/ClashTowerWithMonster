@@ -1,29 +1,34 @@
 using Cysharp.Threading.Tasks;
+using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 
 public interface ISpells { }
+
 namespace Game.Spells
 {
-    public class SpellBase : MonoBehaviour, IPushable,ISpells,ISummonbable
+    public class SpellBase : MonoBehaviour, IPushable,ISpells, ISummonbable
     {
-        [SerializeField] SpellStatus spellStatus;
-
         protected float spellDuration = 0f;
-        public float rangeX { get; private set; }
-        public float rangeZ { get; private set; }
+        public float rangeX { get; protected set; }
+        public float rangeZ { get; protected set; }
+
+        public float timerOffsetY { get; private set;}
         public float prioritizedRange { get; protected set; }
-       
+        protected float scaleAmount;
         public MoveType moveType { get; protected set; }
-        public SpellStatus SpellStatus { get => spellStatus;}
+        public SpellStatus _SpellStatus { get; protected set; }
         public bool isSummoned { get; set; } = false;
 
         protected AddForceToUnit<SpellBase> addForceToUnit;
         bool isSpellInvoked = false;
         protected ParticleSystem particle;
-        protected SpellDamageHelper spellDamageHelper { get; private set;}
-        public bool isKnockBacked { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        protected SpellEffectHelper spellEffectHelper { get;private set;}
+        public bool isKnockBacked_Monster { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public bool isKnockBacked_Spell { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
+        public PushEffectUnit pushEffectUnit { get;protected set; }
         void Start()
         {
             Initialize();
@@ -31,24 +36,37 @@ namespace Game.Spells
 
         private void Update()
         {
-            //f(Input.GetKeyDown(KeyCode.Space)) Spell().Forget();
+            if(Input.GetKeyDown(KeyCode.Space)) Spell().Forget();//テスト用だから消して
             if (isSummoned && !isSpellInvoked)
             {
                 Spell().Forget();
+                TimerSetter.Instance.StartSpellTimer(spellDuration, this);
                 isSpellInvoked = true;
             }
         }
-        void SetRange()
+        protected virtual void SetRange()
         {
-            var collider = GetComponent<Collider>();
-            if (collider == null) return;
-            var colliderRadius = collider.bounds.extents;
-            rangeX = colliderRadius.x;
-            rangeZ = colliderRadius.z;
-            Debug.Log("スペルのレンジ取得！！！！！！！！！");
-            prioritizedRange = rangeX >= rangeZ ? rangeX : rangeZ;
+            IColliderRangeProvider colliderRangeProvider = null;
+
+            if (TryGetComponent<BoxCollider>(out var boxCollider))
+            {
+                colliderRangeProvider = new BoxColliderrangeProvider { boxCollider = boxCollider };
+                rangeX = colliderRangeProvider.GetRangeX();
+                rangeZ = colliderRangeProvider.GetRangeZ();
+                prioritizedRange = colliderRangeProvider.GetPriorizedRange();
+                timerOffsetY = colliderRangeProvider.GetTimerOffsetY();
+            }
+            else if (TryGetComponent<SphereCollider>(out var sphereCollider))
+            {
+                colliderRangeProvider = new SphereColliderRangeProvider { sphereCollider = sphereCollider };
+                rangeX = colliderRangeProvider.GetRangeX() * scaleAmount;
+                rangeZ = colliderRangeProvider.GetRangeZ() * scaleAmount;
+                prioritizedRange = colliderRangeProvider.GetPriorizedRange() * scaleAmount;
+                timerOffsetY = colliderRangeProvider.GetTimerOffsetY() * scaleAmount;
+            }
+            else return;
         }
-        void SetDuration()
+        protected virtual void SetDuration()
         {
             var particle = transform.GetChild(0).GetComponent<ParticleSystem>();
             this.particle = particle;
@@ -59,16 +77,26 @@ namespace Game.Spells
         {
             await UniTask.CompletedTask;
         }
-
-        void Initialize()
+        protected virtual void Initialize()
         {
-            spellDamageHelper = new SpellDamageHelper(this);
-            addForceToUnit = new AddForceToUnit<SpellBase>(this, SpellStatus.PushAmount,spellStatus.SpellDuration);
+            spellEffectHelper = new SpellEffectHelper(this);
             moveType = MoveType.Spell;
             SetRange();
             SetDuration();
         }
+        protected virtual async void DestroyAll()
+        {
+            await Task.CompletedTask;
+        }
 
+    }
+
+    [Flags]
+    public enum PushEffectUnit
+    {
+        OnlyEnemyUnit = 1 << 0,
+        OnlyPlayerUnit = 1 << 1,
+        AllUnit = 1 << 2,
     }
 }
 

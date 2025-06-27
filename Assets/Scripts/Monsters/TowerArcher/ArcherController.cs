@@ -2,6 +2,7 @@ using Game.Monsters.GuirdSlime;
 using Game.Monsters.Slime;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 
 namespace Game.Monsters.Archer
@@ -28,6 +29,8 @@ namespace Game.Monsters.Archer
         public float shotDuration { get; set; } = 0f;
         public SkinnedMeshRenderer MyMesh { get => myMesh;}
         public List<GunMover> shotGuns { get; set;}
+        public UnityAction<float, float> OnDestoryedTower;
+        public bool isDestroyedTower { get; set; } = false;
         private void Start()
         {
             //Time.timeScale = 0.3f;
@@ -44,6 +47,11 @@ namespace Game.Monsters.Archer
         }
         private void Update()
         {
+            if(isDestroyedTower && currentState != _DeathState)
+            {
+                ChangeState(_DeathState);
+                return;
+            }
             Debug.Log(currentState);
             currentState?.OnUpdate();
         }

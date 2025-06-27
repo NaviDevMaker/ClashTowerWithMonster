@@ -41,7 +41,7 @@ public class MagicCircleEffect
         var particleObj = UnityEngine.Object.Instantiate(summonParticle, particlePos, Quaternion.identity);
         var particle = particleObj.GetComponentInChildren<ParticleSystem>();
 
-        if(cardType == CardType.Monster) particle.Play();
+        particle.Play(); //if(cardType == CardType.Monster) 
         var duration = particle.main.duration;
 
         var baseParticleObj = particleObj.transform.GetChild(1).gameObject;
@@ -54,8 +54,10 @@ public class MagicCircleEffect
             var childParticle = baseParticleObj.GetComponent<ParticleSystem>();
             if(childParticle != null)
             {
-                var main = childParticle.main;
-                main.startColor = newColor;
+                var baseMain = childParticle.main;
+                var ouraMain =particle.main;
+                baseMain.startColor = newColor;
+                ouraMain.startColor = newColor;
             }
         }
         var originalScale = baseParticleObj.transform.localScale;

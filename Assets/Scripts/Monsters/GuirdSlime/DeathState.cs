@@ -8,7 +8,6 @@ namespace Game.Monsters.GuirdSlime
 
         public override void OnEnter()
         {
-            stateAnimSpeed = 1f;
             base.OnEnter();
         }
         public override void OnUpdate()

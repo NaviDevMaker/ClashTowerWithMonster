@@ -9,11 +9,12 @@ namespace Game.Players
         public UnitBase target;
         public AttackStateBase(T controller) : base(controller) { }
         CancellationTokenSource cts = new CancellationTokenSource();
-
+        int attackAmount = 0;
         bool isAttacking = false;
         protected float interval = 0f;
         public override void OnEnter()
         {
+            attackAmount = controller.BuffStatus(BuffType.Power, controller.PlayerStatus.AttackAmount);
             cts = new CancellationTokenSource();
             if (clipLength == 0)
             {
@@ -22,10 +23,8 @@ namespace Game.Players
         }
         public override void OnUpdate()
         {
-            if(target != null)
-            {
-                LookEnemyDirection();
-            }
+            attackAmount = controller.BuffStatus(BuffType.Power,controller.PlayerStatus.AttackAmount);
+            if(target != null) LookEnemyDirection();
             Debug.Log(target);
             if(!isAttacking)
             {
@@ -62,15 +61,14 @@ namespace Game.Players
         {
             var direction = target.transform.position - controller.transform.position;
             var rotation = Quaternion.LookRotation(direction);
-           controller.transform.rotation = rotation;
-
+            controller.transform.rotation = rotation;
         }
         public void Attack_SimpleFromAnimEvent()
         {
             if (target != null && target.TryGetComponent<IUnitDamagable>(out var unitDamagable))
             {
                 Debug.Log($"{controller.gameObject.name}のアタック");
-                unitDamagable.Damage(controller.PlayerStatus.AttackAmount);
+                unitDamagable.Damage(attackAmount);
                 EffectManager.Instance.hitEffect.GenerateHitEffect(target);
             }
             //controller.animator.speed = 0f;         
@@ -91,7 +89,6 @@ namespace Game.Players
             }
             catch (OperationCanceledException)
             {
-                // 正常にキャンセルされた → 無視してOK
                 return;
             }
             isAttacking = false;

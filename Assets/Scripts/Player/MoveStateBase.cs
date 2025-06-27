@@ -14,13 +14,14 @@ namespace Game.Players
         public MoveStateBase(T controller) : base(controller) { }
         public bool isMoving = false;//true
         public bool isPressedA = false;
+        int moveSpeed = 0;
         Vector3 offset = new Vector3(0, 0.3f, 0);
         SemaphoreSlim semaphore = new SemaphoreSlim(1,1);
 
         CancellationTokenSource cls = null;
-        bool isChecked = false;
         public override void OnEnter()
         {
+            moveSpeed = controller.BuffStatus(BuffType.Speed, (int)controller.PlayerStatus.MoveSpeed);
             cls = controller.cls;
             controller.cls = new CancellationTokenSource();
             nextState = controller.IdleState;
@@ -33,6 +34,9 @@ namespace Game.Players
         }
         public override  void OnUpdate()
         {
+            moveSpeed = controller.BuffStatus(BuffType.Speed, (int)controller.PlayerStatus.MoveSpeed);
+            var isBuffed = controller.statusCondition.BuffSpeed.isActive;
+            if (isBuffed) { var newSpeed = 1.3f; controller.animator.speed = newSpeed;}
             if (!CheckMovable())
             {
                 cls?.Cancel();
@@ -81,6 +85,7 @@ namespace Game.Players
                 {
                     foreach (var hit in hits)
                     {
+                        if (hit.collider == null) return;
                         var hitLayer = 1 << hit.collider.gameObject.layer;
                         if (Layers.groundLayer == hitLayer)
                         {
@@ -89,7 +94,6 @@ namespace Game.Players
                             var direction = targetPos - controller.transform.position;
                             if (direction != Vector3.zero) controller.transform.rotation = Quaternion.LookRotation(direction);
                             if (!CheckMovable()) break;
-                            var moveSpeed = controller.PlayerStatus.MoveSpeed;
                             //while ((targetPos - controller.transform.position).sqrMagnitude > 0.01f && !cls.IsCancellationRequested)
                             //{
                             //    if(cls.IsCancellationRequested)
@@ -141,17 +145,6 @@ namespace Game.Players
 
             return true;
         }
-        //bool CheckMovable(Vector3 perTargetPos)
-        //{
-        //    var rayDistance = controller.PlayerStatus.AttackRange;
-        //    if (Physics.CheckSphere(perTargetPos,rayDistance, Layers.buildingLayer))
-        //    {
-        //        Debug.Log("’Ê‚ê‚Ü‚¹‚ñ");
-        //        return false;
-        //    }
-
-        //    return true;
-        //}
     }         
 }
 

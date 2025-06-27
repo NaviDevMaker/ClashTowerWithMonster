@@ -10,10 +10,11 @@ namespace Game.Monsters
     public class DeathStateBase<T> : StateMachineBase<T> where T : MonsterControllerBase<T>
     {
         public DeathStateBase(T controler) : base(controler) { }
-        protected float stateAnimSpeed = 0f;
+        float stateAnimSpeed = 0f;
         DeathMoveExecuter deathMoveExecuter;
         public override void OnEnter()
         {
+            stateAnimSpeed = controller.MonsterStatus.AnimaSpeedInfo.DeathStateAnimSpeed;
             deathMoveExecuter = new DeathMoveExecuter();
             clipLength = controller.GetAnimClipLength();
             //DeathMove().Forget();

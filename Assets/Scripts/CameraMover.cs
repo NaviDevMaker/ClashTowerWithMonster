@@ -2,6 +2,7 @@ using Game.Players.Sword;
 using UnityEditor.Rendering;
 using UnityEngine;
 using Game.Players;
+using DG.Tweening;
 
 public class CameraMover : MonoBehaviour
 {
@@ -13,6 +14,11 @@ public class CameraMover : MonoBehaviour
     {
         SetPlayerCenter();
         previousPos = player.transform.position;
+    }
+
+    private void Update()
+    {
+        CameraRotate();
     }
     private void LateUpdate()
     {
@@ -34,5 +40,12 @@ public class CameraMover : MonoBehaviour
             var pos = new Vector3(hitPos.x, player.transform.position.y, hitPos.z);
             player.transform.position = pos;
         }
+    }
+
+    void CameraRotate()
+    {
+        var angleY = 0.5f;
+        if (InputManager.IsClickedLeftRotateCameraButton()) transform.Rotate(0f, -angleY, 0f,Space.World);
+        else if (InputManager.IsClickedRightRotateCameraButton()) transform.Rotate(0f, angleY,0f,Space.World);
     }
 }

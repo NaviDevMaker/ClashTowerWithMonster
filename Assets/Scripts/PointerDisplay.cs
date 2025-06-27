@@ -15,7 +15,7 @@ public class PointerDisplay:MonoBehaviour
     float floatTime = 0.5f;
     float destroyTime = 2.0f;
     float upAmount = 1.5f;
-    float offsetY = 1.0f;
+    float offsetY = 1.0f;//生成ポジションのoffsetのy
     CancellationTokenSource cls = new CancellationTokenSource();
     bool isAttackingPlayer = false;
     bool isDeadPlayer = false;
@@ -74,7 +74,7 @@ public class PointerDisplay:MonoBehaviour
                         arrow.SetActive(true);
                         Debug.Log("ヒット");
                         var targetPos = hit.point;
-                        var direction = (targetPos - transform.position).normalized;
+                        var direction = (targetPos - player.transform.position).normalized;
                         transform.position = GetGeneratePos(direction,targetPos);
                         var genePos = transform.position; //+ new Vector3(0f, offsetY, 0f);
                         particle = Instantiate(pointedPositionParticle, genePos, Quaternion.identity);
@@ -96,20 +96,32 @@ public class PointerDisplay:MonoBehaviour
     Vector3 GetGeneratePos(Vector3 direction,Vector3 targetPos)
     {
         RaycastHit[] hits;
-        var radius = 2f;
         var offset_Pos = new Vector3(0f, offsetY, 0f);
+        var rayOffset = new Vector3(0f, 0.3f, 0f);
         var playerPos = player.transform.position;
-        var origin = playerPos + offset_Pos;
-        var distance = Vector3.Distance(targetPos,playerPos);
-        hits = Physics.SphereCastAll(origin, radius, direction, distance, Layers.buildingLayer);
+        var origin = playerPos + rayOffset;
+        var distance = Vector3.Distance(targetPos, playerPos);
+        hits = Physics.RaycastAll(origin,direction, distance, Layers.buildingLayer);
         if(hits.Length > 0)
         {
             foreach (var hit in hits)
             {
                 var layer = 1 << hit.collider.gameObject.layer;
-                if(layer == Layers.buildingLayer)
+                if (layer == Layers.buildingLayer)
                 {
-                    var genePos = hit.collider.ClosestPoint(playerPos) + offset_Pos;
+                    Debug.Log("建物にヒット！！");
+                    //Playerが建物を前にしたときにこれ以上進めなくする距離の変数
+                    var stopRange = player.PlayerStatus.PlayerAttackType == PlayerAttackType.OnlyGroundedEnemy ? player.PlayerStatus.AttackRange : 1f;
+                    var point = hit.point;
+                    var fowardOffset = Vector3.zero;
+                    var pointDistance = (point - playerPos).sqrMagnitude;
+
+                    if (pointDistance > stopRange) fowardOffset = -(direction * stopRange);
+                    else fowardOffset = -(direction * pointDistance);
+
+                    point = point + fowardOffset;
+                    point.y = Terrain.activeTerrain.SampleHeight(hit.point);               
+                    var genePos = point + offset_Pos;
                     return genePos;
                 }
             }
