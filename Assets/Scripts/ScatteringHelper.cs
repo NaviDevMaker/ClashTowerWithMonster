@@ -79,7 +79,7 @@ public static class ScatteringHelper
             var material = chunk.GetComponent<MeshRenderer>().material;
             if (material.name.StartsWith(rawMaterialName))
             {
-                if (material.HasProperty("_Surface")) FadeOutHelper.ChangeToTranparent(material);
+                if (material.HasProperty("_Surface")) FadeProcessHelper.ChangeToTranparent(material);
             }
             rb.isKinematic = false;
             var minY = Terrain.activeTerrain.SampleHeight(obj.transform.position);
@@ -87,7 +87,7 @@ public static class ScatteringHelper
             var forceVector = new Vector3(UnityEngine.Random.Range(min, max), UnityEngine.Random.Range(minY, maxY), UnityEngine.Random.Range(min, max));           
             rb.AddForce(forceVector, ForceMode.Impulse);
             rb.AddTorque(forceVector, ForceMode.Impulse);
-            var task = FadeOutHelper.FadeOutColor(fadeOutTime, obj.GetCancellationTokenOnDestroy(), material);
+            var task = FadeProcessHelper.FadeOutColor(fadeOutTime, obj.GetCancellationTokenOnDestroy(), material);
             tasks.Add(task);
         });
 

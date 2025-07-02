@@ -5,7 +5,6 @@ namespace Game.Monsters.Slime
 {
     public class SlimeController : MonsterControllerBase<SlimeController>
     {
-
         protected override void Awake()
         {
             base.Awake();
@@ -27,8 +26,6 @@ namespace Game.Monsters.Slime
             AttackState = new AttackState(this);
             DeathState = new DeathState(this);
         }
-
     }
-
 }
 

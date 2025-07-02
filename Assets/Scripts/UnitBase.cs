@@ -67,6 +67,16 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
         }
     }
 
+    public ProjectileAttackMonsterStatus ProjectileAttackMonsterStatus 
+    {
+
+        get
+        {
+            if (unitType == UnitType.monster && MonsterStatus.AttackType == AttackType.Long) return StatusData as ProjectileAttackMonsterStatus;
+            else return null;
+        }
+   }
+
 
     public TowerStatusData TowerStatus
     {
@@ -87,7 +97,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
     }
 
     public StatusData StatusData { get => statusData;}
-    public UnitScale UnitScale { get => unitScale;}
+    //public UnitScale UnitScale { get => unitScale; set => unitScale = value; }
     public Vector3 myScale => transform.localScale;
 
     public UnitType UnitType { get => unitType;}
@@ -97,6 +107,8 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
 
     public bool isKnockBacked_Monster { get; set; } = false;
     public bool isKnockBacked_Spell { get; set; } = false;
+    public UnitScale UnitScale { get => unitScale;}
+
     protected virtual void Awake()
     {
         SetRadius();
@@ -209,7 +221,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
             case UnitScale.middle:
                 return 4.0f;
             case UnitScale.large:
-                return 1.0f;
+                return 8.0f;
             case UnitScale.tower:
                 return 12.0f;
             case UnitScale.player:
@@ -231,6 +243,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
                 hpBar = await SetFieldFromAssets.SetField<GameObject>("HPBar/Enemy_Middle");
                 return hpBar;
             case UnitScale.large:
+                hpBar = await SetFieldFromAssets.SetField<GameObject>("HPBar/Enemy_Large");
                 return hpBar;
             case UnitScale.tower:
                 hpBar = await SetFieldFromAssets.SetField<GameObject>("HPBar/Tower");
@@ -299,13 +312,18 @@ public enum Side
     EnemySide = 1 << 1,
 }
 //‘å‚«‚³‚É‚æ‚Á‚Ä‚Â‚¯‚éHPƒo[‚Ì‘å‚«‚³‚ð•Ï‚¦‚é
+[Flags]
 public enum UnitScale
 {
-    small,
-    middle,
-    large,
-    player,
-    tower,
+    small = 1 << 0,
+    middle = 1 << 1,
+    large = 1 << 2,
+    player = 1 << 3,
+    tower = 1 << 4,
+
+    AllExceptTower = player | small | middle | large,
+    PlayerAndSmall = player | small,
+    PlayerSmallMiddle = player | small | middle
 }
 
 public enum UnitType

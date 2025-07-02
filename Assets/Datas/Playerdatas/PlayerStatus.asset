@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackAmount: 5
   hp: 200
+  pushAmount: 10
   attackRange: 2
   moveSpeed: 7
+  attackType: 0

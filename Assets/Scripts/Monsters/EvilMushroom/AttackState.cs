@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Game.Monsters.EvilMushroom
 {
@@ -24,44 +25,9 @@ namespace Game.Monsters.EvilMushroom
             base.OnExit();
         }
 
-        protected override async UniTask Attack_Simple()
+        protected override async UniTask Attack_Simple(UnityAction paresisAttack)
         {
-            try
-            {
-                await UniTask.WaitUntil(() => controller.animator.GetCurrentAnimatorStateInfo(0)
-           .IsName(controller.MonsterAnimPar.attackAnimClipName), cancellationToken: cts.Token);
-                controller.animator.speed = 1.0f;
-                Debug.Log(target.gameObject.name);
-                //var animDuration = clipLength * animationSpeed;
-                var startNormalizeTime = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                Func<bool> wait = (() =>
-                {
-                    var now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                    return now - startNormalizeTime >= attackEndNomTime;
-                });
-                //Func<bool> waitEnd = (() =>
-                //{
-                //    var now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                //    return now - startNormalizeTime >= 1.0f;
-                //});
-                await UniTask.WaitUntil(wait, cancellationToken: cts.Token);//,);
-                if (target != null && target.TryGetComponent<IUnitDamagable>(out var unitDamagable))
-                {
-                    Debug.Log($"{controller.gameObject.name}のアタック");
-                    unitDamagable.Damage(controller.MonsterStatus.AttackAmount);
-                    ParesisTarget();
-                    EffectManager.Instance.hitEffect.GenerateHitEffect(target);
-                }
-            }
-            catch (OperationCanceledException) { }
-            finally
-            {
-                if(cts.IsCancellationRequested) isAttacking = false;
-            }
-            //await UniTask.WaitUntil(waitEnd, cancellationToken: cts.Token);
-            //controller.animator.speed = 0f;
-            //await UniTask.Delay(TimeSpan.FromSeconds(interval), cancellationToken: cts.Token);
-            Debug.Log("dsacdsscsad");
+           await base.Attack_Simple(ParesisTarget);
         }
 
         async void ParesisTarget()

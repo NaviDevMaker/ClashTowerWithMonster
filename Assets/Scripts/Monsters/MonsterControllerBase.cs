@@ -1,9 +1,5 @@
 using Cysharp.Threading.Tasks;
-using Game.Monsters.BigEyeMonster;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
-using static UnityEngine.Rendering.HableCurve;
-
 public interface IMonster { }
 namespace Game.Monsters
 {

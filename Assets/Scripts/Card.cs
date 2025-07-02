@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using DG.Tweening;
 using UnityEngine.Events;
 using UnityEngine.UI;
-public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,IPointerDownHandler, IPointerUpHandler
+public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,IPointerDownHandler
 {
     public class CardImage
     {
@@ -57,13 +57,28 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,IPo
     public CardImage _cardImage { get => cardImage;}
     public bool currentSelected { get; set; } = false;
 
-    private void  Awake()
+    //private void  Awake()
+    //{
+    //    SetCardImageFromData();
+    //    var iconImage = GetComponent<Image>();
+    //    var energyImage = transform.GetChild(0).GetComponent<Image>();
+    //    cardImage = new CardImage { iconImage = iconImage, originalScale = transform.localScale, originalColor_icon = iconImage.color
+    //        ,energyImage = energyImage,originalColor_energy = energyImage.color};
+    //}
+    public void Initialize()
     {
-        SetCardImageFromData();
+        this.SetCardImageFromData(cardData);
         var iconImage = GetComponent<Image>();
         var energyImage = transform.GetChild(0).GetComponent<Image>();
-        cardImage = new CardImage { iconImage = iconImage, originalScale = transform.localScale, originalColor_icon = iconImage.color
-            ,energyImage = energyImage,originalColor_energy = energyImage.color};
+        cardImage = new CardImage
+        {
+            iconImage = iconImage,
+            originalScale = transform.localScale,
+            originalColor_icon = iconImage.color
+            ,
+            energyImage = energyImage,
+            originalColor_energy = energyImage.color
+        };
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -93,20 +108,19 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,IPo
             cardImage.SetNewAlpha();
         }
     }
-    public void OnPointerUp(PointerEventData eventData)
-    {
-
-    }
+    
     private void OnDisable()
     {
         if(!CardSelected && !isSettedNextCard) cardImage.SetOriginal(this, isHandCard: !isSettedNextCard);
     }
 
-    void SetCardImageFromData()
-    {
-        var iconImage = GetComponent<Image>();
-        if (iconImage != null) iconImage.sprite = cardData.Icon;
-        var energyImage = transform.GetChild(0).GetComponent<Image>();
-        if (energyImage != null) energyImage.sprite = cardData.EnergyImage;
-    }
+    //void SetCardImageFromData()
+    //{
+    //    var iconImage = GetComponent<Image>();
+    //    if (iconImage != null) iconImage.sprite = cardData.Icon;
+    //    var energyImage = transform.GetChild(0).GetComponent<Image>();
+    //    if (energyImage != null) energyImage.sprite = cardData.EnergyImage;
+    //}
+
+
 }

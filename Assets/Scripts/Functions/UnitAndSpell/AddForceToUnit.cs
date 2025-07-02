@@ -11,11 +11,24 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
     T me;
     float pushAmount;
     float pushDuration;
+    UnitScale effectiveScale;
     public AddForceToUnit(T me,float pushAmount,float pushDuration = default)
     {
         this.me = me;
         this.pushAmount = pushAmount;
         if(pushDuration != 0) this.pushDuration = pushDuration;
+        if(me is IMonster || me is IPlayer)
+        {
+            effectiveScale = me.UnitScale switch
+            {
+                UnitScale.player => UnitScale.AllExceptTower,
+                UnitScale.small => UnitScale.PlayerAndSmall,
+                UnitScale.middle => UnitScale.PlayerSmallMiddle,
+                UnitScale.large => UnitScale.AllExceptTower,
+                UnitScale.tower => UnitScale.AllExceptTower,
+                _ => default
+            };
+        }
     }
 
     public void CompareEachUnit(UnitBase other)
@@ -23,7 +36,7 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
         var vector = other.transform.position - me.transform.position;
 
         var direction = vector.normalized;
-        Debug.Log(direction);
+       // Debug.Log(direction);
         float effectiveRadius_me = Mathf.Sqrt(Mathf.Pow(direction.x * me.rangeX, 2) + Mathf.Pow(direction.z * me.rangeZ, 2));
 
         float effectiveRadius_other = Mathf.Sqrt(Mathf.Pow(direction.x * other.rangeX, 2) + Mathf.Pow(direction.z * other.rangeZ, 2));
@@ -67,13 +80,18 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
             else if(other is IPlayer || other is IMonster)
             {
                 Debug.Log("押された！！！！！");
-                me.isKnockBacked_Monster = true;
-                targetPos_me = me.transform.position - push / 2;
-                targetPos_other = other.transform.position + push / 2;
-                me.transform.position = Vector3.MoveTowards(me.transform.position, targetPos_me,pushAmount * Time.deltaTime);
-                other.transform.position = Vector3.MoveTowards(other.transform.position, targetPos_other,pushAmount * Time.deltaTime);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.1f)); // 例: 0.2秒間ノックバック中
-                me.isKnockBacked_Monster = false;
+
+                var otherScaleType = other.UnitScale;
+                if ((otherScaleType & effectiveScale) != 0)
+                {
+                    other.isKnockBacked_Monster = true;
+                    //targetPos_me = me.transform.position - push / 2;
+                    targetPos_other = other.transform.position + push; // / 2
+                    //me.transform.position = Vector3.MoveTowards(me.transform.position, targetPos_me, pushAmount * Time.deltaTime);
+                    other.transform.position = Vector3.MoveTowards(other.transform.position, targetPos_other, pushAmount * Time.deltaTime);
+                    await UniTask.Delay(TimeSpan.FromSeconds(0.1f)); // 例: 0.2秒間ノックバック中
+                    other.isKnockBacked_Monster = false;
+                }
             }
     }
     public void KeepDistance(MoveType moveType)
@@ -109,7 +127,7 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
             var isDead = unit.isDead;
             //var fly = unit.moveType == MoveType.Fly;
             if (isDead) continue;
-            if ((effectiveSide & myType) == 0) continue;
+            if ((effectiveSide & myType) == 0 || (effectiveScale & me.UnitScale) == 0) continue;
             filteredList.Add(unit);
         }
 
