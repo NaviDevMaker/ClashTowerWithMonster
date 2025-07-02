@@ -109,11 +109,13 @@ public class ToxicCurse : SpellBase
             other.statusCondition.DemonCurse.isActive = true;
             return;
          }
-         var body = 0;
-         var bounds = other.MySkinnedMeshes[body].bounds;
-         var center = bounds.center;
-         var y = bounds.size.y;
-         var pos = center;
+
+         var pos = other.transform.position;
+         var collider = other.GetComponent<Collider>();
+         var y = collider.bounds.size.y;
+         var backOffset = -other.transform.forward * 0.5f;
+         pos.y += y;
+         pos += backOffset;
          
          if(other is IPlayer)
          {
