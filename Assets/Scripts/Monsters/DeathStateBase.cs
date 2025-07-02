@@ -14,6 +14,7 @@ namespace Game.Monsters
         DeathMoveExecuter deathMoveExecuter;
         public override void OnEnter()
         {
+            controller.animator.speed = 1.0f;
             stateAnimSpeed = controller.MonsterStatus.AnimaSpeedInfo.DeathStateAnimSpeed;
             deathMoveExecuter = new DeathMoveExecuter();
             clipLength = controller.GetAnimClipLength();

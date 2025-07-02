@@ -371,7 +371,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 502eeeb63603f464dbea86ced30f074a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitScale: 0
+  unitScale: 1
   unitType: 0
   mySkinnedMeshes:
   - {fileID: 3679650995374491466}

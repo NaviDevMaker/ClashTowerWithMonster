@@ -24,16 +24,16 @@ namespace Game.Monsters
         protected float flyingOffsetY = 0f;
         public CancellationTokenSource cts = new CancellationTokenSource();
         SemaphoreSlim moveSemaphoreSlim = new SemaphoreSlim(1, 1);
-        MonsterAttackType myMonsterType;
+        MonsterAttackType myMonsterAttackType;
         public override void OnEnter()
         {
             moveSpeed = controller.BuffStatus(BuffType.Speed, (int)controller.MonsterStatus.MoveSpeed);
-            myMonsterType = controller.MonsterStatus.MonsterAttackType;
+            myMonsterAttackType = controller.MonsterStatus.MonsterAttackType;
             cts = new CancellationTokenSource();
             controller.animator.SetBool(controller.MonsterAnimPar.Chase, true);
             nextState = controller.AttackState;
             SetTargetTower();
-            if (myMonsterType == MonsterAttackType.ToEveryThing) EvaluateNewTargetAndChase();
+            EvaluateNewTargetAndChase();
             ChaseTarget().Forget();
         }
         public override void OnUpdate()
@@ -64,7 +64,7 @@ namespace Game.Monsters
                 controller.ChangeState(nextState);
                 return;
             }
-            if (myMonsterType == MonsterAttackType.ToEveryThing) EvaluateNewTargetAndChase();
+           EvaluateNewTargetAndChase();// if (myMonsterAttackType == MonsterAttackType.ToEveryThing) 
         }
         public override void OnExit()
         {
@@ -275,6 +275,24 @@ namespace Game.Monsters
      
         void EvaluateNewTargetAndChase()
         {
+            if (myMonsterAttackType == MonsterAttackType.OnlyBuilding)
+            {
+                SetTargetTower();
+                if (targetTower != null && !isChasing)
+                {
+
+                    try
+                    {
+                        cts?.Cancel();
+                    }
+                    catch (ObjectDisposedException ex)
+                    {
+                        Debug.LogWarning("すでにDisposeされてるため、Cancelはスキップされました: " + ex.Message);
+                    }
+                    ChaseTarget().Forget();
+                }
+                return;
+            }
             var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(controller.gameObject, controller.MonsterStatus.ChaseRange);
 
             var mySide = controller.Side;
@@ -291,6 +309,7 @@ namespace Game.Monsters
                 var enemySide = cmp.Side;
                 var isDead = cmp.isDead;
                 var moveType = cmp.moveType;
+             
                 if(cmp.TryGetComponent<ISummonbable>(out var summonbable))
                 {
                     var isSummoned = summonbable.isSummoned;

@@ -412,14 +412,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f4a1b270b615f040b6d1a154084be8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitScale: 1
+  unitScale: 2
   unitType: 0
   mySkinnedMeshes:
   - {fileID: 734837980203243514}
   myMeshes: []
   statusData: {fileID: 11400000, guid: 02070abb41391144d81e9f9afc96aef7, type: 2}
   Side: 0
-  ownerID: 1
+  ownerID: 0
   monsterAnimPar: {fileID: 11400000, guid: c86b8f83d9673264d95e86cd55b9ac2c, type: 2}
 --- !u!1 &8390216563424821833
 GameObject:

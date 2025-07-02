@@ -134,14 +134,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e27764ecda1c72449b95829d30d9676, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitScale: 0
+  unitScale: 1
   unitType: 0
   mySkinnedMeshes:
   - {fileID: 1558227517446738358}
   myMeshes: []
   statusData: {fileID: 11400000, guid: 59c49bdc8d85dd9499eebc3f9f201fc0, type: 2}
   Side: 0
-  ownerID: 1
+  ownerID: 0
   monsterAnimPar: {fileID: 11400000, guid: c86b8f83d9673264d95e86cd55b9ac2c, type: 2}
 --- !u!65 &7428230556792205942
 BoxCollider:

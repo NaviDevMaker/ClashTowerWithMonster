@@ -301,14 +301,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a51b89714a49f245b68041b74126157, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitScale: 0
+  unitScale: 1
   unitType: 0
   mySkinnedMeshes:
   - {fileID: 5818858702581133909}
   myMeshes: []
   statusData: {fileID: 11400000, guid: b89c3a3c9b6a05b4d89ec04d8fbf09aa, type: 2}
   Side: 0
-  ownerID: 1
+  ownerID: 0
   monsterAnimPar: {fileID: 11400000, guid: c86b8f83d9673264d95e86cd55b9ac2c, type: 2}
 --- !u!65 &3153841656551720901
 BoxCollider:

@@ -4,14 +4,15 @@ using UnityEngine.UI;
 
 public static class UIFuctions
 {
-    public static void ShakeText(Graphic UiCompoent)
+    public static Tween ShakeText(Graphic UiCompoent, float duration = 0.1f,float strength = 50f,int vibrato = 30)
     {
-        var duration = 0.1f;
-        var strength = 50f;
-        var vibrato = 30;
-        UiCompoent.rectTransform.DOShakeAnchorPos(duration, strength, vibrato)
+        //var duration = 0.1f;
+        //var strength = 50f;
+        //var vibrato = 30;
+       var tween = UiCompoent.rectTransform.DOShakeAnchorPos(duration, strength, vibrato)
             .SetEase(Ease.Linear)
             .SetLoops(1, LoopType.Yoyo);
+        return tween;
     }
     public static void LookToCamera(GameObject rotateObject)
     {
