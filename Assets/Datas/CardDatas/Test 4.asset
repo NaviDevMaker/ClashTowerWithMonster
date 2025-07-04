@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 880aaa0396a369b4b9ba23e2c9bb78bd, type: 3}
   m_Name: Test 4
   m_EditorClassIdentifier: 
-  icon: {fileID: -1975463890, guid: eefba76eb4d339649bbdd33fdf47bf6f, type: 3}
+  icon: {fileID: 21300004, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
   energyImage: {fileID: -1975463890, guid: eefba76eb4d339649bbdd33fdf47bf6f, type: 3}
-  energy: 5
+  energy: 3
   cardName: 4
   cardPrefab: {fileID: 4844647833363762010, guid: 0248909cddf4370409658edb196af3c4, type: 3}
   cardType: 0

@@ -266,6 +266,7 @@ MonoBehaviour:
   mySkinnedMeshes:
   - {fileID: 6489457362741436212}
   myMeshes: []
+  bodyMesh: {fileID: 6489457362741436212}
   statusData: {fileID: 11400000, guid: 445ae099abd14764cb3abba43ab3f62c, type: 2}
   Side: 0
   ownerID: 0
