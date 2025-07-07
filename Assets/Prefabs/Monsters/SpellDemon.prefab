@@ -11771,6 +11771,7 @@ MonoBehaviour:
   - {fileID: 3317861949520810504}
   - {fileID: 3999912369207652126}
   myMeshes: []
+  bodyMesh: {fileID: 5683717477363332953}
   statusData: {fileID: 11400000, guid: 7864bfe658ada314885b73a49926817d, type: 2}
   Side: 0
   ownerID: 0
@@ -11778,6 +11779,7 @@ MonoBehaviour:
   otherMaterials:
   - {fileID: 2100000, guid: 1991f3b89983f144594ccf3db056e3ba, type: 2}
   - {fileID: 2100000, guid: 1fdb38a4914c4ba4aadb8a6eb5c17146, type: 2}
+  MySkinnedMeshes: []
 --- !u!1 &4921368020655317902
 GameObject:
   m_ObjectHideFlags: 0

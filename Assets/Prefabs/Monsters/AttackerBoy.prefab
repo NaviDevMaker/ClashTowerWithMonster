@@ -1329,7 +1329,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &8463013343816682120
 Transform:
   m_ObjectHideFlags: 0
@@ -1398,6 +1398,7 @@ MonoBehaviour:
   - {fileID: 5536697927339546195}
   - {fileID: 3521846685085837707}
   myMeshes: []
+  bodyMesh: {fileID: 4444883052985595992}
   statusData: {fileID: 11400000, guid: dd008354b76395c48ba62e46e0662f7d, type: 2}
   Side: 0
   ownerID: 0

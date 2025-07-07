@@ -16,3 +16,4 @@ MonoBehaviour:
   death: isDead
   move: isMoving
   idle: isIdle
+  skill: isUsingSkill

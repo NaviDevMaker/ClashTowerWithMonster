@@ -15,8 +15,18 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 7c80cd3f0bd795b4a83c5b977aa6dcff
   m_SerializeEntries:
+  - m_GUID: 0afacd58e12ef3148b5a2a6138b78864
+    m_Address: PlayerSpells/PlayerSkillEffect
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1151aa4b5201a1749ae9aa147c04dca2
     m_Address: Effects/ExplosionEffect
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 31d1d063fca5ae94db01827de0d2a235
+    m_Address: UI/SkillTimer
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -57,6 +67,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 67ff53c65c02ba34684438a51d84dc60
     m_Address: HPBar/Player
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6cb4b95ea1b82b64b8c3b4d7b045e96d
+    m_Address: PlayerSpells/SwordPlayerSkillEffect
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

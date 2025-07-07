@@ -197,7 +197,7 @@ GameObject:
   - component: {fileID: 7929127459146889255}
   - component: {fileID: 6817470005737650495}
   m_Layer: 5
-  m_Name: CanMoveTimerCanvas
+  m_Name: SpellDurationTimerCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
