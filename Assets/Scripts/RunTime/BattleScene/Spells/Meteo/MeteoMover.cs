@@ -18,12 +18,16 @@ public class MeteoMover : MonoBehaviour,IPushable,ISpells
 
     public float prioritizedRange { get; private set; }
 
-    public bool isKnockBacked_Monster { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+    public bool isKnockBacked_Unit { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
     public bool isKnockBacked_Spell { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
     public MoveType moveType => throw new System.NotImplementedException();
 
     public UnitScale UnitScale => throw new System.NotImplementedException();
+
+    public Transform spellTra => throw new System.NotImplementedException();
+
+    public float timerOffsetY => throw new System.NotImplementedException();
 
     ParticleSystem parentParticle = null;
 
@@ -154,7 +158,8 @@ public class MeteoMover : MonoBehaviour,IPushable,ISpells
             prioritizedRange = colliderRangeProvider.GetPriorizedRange() * scaleAmount;
 
             Debug.Log($"{rangeX},{rangeZ}");
-            addForceToUnit = new AddForceToUnit<MeteoMover>(this, attacker._SpellStatus.PushAmount, attacker._SpellStatus.PerPushDurationAndStunTime);
+            addForceToUnit = new AddForceToUnit<MeteoMover>(this, attacker._SpellStatus.PushAmount, 
+                attacker._SpellStatus.PerPushDurationAndStunTime,attacker.pushEffectUnit);
             isSettedProparty = true;
         }
 

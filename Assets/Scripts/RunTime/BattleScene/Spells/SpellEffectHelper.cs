@@ -13,21 +13,6 @@ public class SpellEffectHelper
     }
     void CompareEachUnit(UnitBase other)
     {
-        //var vector = other.transform.position - spellBase.transform.position;
-
-        //var direction = vector.normalized;
-
-        //float effectiveRadius_me = Mathf.Sqrt(Mathf.Pow(direction.x * spellBase.rangeX, 2) + Mathf.Pow(direction.z * spellBase.rangeZ, 2));
-
-        //float effectiveRadius_other = Mathf.Sqrt(Mathf.Pow(direction.x * other.rangeX, 2) + Mathf.Pow(direction.z * other.rangeZ, 2));
-
-        ////“G‚©‚ç‚Ì”¼Œa‚ÆŽ©•ª‚Ì”¼Œa‚ð‚Â‚È‚°‚½‚Æ‚«i‚¨ŒÝ‚¢‚ª”ÍˆÍŠO‚¬‚è‚¬‚èj‚Ì’·‚³
-        ////‚±‚êˆÈã”ÍˆÍ‚É“ü‚Á‚Ä‚¢‚½ê‡A”ÍˆÍ“à‚É‚Í‚¢‚Á‚Ä‚¢‚é‚Æ‚¢‚¤‚±‚Æ‚É‚È‚é
-        //float minDistance = effectiveRadius_me + effectiveRadius_other;
-
-        //var flatVector = new Vector3(vector.x, 0f, vector.z);
-        //var distance = flatVector.magnitude;   
-        //if (distance >= minDistance) return;
         if (!CompareUnitInRange(other)) return;
         EffectToEachUnit(other);
     }

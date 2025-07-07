@@ -8,6 +8,7 @@ using Unity.VisualScripting;
 using Game.Players.Sword;
 using UnityEngine.Events;
 using UnityEngine.InputSystem.XR;
+using Game.Spells;
 
 
 public interface IPlayer { }
@@ -19,6 +20,8 @@ namespace Game.Players
     public partial class PlayerControllerBase<T> : UnitBase, IPlayer where T : PlayerControllerBase<T>
     {
         [SerializeField] PlayerAnimatorPar animatorPar;
+        [SerializeField] PlayerSkillData skillData;
+        public PlayerSkillData SkillData => skillData;
         public Animator animator { get; private set; }
 
         public IdleStateBase<T> IdleState { get; protected set; }
@@ -26,6 +29,8 @@ namespace Game.Players
         public AttackStateBase<T> AttackState { get; protected set; }
 
         public DeathStateBase<T> DeathState { get; protected set; }
+
+        public SkillStateBase<T> SpellState { get; protected set; }
 
         public CheckEnemyStateBase<T> CheckEnemyState { get; protected set; }
         public PlayerAnimatorPar AnimatorPar { get => animatorPar;}
@@ -41,6 +46,9 @@ namespace Game.Players
         public UnityAction<bool> OnDeathPlayer;
 
         protected AddForceToUnit<PlayerControllerBase<T>> addForceToUnit;
+        public AddForceToUnit<PushablePlayerSkillObj> addForceToUnit_Skill {get;set;}
+        protected PushEffectUnit pushEffectUnit;
+        public bool isUsingSkill { get; set; } = false;
         protected override void Start()
         {
             //Time.timeScale = 0.5f;//å„Ç≈è¡ÇµÇƒ
@@ -57,6 +65,8 @@ namespace Game.Players
             base.Update();
             SetPlayerHeight();
             if (isDead && currentState != DeathState) ChangeState(DeathState);
+
+            if (!isUsingSkill && !isDead && InputManager.IsClickedSkillButton()) SpellState?.SkillInvoke();
             CheckEnemyState?.OnUpdate();
             currentState?.OnUpdate();
         }
@@ -147,8 +157,6 @@ namespace Game.Players
         {
             AttackState.WaitIntervalFromAnimEvent();
         }
-
     }
-
 }
 

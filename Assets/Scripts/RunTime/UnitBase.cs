@@ -98,7 +98,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
    public  List<Material[]> meshMaterials { get; private set; } = new List<Material[]>();
     List<Color[]> originalMaterialColors = new List<Color[]>();
 
-    public bool isKnockBacked_Monster { get; set; } = false;
+    public bool isKnockBacked_Unit { get; set; } = false;
     public bool isKnockBacked_Spell { get; set; } = false;
     public UnitScale UnitScale { get => unitScale;}
     public Renderer BodyMesh => bodyMesh;

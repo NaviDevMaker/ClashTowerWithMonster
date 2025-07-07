@@ -5,7 +5,12 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 
-public interface ISpells { }
+public interface ISpells 
+{
+    Transform spellTra { get; }
+    float timerOffsetY {  get; }
+
+}
 
 namespace Game.Spells
 {
@@ -26,12 +31,14 @@ namespace Game.Spells
         bool isSpellInvoked = false;
         protected ParticleSystem particle;
         protected SpellEffectHelper spellEffectHelper { get;private set;}
-        public bool isKnockBacked_Monster { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public bool isKnockBacked_Unit { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
         public bool isKnockBacked_Spell { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
         public PushEffectUnit pushEffectUnit { get;protected set; }
 
         public UnitScale UnitScale => throw new NotImplementedException();
+
+        public Transform spellTra => transform;
 
         LineRenderer lineRenderer;
         void Start()
@@ -151,14 +158,13 @@ namespace Game.Spells
             lineRenderer.LitLineRendererMaterial(waitAction);
         }
     }
+}
 
-
-    [Flags]
-    public enum PushEffectUnit
-    {
-        OnlyEnemyUnit = 1 << 0,
-        OnlyPlayerUnit = 1 << 1,
-        AllUnit = 1 << 2,
-    }
+[Flags]
+public enum PushEffectUnit
+{
+    OnlyEnemyUnit = 1 << 0,
+    OnlyPlayerUnit = 1 << 1,
+    AllUnit = 1 << 2,
 }
 

@@ -67,10 +67,10 @@ public class TimerSetter:MonoBehaviour
         UnityEngine.Object.Destroy(timerObj);
     }
 
-    public async void StartSpellTimer(float spellTime,SpellBase spell)
+    public async void StartSpellTimer(float spellTime,ISpells spell)
     {
         if(spellTimer == null) spellTimer = await SetFieldFromAssets.SetField<GameObject>("UI/SpellTimer");
-        var pos = spell.transform.position;
+        var pos = spell.spellTra.position;
         pos.y += spell.timerOffsetY;
         var timerObj = Instantiate(this.spellTimer, pos, Quaternion.identity);
         var size = Vector3.one * timerPerScale;
@@ -88,7 +88,29 @@ public class TimerSetter:MonoBehaviour
         await sequence.AsyncWaitForCompletion();
         UnityEngine.Object.Destroy(timerObj);
     }
+    public async void StartSkillTimer(float skillTime,ISkills skill)
+    {
+        if (spellTimer == null) spellTimer = await SetFieldFromAssets.SetField<GameObject>("UI/SkillTimer");
+        var pos = skill.skillTra.position;
+        pos.y += skill.timerOffsetY;
+        var timerObj = Instantiate(this.spellTimer, pos, Quaternion.identity);
+        var size = Vector3.one * timerPerScale;
+        timerObj.transform.localScale = size;
 
+        ChaseTargetEndSkillEnd(timerObj,skill,skillTime);
+        var timerImages = GetTimerImages(timerObj);
+
+        timerImages.outSideImage.fillAmount = 0f;
+        timerImages.inSideImage.fillAmount = 0f;
+        await CountTime(timerObj, timerImages, skillTime);
+
+        timerImages.outSideImage.fillAmount = 1.0f;
+        timerImages.inSideImage.fillAmount = 1.0f;
+
+        var sequence = GetUIAnimations(timerObj, timerImages);
+        await sequence.AsyncWaitForCompletion();
+        UnityEngine.Object.Destroy(timerObj);
+    }
     Sequence GetUIAnimations(GameObject timerObj,TimerImages timerImages)
     {
         var originalScale = timerObj.transform.localScale;
@@ -116,6 +138,20 @@ public class TimerSetter:MonoBehaviour
         return timerImages;
     }
 
+    async void ChaseTargetEndSkillEnd(GameObject timerObj,ISkills skill,float duration)
+    {
+        var offset = Vector3.up * skill.timerOffsetY;
+        var time = 0f;
+        while(time < duration)
+        {
+            time += Time.deltaTime;
+            var targetPos = skill.skillTra.position;
+            targetPos += offset;
+            timerObj.transform.position = targetPos;
+            var token = skill.skillTra.gameObject.GetCancellationTokenOnDestroy();
+            await UniTask.Yield(cancellationToken: token);
+        }
+    }
     async UniTask CountTime(GameObject timerObj,TimerImages timerImages,float waitTime)
     {
         var time = 0f;
@@ -132,7 +168,7 @@ public class TimerSetter:MonoBehaviour
                 timerImages.outSideImage.fillAmount = ratio;
                 timerImages.inSideImage.fillAmount = ratio;
                 timerImages.secondHandImage.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -rotateAmount) * originalRot;
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken:timerObj.GetCancellationTokenOnDestroy());
             }
         }      
     }

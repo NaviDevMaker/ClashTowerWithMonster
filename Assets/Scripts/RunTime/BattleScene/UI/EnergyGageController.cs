@@ -63,7 +63,7 @@ public class EnergyGageController : MonoBehaviour
         var rect = energyLiquidImage.rectTransform;
         rect.sizeDelta = new Vector2(targetWidth,rect.rect.height);
     }
-    public void ReduceEnergy(Card card) // bool
+    public void ReduceCardEnergy(Card card) // bool
     {
         //if (card.CardData.Energy > currentEnergy) return false;
         currentEnergy -= card.CardData.Energy;
@@ -71,10 +71,10 @@ public class EnergyGageController : MonoBehaviour
         var tween = UIFuctions.ShakeText(energyCountText);
 
         //return true;
+    } 
+    void ReduceSkillEnery(int energy)
+    {
+
     }
-
-
-
-   
 }
 

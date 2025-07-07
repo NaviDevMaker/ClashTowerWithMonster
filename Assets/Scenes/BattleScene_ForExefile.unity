@@ -7150,6 +7150,7 @@ MonoBehaviour:
   Side: 0
   ownerID: 0
   animatorPar: {fileID: 11400000, guid: 48c341a6e40921948b40cca76f285916, type: 2}
+  skillData: {fileID: 11400000, guid: 0afacd58e12ef3148b5a2a6138b78864, type: 2}
 --- !u!1 &1792347680
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,7 +12,7 @@ namespace Game.Spells.LaneFire
             _SpellStatus = await SetFieldFromAssets.SetField<SpellStatus>("Datas/Spells/LaneSpell");
             base.Initialize();
             pushEffectUnit = PushEffectUnit.OnlyEnemyUnit;
-            addForceToUnit = new AddForceToUnit<SpellBase>(this, _SpellStatus.PushAmount, _SpellStatus.PerPushDurationAndStunTime);
+            addForceToUnit = new AddForceToUnit<SpellBase>(this, _SpellStatus.PushAmount, _SpellStatus.PerPushDurationAndStunTime, pushEffectUnit);
         }
         protected override async UniTaskVoid Spell()
         {

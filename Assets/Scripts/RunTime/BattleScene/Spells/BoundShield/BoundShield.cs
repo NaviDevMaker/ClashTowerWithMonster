@@ -15,7 +15,7 @@ namespace Game.Spells.BoundShield
             _SpellStatus = await SetFieldFromAssets.SetField<SpellStatus>("Datas/Spells/BoundShield");
             base.Initialize();
             pushEffectUnit = PushEffectUnit.OnlyEnemyUnit;
-            addForceToUnit = new AddForceToUnit<SpellBase>(this, _SpellStatus.PushAmount, _SpellStatus.PerPushDurationAndStunTime);
+            addForceToUnit = new AddForceToUnit<SpellBase>(this, _SpellStatus.PushAmount, _SpellStatus.PerPushDurationAndStunTime,pushEffectUnit);
         }
         protected override void SetDuration()
         {

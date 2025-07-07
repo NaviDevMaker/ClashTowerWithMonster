@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Slime
   m_EditorClassIdentifier: 
   attackAmount: 10
-  hp: 2000
+  hp: 200
   pushAmount: 10
   animaSpeedInfo:
     attackStateAnimSpeed: 1

@@ -5,19 +5,33 @@ using DG.Tweening;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using System;
+
+public interface IIconImageInfo
+{
+    Image iconImage { get;}
+    Image energyImage { get; }
+
+    Color originalColor_icon { get; }
+    Color originalColor_energy {  get; }
+    float alphaAmount { get; }
+
+    void SetNewAlpha();
+    void SetShaderMaterialColor();
+}
+
 public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,IPointerDownHandler
 {
-    public class CardImage
+    public class CardImage:IIconImageInfo
     {
-        public Image iconImage;
-        public Image energyImage;
+        public Image iconImage { get; set; }
+        public Image energyImage { get; set; }
 
         public Vector3 originalScale;
-        public Color originalColor_icon;
-        public Color originalColor_energy;
+        public Color originalColor_icon { get; set; }
+        public Color originalColor_energy { get; set; }
 
         public float scaleAmount = 1.3f;
-        public float alphaAmount = 0.25f;
+        public float alphaAmount { get; set; } = 0.25f;
 
         bool isMeetedEnergy = false;
         public bool _isMeetedEnergy

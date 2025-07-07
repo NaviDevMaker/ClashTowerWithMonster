@@ -15,7 +15,7 @@ public class BombBarrel : SpellBase
         base.Initialize();
         pushEffectUnit = PushEffectUnit.AllUnit;
         particle = transform.GetChild(0).GetComponent<ParticleSystem>();
-        addForceToUnit = new AddForceToUnit<SpellBase>(this, _SpellStatus.PushAmount, _SpellStatus.PerPushDurationAndStunTime);
+        addForceToUnit = new AddForceToUnit<SpellBase>(this, _SpellStatus.PushAmount, _SpellStatus.PerPushDurationAndStunTime,pushEffectUnit);
     }
     protected override async UniTaskVoid Spell()
     {

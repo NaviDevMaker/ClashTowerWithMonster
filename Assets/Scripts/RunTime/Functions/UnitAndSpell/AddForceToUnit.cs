@@ -12,10 +12,12 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
     float pushAmount;
     float pushDuration;
     UnitScale effectiveScale;
-    public AddForceToUnit(T me,float pushAmount,float pushDuration = default)
+    PushEffectUnit pushEffectUnit;
+    public AddForceToUnit(T me,float pushAmount,float pushDuration = default,PushEffectUnit pushEffectUnit = default)
     {
         this.me = me;
         this.pushAmount = pushAmount;
+        if(pushEffectUnit != default) this.pushEffectUnit = pushEffectUnit;
         if(pushDuration != 0) this.pushDuration = pushDuration;
         if(me is IMonster || me is IPlayer)
         {
@@ -65,7 +67,7 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
                 targetPos_me = me.transform.position - push;
                 me.transform.position = Vector3.MoveTowards(me.transform.position, targetPos_me, pushAmount * Time.deltaTime);
             }
-            else if ((other is IPlayer || other is IMonster) && me is ISpells)
+            else if ((other is IPlayer || other is IMonster) && (me is ISpells || me is ISkills))
             {
                 Debug.Log("呪文発動");
                 //Debug.Log($" 隕石のPushは{push}");
@@ -85,13 +87,13 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
                 var otherScaleType = other.UnitScale;
                 if ((otherScaleType & effectiveScale) != 0)
                 {
-                    other.isKnockBacked_Monster = true;
+                    other.isKnockBacked_Unit = true;
                     //targetPos_me = me.transform.position - push / 2;
                     targetPos_other = other.transform.position + push; // / 2
                     //me.transform.position = Vector3.MoveTowards(me.transform.position, targetPos_me, pushAmount * Time.deltaTime);
                     other.transform.position = Vector3.MoveTowards(other.transform.position, targetPos_other, pushAmount * Time.fixedDeltaTime);
                     await UniTask.Delay(TimeSpan.FromSeconds(0.05f)); // 例: 0.2秒間ノックバック中
-                    other.isKnockBacked_Monster = false;
+                    other.isKnockBacked_Unit = false;
                 }
             }
     }
@@ -140,28 +142,23 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
         var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(me.gameObject, me.prioritizedRange);
         if (sortedArray.Length == 0) return new List<UnitBase>();
         List<UnitBase> filteredList = new List<UnitBase>();
-        var spellBase = me as SpellBase;
-       
-        if (spellBase != null)
+    
+        var effectiveSide = pushEffectUnit switch
+        { 
+            PushEffectUnit.OnlyPlayerUnit => Side.PlayerSide,
+            PushEffectUnit.OnlyEnemyUnit => Side.EnemySide,
+            PushEffectUnit.AllUnit => Side.PlayerSide | Side.EnemySide,
+            _=> default
+        };
+        foreach (var unit in sortedArray)
         {
-            var effectiveSide = spellBase.pushEffectUnit switch
-            { 
-                PushEffectUnit.OnlyPlayerUnit => Side.PlayerSide,
-                PushEffectUnit.OnlyEnemyUnit => Side.EnemySide,
-                PushEffectUnit.AllUnit => Side.PlayerSide | Side.EnemySide,
-                _=> default
-            };
-            foreach (var unit in sortedArray)
-            {
-                var isDead = unit.isDead;
-                var unitSide = unit.Side;
-                var targetSide = (unitSide & effectiveSide) != 0;
-                var isTower = unit.UnitType == UnitType.tower;
-                if (isDead || !targetSide || isTower) continue;
-                filteredList.Add(unit);
-            }
+            var isDead = unit.isDead;
+            var unitSide = unit.Side;
+            var targetSide = (unitSide & effectiveSide) != 0;
+            var isTower = unit.UnitType == UnitType.tower;
+            if (isDead || !targetSide || isTower) continue;
+            filteredList.Add(unit);
         }
-
         return filteredList;
     }
 }

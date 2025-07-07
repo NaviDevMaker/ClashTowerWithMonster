@@ -7,7 +7,7 @@ public interface IPushable
     float rangeZ{get;}
     float prioritizedRange { get; }
 
-    bool isKnockBacked_Monster { get; set; }
+    bool isKnockBacked_Unit { get; set; }
     bool isKnockBacked_Spell { get; set; }
     MoveType moveType { get; }
     UnitScale UnitScale { get;}

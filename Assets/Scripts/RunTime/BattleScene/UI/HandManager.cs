@@ -57,7 +57,7 @@ public class HandManager : MonoBehaviour
         Func<bool> check = () => handFieid.canSumonMonster;
         sumonMonsterPointer.CheckCanSetMonster = check;
         handFieid.Initialize(ref sumonMonsterPointer.OnSuccessSummon,SetNextCardAndDeckCard);
-        sumonMonsterPointer.OnSummonMonster += energyGageController.ReduceEnergy;
+        sumonMonsterPointer.OnSummonMonster += energyGageController.ReduceCardEnergy;
         sumonMonsterPointer.GetCurrentEnergy_SummonPointer = (() => energyGageController.currentEnergy);
     }
     void PlayerhandsDisplay()

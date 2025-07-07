@@ -39,7 +39,7 @@ namespace Game.Monsters
             var isBuffed = controller.statusCondition.BuffSpeed.isActive;
             if (isBuffed) { var newSpeed = 1.3f; controller.animator.speed = newSpeed; }
             Debug.Log(isChasing);
-            if(controller.isKnockBacked_Monster)
+            if(controller.isKnockBacked_Unit)
             {
                 try
                 {
