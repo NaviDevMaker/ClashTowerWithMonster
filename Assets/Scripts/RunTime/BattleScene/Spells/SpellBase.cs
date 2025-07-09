@@ -14,8 +14,9 @@ public interface ISpells
 
 namespace Game.Spells
 {
-    public class SpellBase : MonoBehaviour, IPushable,ISpells, ISummonbable
+    public class SpellBase : MonoBehaviour, IPushable,ISpells, ISummonbable,ISide
     {
+        [SerializeField] int tentativeID;//これ将来使わないから消してね
         protected float spellDuration = 0f;
         public float rangeX { get; protected set; }
         public float rangeZ { get; protected set; }
@@ -36,9 +37,10 @@ namespace Game.Spells
 
         public PushEffectUnit pushEffectUnit { get;protected set; }
 
+        public int ownerID { get; set; } = -1;
         public UnitScale UnitScale => throw new NotImplementedException();
 
-        public Transform spellTra => transform;
+        public Transform  spellTra => transform;
 
         LineRenderer lineRenderer;
         void Start()
@@ -48,7 +50,13 @@ namespace Game.Spells
 
         private void Update()
         {
-            //if(Input.GetKeyDown(KeyCode.Space)) Spell().Forget();//テスト用だから消して
+            if (Input.GetKeyDown(KeyCode.Space))//テスト用だから消して
+            {
+                DrawSpellRange().Forget();
+                Spell().Forget();
+                LitLineRendererMaterial();
+            }
+
             if (isSummoned && !isSpellInvoked)
             {
                 DrawSpellRange().Forget();
@@ -93,6 +101,7 @@ namespace Game.Spells
         }
         protected virtual  void Initialize()
         {
+            ownerID = tentativeID;
             SetUpLineRenderer();
             spellEffectHelper = new SpellEffectHelper(this);
             moveType = MoveType.Spell;

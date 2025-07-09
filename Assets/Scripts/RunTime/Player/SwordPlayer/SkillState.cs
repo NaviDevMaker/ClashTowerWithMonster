@@ -21,7 +21,7 @@ namespace Game.Players.Sword
                 var perDur = data.PerPushDurationAndStunTime;
                 var pushEffect = PushEffectUnit.OnlyEnemyUnit;
                 pushableObj = particleObject.GetComponent<SwordObj>();
-                if(pushableObj != null) pushableObj.Initialize(controller.transform, timerOffsetY);
+                if(pushableObj != null) pushableObj.Initialize(controller.transform, timerOffsetY,controller.ownerID);
                 controller.addForceToUnit_Skill = new AddForceToUnit<PushablePlayerSkillObj>(pushableObj,pushAmount,perDur, pushEffect);
             }
             particleObject.transform.SetParent(controller.transform);

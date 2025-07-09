@@ -5,6 +5,7 @@ using DG.Tweening;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using System;
+using static Card;
 
 public interface IIconImageInfo
 {
@@ -34,6 +35,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,IPo
         public float alphaAmount { get; set; } = 0.25f;
 
         bool isMeetedEnergy = false;
+        public bool scaledOnce { get; set; } = false;
         public bool _isMeetedEnergy
         {
             get => isMeetedEnergy;
@@ -89,14 +91,36 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,IPo
     public CardImage _cardImage { get => cardImage;}
     public bool currentSelected { get; set; } = false;
     public Func<int> GetCurrentEnergy_Card;
+
+    int requiredEnergy = 0;
     private void Update()
     {
-        var requiredEnergy = cardData.Energy;
-        if(GetCurrentEnergy_Card?.Invoke() >= requiredEnergy) cardImage._isMeetedEnergy = true;
+        RequiredEnergyCheck();
+        ScalingAction();
+    }
+
+    void RequiredEnergyCheck()
+    {
+        if (GetCurrentEnergy_Card?.Invoke() >= requiredEnergy) cardImage._isMeetedEnergy = true;
         else cardImage._isMeetedEnergy = false;
+    }
+    void ScalingAction()
+    {
+        if((GetCurrentEnergy_Card?.Invoke() >= requiredEnergy) 
+            && !isSettedNextCard)
+        {
+            if (!cardImage.scaledOnce)
+            {
+                cardImage.scaledOnce = true;
+                var targetImage = cardImage.iconImage;
+                var tween = UIFuctions.ScaleUI(targetImage);
+            }
+        }
+        else cardImage.scaledOnce = false;
     }
     public void Initialize()
     {
+        requiredEnergy = cardData.Energy;
         this.SetCardImageFromData(cardData);
         var iconImage = GetComponent<Image>();
         var energyImage = transform.GetChild(0).GetComponent<Image>();

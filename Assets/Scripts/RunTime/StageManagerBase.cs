@@ -54,7 +54,7 @@ namespace Game.Stages
         }
 
        
-        public void GenerateWall_Terrain(Transform parent)
+        public void GenerateWall_Terrain(Transform  parent)
         {
             wallPos[0] = groundPos + new Vector3(groundSize.x / 2.0f, 0f, 0f);//Žè‘O
             wallPos[1] = groundPos + new Vector3(groundSize.x, 0f, groundSize.z / 2.0f);//‰E‰¡

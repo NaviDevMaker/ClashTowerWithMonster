@@ -12,6 +12,7 @@ public class TimerSetter:MonoBehaviour
 
     GameObject summonTimer;
     GameObject spellTimer;
+    GameObject skillTimer;
 
     float timerPerScale = 0.007f;
     struct TimerImages
@@ -26,6 +27,8 @@ public class TimerSetter:MonoBehaviour
         Instance = this;
         summonTimer = await SetFieldFromAssets.SetField<GameObject>("UI/SummonTimer");
         spellTimer = await SetFieldFromAssets.SetField<GameObject>("UI/SpellTimer");
+        skillTimer = await SetFieldFromAssets.SetField<GameObject>("UI/SkillTimer");
+
     }
 
     public async UniTask StartSummonTimer(float summonTime,UnitBase targetUnit)
@@ -90,10 +93,10 @@ public class TimerSetter:MonoBehaviour
     }
     public async void StartSkillTimer(float skillTime,ISkills skill)
     {
-        if (spellTimer == null) spellTimer = await SetFieldFromAssets.SetField<GameObject>("UI/SkillTimer");
+        if (skillTimer == null) skillTimer = await SetFieldFromAssets.SetField<GameObject>("UI/SkillTimer");
         var pos = skill.skillTra.position;
         pos.y += skill.timerOffsetY;
-        var timerObj = Instantiate(this.spellTimer, pos, Quaternion.identity);
+        var timerObj = Instantiate(this.skillTimer, pos, Quaternion.identity);
         var size = Vector3.one * timerPerScale;
         timerObj.transform.localScale = size;
 

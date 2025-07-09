@@ -43,7 +43,7 @@ namespace Game.Monsters
 
         private void FixedUpdate()
         {
-            if(isSummoned && IdleState.isEndSummon) addForceToUnit.KeepDistance(moveType);
+            if(isSummoned && IdleState.isEndSummon && !isDead) addForceToUnit.KeepDistance(moveType);
         }
         public virtual void ChangeState(StateMachineBase<T> nextState)
         {

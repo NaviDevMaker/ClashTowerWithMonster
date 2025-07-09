@@ -44,6 +44,8 @@ namespace Game.Players
 
         public UnityAction<bool> OnAttackingPlayer;
         public UnityAction<bool> OnDeathPlayer;
+        public UnityAction<int> OnInvokeSkill;
+        public Func<int,bool> MeetSkillEnergy;
 
         protected AddForceToUnit<PlayerControllerBase<T>> addForceToUnit;
         public AddForceToUnit<PushablePlayerSkillObj> addForceToUnit_Skill {get;set;}
@@ -66,8 +68,14 @@ namespace Game.Players
             SetPlayerHeight();
             if (isDead && currentState != DeathState) ChangeState(DeathState);
 
-            if (!isUsingSkill && !isDead && InputManager.IsClickedSkillButton()) SpellState?.SkillInvoke();
-            CheckEnemyState?.OnUpdate();
+            var energy = skillData.Energy;
+            if (!isUsingSkill && !isDead && InputManager.IsClickedSkillButton()
+                && MeetSkillEnergy.Invoke(energy))
+            {
+                OnInvokeSkill?.Invoke(energy);
+                SpellState?.SkillInvoke();
+            }
+                CheckEnemyState?.OnUpdate();
             currentState?.OnUpdate();
         }
 

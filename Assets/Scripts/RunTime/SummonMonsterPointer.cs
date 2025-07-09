@@ -68,6 +68,7 @@ public class SummonMonsterPointer : MonoBehaviour
             }
             needEnergyDisplayer.RenewEnergyText(currentEnergy, cardEnergy);
         }
+        else EnactiveNeedEnergy();
     }
     void LateUpdate()
     {

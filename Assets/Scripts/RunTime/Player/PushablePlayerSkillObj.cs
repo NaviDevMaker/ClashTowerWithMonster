@@ -6,7 +6,7 @@ public interface ISkills
     float timerOffsetY { get; }
 }
 
-public class PushablePlayerSkillObj : MonoBehaviour, IPushable,ISkills
+public class PushablePlayerSkillObj : MonoBehaviour, IPushable,ISkills,ISide
 {
     public float rangeX { get; protected set;}
 
@@ -25,9 +25,12 @@ public class PushablePlayerSkillObj : MonoBehaviour, IPushable,ISkills
 
     public float timerOffsetY { get; set; }
 
-    public void Initialize(Transform skillTra,float timerOffsetY)
+    public int ownerID { get; private set; }
+
+    public void Initialize(Transform skillTra,float timerOffsetY,int ownerID)
     {
         SetRange();
+        this.ownerID = ownerID;
         this.skillTra = skillTra;
         this.timerOffsetY = timerOffsetY;
     }

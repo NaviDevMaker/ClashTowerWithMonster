@@ -43,7 +43,7 @@ public class ForExefile : MonoBehaviour
         var units = GameObject.FindObjectsByType<UnitBase>(sortMode: FindObjectsSortMode.None);
         var sortArray = units.Where(unit =>
         {
-            var side = unit.Side;
+            var side = unit.GetUnitSide(unit.ownerID);
             var notTower = unit.UnitType != UnitType.tower;
             return side == Side.EnemySide; //&& notTower;
         }).ToArray();
@@ -62,7 +62,7 @@ public class ForExefile : MonoBehaviour
         if(obj.TryGetComponent<UnitBase>(out var unit))
         {
             unit.ownerID = 1;
-            unit.Side = Side.EnemySide;
+            //unit.Side = Side.EnemySide;
             StartCoroutine(EffectManager.Instance.magicCircleEffect.SummonEffect(pos, CardType.Monster));
         }
         else if(obj.TryGetComponent<SpellBase>(out var spell))

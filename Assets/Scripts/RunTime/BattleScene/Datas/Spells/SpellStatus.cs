@@ -20,5 +20,7 @@ public enum SpellType
     Damage = 1 << 0,
     Heal = 1 << 1,
     DamageToEveryThing = 1 << 2,
+    Other = 1 << 3,
+    OtherToEverything = 1 << 4,
 }
 
