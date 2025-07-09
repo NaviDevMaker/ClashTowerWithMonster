@@ -6,7 +6,7 @@ using DG.Tweening;
 using Game.Spells;
 
 
-public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
+public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
 {
     T me;
     float pushAmount;
@@ -153,7 +153,7 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable
         foreach (var unit in sortedArray)
         {
             var isDead = unit.isDead;
-            var unitSide = unit.Side;
+            var unitSide = unit.GetUnitSide(me.ownerID);
             var targetSide = (unitSide & effectiveSide) != 0;
             var isTower = unit.UnitType == UnitType.tower;
             if (isDead || !targetSide || isTower) continue;

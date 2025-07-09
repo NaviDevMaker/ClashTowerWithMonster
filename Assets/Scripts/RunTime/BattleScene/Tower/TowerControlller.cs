@@ -38,7 +38,7 @@ public class TowerControlller :UnitBase,IBuilding,ILongDistanceAttacker<TowerCon
        
         base.Start();
         //Initialize(ownerID);
-        Debug.Log(Side);
+        //Debug.Log(Side);
         state = State.Search;
     }
 
@@ -74,16 +74,16 @@ public class TowerControlller :UnitBase,IBuilding,ILongDistanceAttacker<TowerCon
         {
             foreach (var hit in sortedArray)
             {
-                var hitEnemyType = hit.Side;
+                var hitEnemyType = hit.GetUnitSide(ownerID);
                 if(hit is IMonster)
                 {
                     if(hit.TryGetComponent<ISummonbable>(out var summonbable))
                     {
                         var summoned = summonbable.isSummoned;
-                        if (hit.gameObject == this.gameObject || hit.isDead || hitEnemyType == Side || !summoned) continue;
+                        if (hit.gameObject == this.gameObject || hit.isDead || hitEnemyType == Side.PlayerSide || !summoned) continue;
                     }
                 }
-                if (hit.gameObject == this.gameObject || hit.isDead || hitEnemyType == Side) continue;
+                if (hit.gameObject == this.gameObject || hit.isDead || hitEnemyType == Side.PlayerSide) continue;
                 targetEnemy = hit;
                 archer.target = hit;
                 Debug.Log("“G‚ð”­Œ©‚µ‚Ü‚µ‚½");

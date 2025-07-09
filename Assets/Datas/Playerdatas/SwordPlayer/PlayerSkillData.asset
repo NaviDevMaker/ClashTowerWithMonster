@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PlayerSkillData
   m_EditorClassIdentifier: 
   skillObj: {fileID: 1475808053746905616, guid: 6cb4b95ea1b82b64b8c3b4d7b045e96d, type: 3}
+  energy: 2
   skillDuration: 8
   skillEffectAmount: 40
   skillPushAmount: 0.5

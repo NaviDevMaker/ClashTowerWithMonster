@@ -74,6 +74,7 @@ public class PointerDisplay:MonoBehaviour
                         arrow.SetActive(true);
                         Debug.Log("ƒqƒbƒg");
                         var targetPos = hit.point;
+                        Debug.Log(player);
                         var direction = (targetPos - player.transform.position).normalized;
                         transform.position = GetGeneratePos(direction,targetPos);
                         var genePos = transform.position; //+ new Vector3(0f, offsetY, 0f);

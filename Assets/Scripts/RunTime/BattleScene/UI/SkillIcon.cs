@@ -1,6 +1,7 @@
 using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 public class SkillIcon : MonoBehaviour, IPointerEnterHandler,IPointerExitHandler
 {
@@ -47,6 +48,7 @@ public class SkillIcon : MonoBehaviour, IPointerEnterHandler,IPointerExitHandler
         public void SetShaderMaterialColor()
         {
             var value = isMeetedEnergy == true ? 1.0f : 0f;
+            if (value == 1.0f) { var tween = UIFuctions.ScaleUI(iconImage); }
             iconImage.material.SetFloat("_RevealAmount", value);
             energyImage.material.SetFloat("_RevealAmount", value);
         }
@@ -58,17 +60,28 @@ public class SkillIcon : MonoBehaviour, IPointerEnterHandler,IPointerExitHandler
     SkillImages skillImages;
     private void Start()
     {
+        energyGageController.ShakeUIAction = ShakeIconImage;
         this.SetSkillImageFromData(skillIconData);
         var iconImage = GetComponent<Image>();
         var energyImage = transform.GetChild(0).GetComponent<Image>();
-        skillImages = new SkillImages 
-        { 
+        skillImages = new SkillImages
+        {
             iconImage = iconImage,
             energyImage = energyImage,
             originalColor_icon = iconImage.color,
-            originalColor_energy = energyImage.color
+            originalColor_energy = energyImage.color,
         };
+
+        iconImage.material = new Material(iconImage.material);
+        energyImage.material = new Material(energyImage.material);
     }
+
+    private void Update()
+    {
+        skillImages._isMeetedEnergy = energyGageController.currentEnergy >= skillIconData.Energy;
+    }
+
+    void ShakeIconImage() => UIFuctions.ShakeUI(skillImages.iconImage);
     public void OnPointerEnter(PointerEventData eventData) => skillImages.SetNewAlpha();
     public void OnPointerExit(PointerEventData eventData) => skillImages.SetOriginal();
 }

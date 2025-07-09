@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerSkillData : ScriptableObject
 {
     [SerializeField] GameObject skillObj;
+    [SerializeField] int energy;
     [SerializeField] float skillDuration;
     [SerializeField] int skillEffectAmount;
     [SerializeField] float skillPushAmount;
@@ -18,5 +19,6 @@ public class PlayerSkillData : ScriptableObject
 
     public float PerPushDurationAndStunTime => perPushDurationAndStunTime;
 
-    public SpellType SpellType  => spellType;
+    public SpellType SpellType => spellType;
+    public int Energy => energy;
 }

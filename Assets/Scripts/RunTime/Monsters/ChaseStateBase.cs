@@ -81,8 +81,8 @@ namespace Game.Monsters
                 .Where(tower =>
                 { 
                     var isDead = tower.isDead;
-                    var side = tower.Side;
-                    return !isDead && side != controller.Side;
+                    var side = tower.GetUnitSide(controller.ownerID);
+                    return !isDead && side == Side.EnemySide;
                 }) 
                 .OrderBy(tower => Vector3.Distance(controller.transform.position, tower.transform.position)).ToList();
             if (toList.Count > 0) targetTower = toList[0].gameObject;          
@@ -291,7 +291,6 @@ namespace Game.Monsters
             }
             var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(controller.gameObject, controller.MonsterStatus.ChaseRange);
 
-            var mySide = controller.Side;
             var myType = controller.moveType;
             var effecttiveSide = myType switch
             {
@@ -302,17 +301,17 @@ namespace Game.Monsters
 
             var filterdArray = sortedArray.Where(cmp =>
             {
-                var enemySide = cmp.Side;
+                var enemySide = cmp.GetUnitSide(controller.ownerID);
                 var isDead = cmp.isDead;
                 var moveType = cmp.moveType;
              
                 if(cmp.TryGetComponent<ISummonbable>(out var summonbable))
                 {
                     var isSummoned = summonbable.isSummoned;
-                    return enemySide != mySide && !isDead
+                    return enemySide != Side.PlayerSide && !isDead
                       && (moveType & effecttiveSide) != 0 && isSummoned;// 
                 }
-                return enemySide != mySide && !isDead
+                return enemySide != Side.PlayerSide && !isDead
                         && (moveType & effecttiveSide) != 0;// 
             }).ToArray();
 

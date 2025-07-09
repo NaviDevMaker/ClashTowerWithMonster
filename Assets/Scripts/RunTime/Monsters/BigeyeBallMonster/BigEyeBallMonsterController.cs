@@ -10,7 +10,7 @@ namespace Game.Monsters.BigEyeMonster
         protected override void Awake()
         {
             base.Awake();
-            isSummoned = true;
+            //isSummoned = true;
         }
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         protected override void Start()

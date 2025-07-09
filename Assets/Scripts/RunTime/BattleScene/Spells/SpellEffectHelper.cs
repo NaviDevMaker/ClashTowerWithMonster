@@ -68,20 +68,18 @@ public class SpellEffectHelper
         foreach (var unit in sortedArray)
         {
             var isDead = unit.isDead;
-            var unitSide = unit.Side;
+            var unitSide = unit.GetUnitSide(spellBase.ownerID);
             var effectSide = spellType switch
             {
                 SpellType.Damage => Side.EnemySide,
                 SpellType.Heal => Side.PlayerSide,
-                SpellType.DamageToEveryThing => Side.EnemySide | Side.PlayerSide,
+                SpellType.DamageToEveryThing or SpellType.OtherToEverything => Side.EnemySide | Side.PlayerSide,
+                SpellType.Other => Side.PlayerSide,
                 _ => default
             };
-
-
             if (isDead || (effectSide & unitSide) == 0) continue;
             filteredList.Add(unit);
         }
-
         return filteredList;
     }
 }

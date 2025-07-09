@@ -54,17 +54,17 @@ namespace Game.Monsters.AttackerBoy
         }
         void CheckBuffInverval()
         {
-            if (currentState == BuffState) return;
+            if (currentState == BuffState || isDead) return;
             var time = buffTime.time += Time.deltaTime;
             var inverval = buffTime.buffInverval;
 
             //Debug.Log(time);
-            if(time >= inverval && !BuffState.wasBuffedFailed)
+            if(time >= inverval && !BuffState.wasBuffedFailed && !isDead)
             {
                 ChangeState(BuffState);
             }
 
-            if(BuffState.wasBuffedFailed)
+            if(BuffState.wasBuffedFailed && !isDead)
             {
                 if(BuffState.unitIsRange) ChangeState(BuffState);
             }

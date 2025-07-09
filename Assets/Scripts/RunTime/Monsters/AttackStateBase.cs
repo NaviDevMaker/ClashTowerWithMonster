@@ -220,7 +220,6 @@ namespace Game.Monsters
 
             var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(controller.gameObject, controller.MonsterStatus.ChaseRange);
 
-            var mySide = controller.Side;
             var myType = controller.moveType;
             var effecttiveSide = myType switch
             {
@@ -234,25 +233,25 @@ namespace Game.Monsters
                 MonsterAttackType.ToEveryThing => sortedArray.Where(cmp =>
 
                 {
-                    var enemySide = cmp.Side;
+                    var enemySide = cmp.GetUnitSide(controller.ownerID);
                     var isDead = cmp.isDead;
                     var moveType = cmp.moveType;
                     if (cmp.TryGetComponent<ISummonbable>(out var summonbable))
                     {
                         var isSummoned = summonbable.isSummoned;
-                        return enemySide != mySide && !isDead
+                        return enemySide != Side.PlayerSide && !isDead
                           && (moveType & effecttiveSide) != 0 && isSummoned;// 
                     }
-                    return enemySide != mySide && !isDead
+                    return enemySide != Side.PlayerSide && !isDead
                             && (moveType & effecttiveSide) != 0;// 
                 }).ToArray(),
 
                 MonsterAttackType.OnlyBuilding => sortedArray.Where(cmp =>
                 {
-                    var enemySide = cmp.Side;
+                    var enemySide = cmp.GetUnitSide(controller.ownerID);
                     var isDead = cmp.isDead;
                     var building = cmp is IBuilding;
-                    return enemySide != mySide && !isDead && building;
+                    return enemySide != Side.PlayerSide && !isDead && building;
                 }).ToArray(),
                 _ => default
             };

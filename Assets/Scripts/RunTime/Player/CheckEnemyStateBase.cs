@@ -43,7 +43,7 @@ namespace Game.Players
             var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(controller.gameObject, controller.PlayerStatus.AttackRange);
             var filterdArray = sortedArray.Where((cmp) =>
             {
-                var unitSide = cmp.Side;
+                var unitSide = cmp.GetUnitSide(controller.ownerID);
                 var isDead = cmp.isDead;
                 var playerAttackType = controller.PlayerStatus.PlayerAttackType;
                 if(playerAttackType == PlayerAttackType.OnlyGroundedEnemy)

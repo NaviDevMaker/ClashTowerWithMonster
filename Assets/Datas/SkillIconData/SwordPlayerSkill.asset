@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   iconImage: {fileID: -1487877384612313618, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
   energyImage: {fileID: -1975463890, guid: eefba76eb4d339649bbdd33fdf47bf6f, type: 3}
-  energy: 0
+  energy: 2

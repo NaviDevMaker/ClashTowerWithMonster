@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using DG.Tweening;
+using System;
 public class BuffEffect
 {
     public BuffEffect()
@@ -23,8 +24,8 @@ public class BuffEffect
         var approxiSize = target is IPlayer? mesh.bounds.size.magnitude * 2.0f:mesh.bounds.size.magnitude;
         var targetPos = target.transform.position;
         GameObject particleObj = null;
-        if (buffType == BuffType.Power) particleObj = Object.Instantiate(buffEffect_Power,targetPos,buffEffect_Power.transform.rotation);
-        else if (buffType == BuffType.Speed) particleObj = Object.Instantiate(buffEffect_Speed,targetPos, buffEffect_Speed.transform.rotation);
+        if (buffType == BuffType.Power) particleObj = UnityEngine.Object.Instantiate(buffEffect_Power,targetPos,buffEffect_Power.transform.rotation);
+        else if (buffType == BuffType.Speed) particleObj = UnityEngine.Object.Instantiate(buffEffect_Speed,targetPos, buffEffect_Speed.transform.rotation);
         else return;
         var originalScale = particleObj.transform.localScale;
         particleObj.transform.localScale = approxiSize * originalScale;
@@ -40,19 +41,26 @@ public class BuffEffect
         var originCenter = origin.BodyMesh.bounds.center;
         var pos = originCenter;
         GameObject particleObj = null;
-        if (buffType == BuffType.Power) particleObj = Object.Instantiate(buffAura_Power, pos, buffAura_Power.transform.rotation);
-        else if (buffType == BuffType.Speed) particleObj = Object.Instantiate(buffAura_Speed, pos, buffAura_Speed.transform.rotation);
+        if (buffType == BuffType.Power) particleObj = UnityEngine.Object.Instantiate(buffAura_Power, pos, buffAura_Power.transform.rotation);
+        else if (buffType == BuffType.Speed) particleObj = UnityEngine.Object.Instantiate(buffAura_Speed, pos, buffAura_Speed.transform.rotation);
      
-        while(true)
+        try
         {
-            if (renderer == null) break;
-            targetPos = renderer.bounds.center;
-            if ((targetPos - particleObj.transform.position).magnitude <= 0.2f) break;
-            var move = Vector3.MoveTowards(particleObj.transform.position, targetPos, moveSpeed * Time.deltaTime);
-            particleObj.transform.position = move;
-            await UniTask.Yield();
+            while (true)
+            {
+                if (renderer == null) break;
+                targetPos = renderer.bounds.center;
+                if ((targetPos - particleObj.transform.position).magnitude <= 0.2f) break;
+                var move = Vector3.MoveTowards(particleObj.transform.position, targetPos, moveSpeed * Time.deltaTime);
+                particleObj.transform.position = move;
+                await UniTask.Yield(cancellationToken: origin.GetCancellationTokenOnDestroy());
+            }
         }
-        Object.Destroy(particleObj);
+        catch (OperationCanceledException) { }
+        finally
+        {
+           UnityEngine.Object.Destroy(particleObj);
+        }
     }
     async void SetEffects()
     {

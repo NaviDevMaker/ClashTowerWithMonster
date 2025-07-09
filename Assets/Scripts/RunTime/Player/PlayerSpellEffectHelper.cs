@@ -12,11 +12,14 @@ public class PlayerSpellEffectHelper
     float rangeX = 0f;
     float rangeZ = 0f;
     float prioritizedRange = 0f;
-    float timerOffsetY = 0f;
-   public PlayerSpellEffectHelper(int effectAmount,SpellType spellType,GameObject colliderObj)
+    int ownerID = -1;
+    
+   public PlayerSpellEffectHelper(int effectAmount,SpellType spellType,GameObject colliderObj
+       ,int ownerID)
    {
         this.effectAmount = effectAmount;
         this.spellType = spellType;
+        this.ownerID = ownerID; 
         origin = colliderObj;
         SetRange(colliderObj);
    }
@@ -32,7 +35,6 @@ public class PlayerSpellEffectHelper
             rangeX = colliderRangeProvider.GetRangeX();
             rangeZ = colliderRangeProvider.GetRangeZ();
             prioritizedRange = colliderRangeProvider.GetPriorizedRange();
-            timerOffsetY = colliderRangeProvider.GetTimerOffsetY();
         }
         else if (colliderObj.TryGetComponent<SphereCollider>(out var sphereCollider))
         {
@@ -42,7 +44,6 @@ public class PlayerSpellEffectHelper
             rangeZ = colliderRangeProvider.GetRangeZ() * scaleAmount;//
             prioritizedRange = colliderRangeProvider.GetPriorizedRange() * scaleAmount;// 
             Debug.Log($"{scaleAmount},{rangeX},{rangeZ},{prioritizedRange}");
-            timerOffsetY = colliderRangeProvider.GetTimerOffsetY() * scaleAmount;
         }
         else return;
     }
@@ -55,7 +56,7 @@ public class PlayerSpellEffectHelper
         foreach (var unit in sortedArray)
         {
             var isDead = unit.isDead;
-            var unitSide = unit.Side;
+            var unitSide = unit.GetUnitSide(ownerID);
             var effectSide = spellType switch
             {
                 SpellType.Damage => Side.EnemySide,

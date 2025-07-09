@@ -40,7 +40,7 @@ public class SkillStateBase<T> : StateMachineBase<T> where T : PlayerControllerB
             var type = controller.SkillData.SpellType;
             var spellObj = controller.SkillData.SkillObj;
             particleObject = UnityEngine.Object.Instantiate(spellObj);
-            spellEffectHelper = new PlayerSpellEffectHelper(amount, type, particleObject);
+            spellEffectHelper = new PlayerSpellEffectHelper(amount, type, particleObject,controller.ownerID);
         }
         if (particles.Count == 0) SetParticles();
     }

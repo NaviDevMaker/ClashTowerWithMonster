@@ -22,9 +22,9 @@ public static class BuffUnitMethods
                 if (!isSummoned) return false;
             }
             var isDead = unit.isDead;
-            var side = unit.Side;
-            var effectiveSide = originUnit.Side;
-            if (isDead || (side & effectiveSide) == 0) return false;
+            var unitSide = unit.GetUnitSide(originUnit.ownerID);
+            var effectiveSide = Side.PlayerSide;
+            if (isDead || (unitSide & effectiveSide) == 0) return false;
             if (unit.statusCondition == null) return false;
             var isBuffed = false;
             isBuffed = buffType switch
@@ -55,23 +55,34 @@ public static class BuffUnitMethods
     {
         List<UniTask> tasks = new List<UniTask>();
 
-        foreach (var unit in unitInBuffRange)
+        try
         {
-            var task = EffectManager.Instance.statusConditionEffect.buffEffect.SetEffectToUnit(controller,unit, buffType);
-            tasks.Add(task);
-        }
-        await UniTask.WhenAll(tasks);
-        foreach (var unit in unitInBuffRange)
-        {
-            if (buffType == BuffType.Speed) unit.statusCondition.BuffSpeed.isActive = true;
-            else if (buffType == BuffType.Power) unit.statusCondition.BuffPower.isActive = true;
-        }
-        unitInBuffRange.ForEach(unit => Debug.Log($"{unit.name}のスピードがバフされました"));
-        var clipName = AnimatorClipGeter.GetAnimationClip(animator, "Buff").name;
-        await UniTask.WaitUntil(() => animator.GetCurrentAnimatorStateInfo(0).IsName(clipName)
-        , cancellationToken: controller.gameObject.GetCancellationTokenOnDestroy());
-        await UniTask.WaitUntil(() => animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f
-        , cancellationToken: controller.gameObject.GetCancellationTokenOnDestroy());
+            foreach (var unit in unitInBuffRange)
+            {
+                if (unit == null) return;
+                var task = EffectManager.Instance.statusConditionEffect.buffEffect.SetEffectToUnit(controller, unit, buffType);
+                tasks.Add(task);
+            }
+            await UniTask.WhenAll(tasks);
+            foreach (var unit in unitInBuffRange)
+            {
+                if (unit == null) return;
+                if (buffType == BuffType.Speed) unit.statusCondition.BuffSpeed.isActive = true;
+                else if (buffType == BuffType.Power) unit.statusCondition.BuffPower.isActive = true;
+            }
+            unitInBuffRange.ForEach(unit => Debug.Log($"{unit.name}のスピードがバフされました"));
+            if (animator == null) return;
+            var clip = AnimatorClipGeter.GetAnimationClip(animator, "Buff");
+            if (clip == null) return;
+
+            var clipName = clip.name;
+            await UniTask.WaitUntil(() => animator.GetCurrentAnimatorStateInfo(0).IsName(clipName)
+            , cancellationToken: controller.gameObject.GetCancellationTokenOnDestroy());
+            await UniTask.WaitUntil(() => animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f
+            , cancellationToken: controller.gameObject.GetCancellationTokenOnDestroy());
+        }          
+        catch (OperationCanceledException) { }
+        catch (Exception) { }
         onEndBuffMove?.Invoke();
         resetTime?.Invoke();
     }

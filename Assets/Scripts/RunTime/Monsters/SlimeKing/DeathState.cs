@@ -64,10 +64,8 @@ namespace Game.Monsters.SlimeKing
                 controller.SetSummonParticle(spawnPos);
                 spawnedSlime.isSummoned = true;
                 spawnedSlime.ownerID = controller.ownerID;
-                spawnedSlime.Side = controller.Side;
+                //spawnedSlime.Side = controller.Side;
             }
-        }
-        
+        }       
     }
-
 }

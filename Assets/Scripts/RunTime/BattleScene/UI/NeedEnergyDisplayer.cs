@@ -46,17 +46,22 @@ public class NeedEnergyDisplayer : MonoBehaviour
     {
         var currentTextEnergy = int.Parse(numeratorText.text);
         denominatorText.text = requiredEnergy.ToString();
-        if (currentTextEnergy == currentEnergy) return;
+        if (currentTextEnergy == requiredEnergy)
+        {
+            FadeOutText();
+            return;
+        }
 
         Text[] texts = { numeratorText, slashText, denominatorText };
         texts.ToList().ForEach(text => SetOriginalColor(text));
+
         if (currentTextEnergy != currentEnergy)
         {
             numeratorText.text = currentEnergy.ToString();
-            UIFuctions.ShakeText(numeratorText);
-            if (currentEnergy == requiredEnergy) FadeOutText();
+            UIFuctions.ShakeUI(numeratorText);
         }
     }
+
     void FadeOutText()
     {
         Text[] texts = { numeratorText, slashText, denominatorText };
@@ -66,6 +71,8 @@ public class NeedEnergyDisplayer : MonoBehaviour
 
     void SetOriginalColor(Text text)
     {
+        if (text.color.a == 1.0f) return;
+        Debug.Log("êFÇÇ‡Ç∆Ç…ñﬂÇµÇ‹ÇµÇΩ");
         var color = text.color;
         color.a = 1.0f;
         text.color = color;

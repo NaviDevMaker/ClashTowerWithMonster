@@ -2,7 +2,13 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using System;
-public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
+
+public interface ISide
+{
+    int ownerID { get; }
+}
+
+public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,ISide
 {
     public class StatusCondition //:IStatusCondition
     {
@@ -25,6 +31,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
 
     public MoveType moveType { get; protected set; }
     HPbar hPBar = null;
+    [SerializeField] int tentativeID;
     [SerializeField] UnitScale unitScale;
     [SerializeField] UnitType unitType;
     [SerializeField] List<SkinnedMeshRenderer> mySkinnedMeshes;
@@ -38,10 +45,10 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
     bool isDisplayedHpBar = false;
 
     //攻撃時に攻撃側がさんしょうするためpublic
-    public Side Side;
+    //public Side Side;
     //
-    public int ownerID = -1;
-    public bool isDead { get; protected set; } = false;
+    public int ownerID { get; set; } = 1;//テスト用に自分から召喚する以外は基本的に相手だから
+    public bool isDead { get; set; } = false;
 
     public MonsterStatusData MonsterStatus
     { 
@@ -105,6 +112,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
 
     protected virtual void Awake()
     {
+        Initialize(tentativeID);
         SetRadius();
         prioritizedRange = rangeX >= rangeZ ? rangeX : rangeZ;
     }
@@ -113,9 +121,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
     {
         SetMaterialColors();       
         SetHPBar().Forget();
-        Initialize(ownerID);
     }
-
     protected virtual void Update()
     {
         if(!isDisplayedHpBar && currentHP != maxHP && hPBar!= null)
@@ -131,24 +137,27 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
         }
     }
 
-    //将来プレイヤー側から呼ぶためにpublic 本来はstartではよばないから気を付けてね
+    // 将来はstartで呼ばないから気を付けてね
     public virtual void Initialize(int owner)
     {
-       if(owner != -1) SetUnitSide(owner);
+       if(owner != -1) SetOwnerID(owner);
        statusCondition = new StatusCondition();
     }
-    void SetUnitSide(int owner)
+    void SetOwnerID(int owner)
     {
+        //ここにPhoton.LocalPlayer.ID...みたいなやつ入れるから将来はこの関数の引数は多分いらない
         ownerID = owner;
-        if(ownerID == 0)
-        {
-            Side = Side.PlayerSide;
-        }
-        else if(ownerID == 1)
-        {
-            Side = Side.EnemySide;
-        }
+        Debug.Log(ownerID);
+        //if(ownerID == 0)
+        //{
+        //    Side = Side.PlayerSide;
+        //}
+        //else if(ownerID == 1)
+        //{
+        //    Side = Side.EnemySide;
+        //}
     }
+
     async UniTask SetHPBar()
     {
         var offsetY = GetHPBarOffsetY(); ;
@@ -202,8 +211,8 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable
     }
     public virtual void DestroyAll()
     {
-        Destroy(this.gameObject);
-        if(hPBar != null) Destroy(hPBar.gameObject);
+        if (hPBar != null) Destroy(hPBar.gameObject);
+        if(this != null && this.gameObject != null) Destroy(this.gameObject);
     }
 
     float GetHPBarOffsetY()
