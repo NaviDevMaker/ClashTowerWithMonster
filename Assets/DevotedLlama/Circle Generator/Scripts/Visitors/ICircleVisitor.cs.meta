@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 3fec31212dc144905a580b0ea981b998
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213175
+  packageName: Circle Generator
+  packageVersion: 1.0.3
+  assetPath: Assets/DevotedLlama/Circle Generator/Scripts/Visitors/ICircleVisitor.cs
+  uploadId: 737245

@@ -10,25 +10,34 @@ namespace Game.Monsters
         public Animator animator { get; protected set;}
         public MonsterAnimatorPar MonsterAnimPar { get => monsterAnimPar; }
         public bool isSummoned { get; set; } = false;
+        public string SummonedCardName { get; set; }
 
-        public IdleStateBase<T> IdleState;
-        public ChaseStateBase<T> ChaseState;
-        public AttackStateBase<T> AttackState;
-        public DeathStateBase<T> DeathState;
+        public IdleStateBase<T> IdleState { get; protected set; }
+        public ChaseStateBase<T> ChaseState { get; protected set; }
+        public AttackStateBase<T> AttackState { get; protected set; }
+        public DeathStateBase<T> DeathState { get; protected set; }
         protected StateMachineBase<T> currentState { get; private set;}
         public StateMachineBase<T> previusState { get; private set; }
+       
+
         protected AddForceToUnit<MonsterControllerBase<T>> addForceToUnit;
+
+        
         protected override void Start()
         {
+            isSummoned = true;
             Debug.Log("‚Š‚ƒ‚„‚³‚ƒ‚„‚“‚ˆ‚‹‚ƒ‚“‚„‚Š‚„‚“‚ƒ‚“‚„‚‹‚“‚„‚Ž");
             base.Start();
             addForceToUnit = new AddForceToUnit<MonsterControllerBase<T>>(this, StatusData.PushAmount);
             animator = GetComponent<Animator>();
             ChangeState(IdleState);
+            originalAnimatorSpeed = animator.speed;
         }
         protected override void Update()
         {
             base.Update();
+            Debug.Log($"{statusCondition.Freeze.isActive},{statusCondition.Freeze.isEffectedCount}");
+            this.CheckFreeze_Unit(animator);
             if (isSummoned)
             {
                 currentState?.OnUpdate();

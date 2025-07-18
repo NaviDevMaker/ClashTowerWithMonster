@@ -52,8 +52,6 @@ public class TowerControlller :UnitBase,IBuilding,ILongDistanceAttacker<TowerCon
         base.Update();
           
         ChangeEnemy();
-
-       
         switch (state)
         {
             case State.Search:
@@ -181,11 +179,9 @@ public class TowerControlller :UnitBase,IBuilding,ILongDistanceAttacker<TowerCon
             {
                 Gizmos.DrawLine(prevPoint, nextPoint);
             }
-
             prevPoint = nextPoint;
         }
     }
-
     public override void Initialize(int owner = -1)
     {
         base.Initialize(owner);
@@ -211,15 +207,12 @@ public class TowerControlller :UnitBase,IBuilding,ILongDistanceAttacker<TowerCon
         await UniTask.Delay(TimeSpan.FromSeconds(delay));
         Time.timeScale = 1f;
     }
-
     void SetLength(float animLength, float animSpeed)
     {
         var length  = animLength * animSpeed;
         deathActionLength = length;
-
         isSettedLength = true;
     }
-
     public override void DestroyAll()
     {
         base.DestroyAll();

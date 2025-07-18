@@ -4,14 +4,15 @@ using System;
 using System.Threading;
 namespace Game.Players
 {
-    public class AttackStateBase<T> : StateMachineBase<T>,IUnitAttack where T : PlayerControllerBase<T>
+    public class AttackStateBase<T> : StateMachineBase<T>,IUnitAttack,IAttackState where T : PlayerControllerBase<T>
     {
         public UnitBase target;
         public AttackStateBase(T controller) : base(controller) { }
         CancellationTokenSource cts = new CancellationTokenSource();
         int attackAmount = 0;
         bool isAttacking = false;
-        protected float interval = 0f;
+        public float interval = 0f;
+        public bool isInterval { get; private set; }
         public override void OnEnter()
         {
             attackAmount = controller.BuffStatus(BuffType.Power, controller.PlayerStatus.AttackAmount);
@@ -50,6 +51,7 @@ namespace Game.Players
             cts.Cancel();
             cts.Dispose();
             isAttacking = false;
+            isInterval = false;
             controller.OnAttackingPlayer?.Invoke(isAttacking);
         }
         public void Attack()
@@ -77,6 +79,7 @@ namespace Game.Players
         public async void WaitIntervalFromAnimEvent()
         {
             if (cts.IsCancellationRequested) return;
+            isInterval = true;
             try
             {
                 //‡@
@@ -91,6 +94,7 @@ namespace Game.Players
             {
                 return;
             }
+            isInterval = false;
             isAttacking = false;
             controller.OnAttackingPlayer?.Invoke(isAttacking);
         }

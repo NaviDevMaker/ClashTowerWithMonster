@@ -2,6 +2,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using System;
+using System.Threading;
 
 public interface ISide
 {
@@ -16,12 +17,19 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         public StatusEffect BuffSpeed { get; set; }
         public StatusEffect BuffPower { get; set; }
         public StatusEffect DemonCurse { get; set; }
+        public StatusEffect Freeze { get; set; }
+
+        public StatusEffect Confusion { get; set; }
+
+        public Dictionary<StatusConditionType,CancellationTokenSource> visualTokens = new Dictionary<StatusConditionType,CancellationTokenSource>();
         public StatusCondition()
         {
             Paresis = new StatusEffect();
             BuffSpeed = new StatusEffect();
             BuffPower = new StatusEffect();
             DemonCurse = new StatusEffect();
+            Freeze = new StatusEffect();
+            Confusion = new StatusEffect();
         }
     }
     public float rangeX { get; private set; } = 0f;
@@ -29,6 +37,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
 
     public float prioritizedRange { get; private set; }
 
+    public float originalAnimatorSpeed { get; protected set; } = 0f;
     public MoveType moveType { get; protected set; }
     HPbar hPBar = null;
     [SerializeField] int tentativeID;
@@ -44,9 +53,6 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
 
     bool isDisplayedHpBar = false;
 
-    //攻撃時に攻撃側がさんしょうするためpublic
-    //public Side Side;
-    //
     public int ownerID { get; set; } = 1;//テスト用に自分から召喚する以外は基本的に相手だから
     public bool isDead { get; set; } = false;
 
@@ -110,6 +116,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
     public UnitScale UnitScale { get => unitScale;}
     public Renderer BodyMesh => bodyMesh;
 
+    public List<Renderer> AllMesh { get; private set; } = new List<Renderer>();
     protected virtual void Awake()
     {
         Initialize(tentativeID);
@@ -119,12 +126,14 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected virtual void Start()
     {
+        SetRenderers();
         SetMaterialColors();       
         SetHPBar().Forget();
     }
     protected virtual void Update()
     {
-        if(!isDisplayedHpBar && currentHP != maxHP && hPBar!= null)
+
+        if (!isDisplayedHpBar && currentHP != maxHP && hPBar!= null)
         {
             hPBar.gameObject.SetActive(true);
             hPBar.ReduceHP(maxHP, currentHP);
@@ -268,17 +277,38 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         rangeX = bounds.extents.x;
         rangeZ = bounds.extents.z;
     }
+
+    void SetRenderers()
+    {
+        if (mySkinnedMeshes.Count != 0)
+        {
+            mySkinnedMeshes.ForEach(mesh =>
+            {
+                AllMesh.Add(mesh);
+                meshMaterials.Add(mesh.materials);
+            });
+
+        }
+        if (myMeshes.Count != 0)
+        {
+            myMeshes.ForEach(mesh =>
+            {
+                AllMesh.Add(mesh);
+                meshMaterials.Add(mesh.materials);
+            });
+        }
+    }
     protected void SetMaterialColors()
     {
-        if (mySkinnedMeshes.Count != 0) mySkinnedMeshes.ForEach(mesh => meshMaterials.Add(mesh.materials));
-        if (myMeshes.Count != 0) myMeshes.ForEach(mesh => meshMaterials.Add(mesh.materials));
- 
+        
+
         foreach (var materials in meshMaterials)
         {
             if (materials.Length == 0) continue;
             var colorArray = new Color[materials.Length];
             for (int i = 0; i < colorArray.Length; i++)
             {
+                materials[i].renderQueue = 3001;
                 colorArray[i] = materials[i].color;
             }
 

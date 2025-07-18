@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 122c36d045abf4d89a928141cf9ff709
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213175
+  packageName: Circle Generator
+  packageVersion: 1.0.3
+  assetPath: Assets/DevotedLlama/Circle Generator/Demo/Demo Material.mat
+  uploadId: 737245

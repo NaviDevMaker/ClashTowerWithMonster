@@ -27,6 +27,7 @@ namespace Game.Spells
         public MoveType moveType { get; protected set; }
         public SpellStatus _SpellStatus { get; protected set; }
         public bool isSummoned { get; set; } = false;
+        public string SummonedCardName { get; set; }
 
         protected AddForceToUnit<SpellBase> addForceToUnit;
         bool isSpellInvoked = false;
@@ -43,6 +44,11 @@ namespace Game.Spells
         public Transform  spellTra => transform;
 
         LineRenderer lineRenderer;
+
+        private void Awake()
+        {
+            ownerID = tentativeID;
+        }
         void Start()
         {
             Initialize();
@@ -54,6 +60,7 @@ namespace Game.Spells
             {
                 DrawSpellRange().Forget();
                 Spell().Forget();
+                UIManager.Instance.StartSpellTimer(spellDuration, this);
                 LitLineRendererMaterial();
             }
 
@@ -62,7 +69,7 @@ namespace Game.Spells
                 DrawSpellRange().Forget();
                 LitLineRendererMaterial();
                 Spell().Forget();
-                TimerSetter.Instance.StartSpellTimer(spellDuration, this);
+                UIManager.Instance.StartSpellTimer(spellDuration, this);
                 isSpellInvoked = true;
             }
         }
@@ -101,7 +108,6 @@ namespace Game.Spells
         }
         protected virtual  void Initialize()
         {
-            ownerID = tentativeID;
             SetUpLineRenderer();
             spellEffectHelper = new SpellEffectHelper(this);
             moveType = MoveType.Spell;

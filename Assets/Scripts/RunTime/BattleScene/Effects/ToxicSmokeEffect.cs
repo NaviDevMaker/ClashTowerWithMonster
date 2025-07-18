@@ -2,9 +2,9 @@ using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 
-public class ToxicSmokeEffect
+public class ToxicSmokeEffect:IEffectSetter
 {
-    public ToxicSmokeEffect() => SetToxicParticle();
+    public ToxicSmokeEffect() => SetEffect();
 
     GameObject toxicEfffect;
 
@@ -17,7 +17,7 @@ public class ToxicSmokeEffect
         await UniTask.Delay(TimeSpan.FromSeconds(duration));
         UnityEngine.Object.Destroy(toxicSmoke);
     }
-    async void SetToxicParticle()
+    public async void SetEffect()
     {
         toxicEfffect = await SetFieldFromAssets.SetField<GameObject>("Effects/Poison-Smoke");
     }

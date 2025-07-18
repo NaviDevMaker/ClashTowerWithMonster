@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Game.Spells.Meteo;
+using UnityEngine.UI;
 public static class PoolObjectPreserver
 {
     public static List<MeteoMover> meteoList = new List<MeteoMover>();
     public static List<LineRenderer> lineRenderers = new List<LineRenderer>();
     public static List<GameObject> transformerEffectList = new List<GameObject>();
+    public static List<GameObject> SummonedUIImagesObj = new List<GameObject>();
     public static MeteoMover MeteoGeter()
     {
         foreach (var meteo in meteoList)
@@ -16,7 +18,6 @@ public static class PoolObjectPreserver
                 return meteo;
             }
         }
-
         return null;
     }
 
@@ -30,7 +31,6 @@ public static class PoolObjectPreserver
                 return lineRenderer;
             }
         }
-
         return null;
     }
     public static GameObject TransformerEffectGetter()
@@ -43,6 +43,19 @@ public static class PoolObjectPreserver
                 return effect;
             }
         }
-            return null;
+        return null;
+    }
+    public static GameObject SummonedUIObjGetter()
+    {
+        foreach (var obj in SummonedUIImagesObj)
+        {
+            if(!obj.gameObject.activeSelf)
+            {
+                obj.gameObject.SetActive(true);
+                return obj;
+            }
+        }
+
+        return null;
     }
 }

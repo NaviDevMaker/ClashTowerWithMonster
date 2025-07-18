@@ -8,7 +8,6 @@ using Game.Spells;
 
 public class TimerSetter:MonoBehaviour
 {
-    public static TimerSetter Instance { get; private set; }
 
     GameObject summonTimer;
     GameObject spellTimer;
@@ -24,11 +23,9 @@ public class TimerSetter:MonoBehaviour
 
     private async void Awake()
     {
-        Instance = this;
         summonTimer = await SetFieldFromAssets.SetField<GameObject>("UI/SummonTimer");
         spellTimer = await SetFieldFromAssets.SetField<GameObject>("UI/SpellTimer");
         skillTimer = await SetFieldFromAssets.SetField<GameObject>("UI/SkillTimer");
-
     }
 
     public async UniTask StartSummonTimer(float summonTime,UnitBase targetUnit)

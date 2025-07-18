@@ -82,10 +82,6 @@ public class ShapeShift : SpellBase
     protected override void DestroyAll() => Destroy(this.gameObject);
     void SummonNewMonster(UnitBase transformedUnit,Vector3 pos,ParticleSystem particle)
     {
-       
-        var offsetY = 0.5f;
-        pos.y += offsetY;
-
         var list = selectableMonstersList.SelectableMonsters;
         var r = UnityEngine.Random.Range(0, list.Count);
         var newMonster = list[r];

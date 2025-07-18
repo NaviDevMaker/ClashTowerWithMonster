@@ -74,7 +74,8 @@ public class SpellEffectHelper
                 SpellType.Damage => Side.EnemySide,
                 SpellType.Heal => Side.PlayerSide,
                 SpellType.DamageToEveryThing or SpellType.OtherToEverything => Side.EnemySide | Side.PlayerSide,
-                SpellType.Other => Side.PlayerSide,
+                SpellType.OtherToPlayerside => Side.PlayerSide,
+                SpellType.OtherToEnemyside => Side.EnemySide,
                 _ => default
             };
             if (isDead || (effectSide & unitSide) == 0) continue;

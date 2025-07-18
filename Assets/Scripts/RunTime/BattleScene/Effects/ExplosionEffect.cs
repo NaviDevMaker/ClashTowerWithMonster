@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 
-public class ExplosionEffect
+public class ExplosionEffect:IEffectSetter
 {
-    public ExplosionEffect() => SetExplosionEffect();
+    public ExplosionEffect() => SetEffect();
 
     GameObject explosionEffect;
     public async void GenerateExplosionEffect(Vector3 pos,float scaleAmount = 1)
@@ -26,7 +26,7 @@ public class ExplosionEffect
         await UniTask.WhenAll(tasks);
         UnityEngine.Object.Destroy(particleObj);
     }
-    async void SetExplosionEffect()
+    public async void SetEffect()
     {
         explosionEffect = await SetFieldFromAssets.SetField<GameObject>("Effects/ExplosionEffect");
     }

@@ -7,8 +7,15 @@ using Game.Players;
 using System.Linq;
 using Game.Players.Sword;
 
-public class PointerDisplay:MonoBehaviour
+public class PointerDisplay: MonoBehaviour
 {
+    class MaterialInfo
+    {
+        public Material arrowMaterial { get; set; }
+        public Color originalEmmisionColor { get; set; }
+        public float maxIntencity {  get; set; }
+    }
+
     [SerializeField] ParticleSystem pointedPositionParticle;
     [SerializeField] GameObject arrow;
     PlayerControllerBase<SwordPlayerController> player;
@@ -19,13 +26,30 @@ public class PointerDisplay:MonoBehaviour
     CancellationTokenSource cls = new CancellationTokenSource();
     bool isAttackingPlayer = false;
     bool isDeadPlayer = false;
+    bool isMoving = false;
+    MaterialInfo materialInfo;
     private void Start()
     {
-        arrow.SetActive(false);
-        SetPlayerEvent();
-       
+        ArrowSet();
+        SetPlayerEvent();      
     }
 
+    void ArrowSet()
+    {
+        arrow.SetActive(false);
+        var arrowMaterial = arrow.GetComponent<MeshRenderer>().material;
+        Color originalEmmisionColor = default;
+        if(arrowMaterial.HasProperty("_EmissionColor"))
+        {
+            originalEmmisionColor = arrowMaterial.GetColor("_EmissionColor");
+        }
+        materialInfo = new MaterialInfo
+        {
+            arrowMaterial = arrowMaterial,
+            originalEmmisionColor = originalEmmisionColor,
+            maxIntencity = 1.5f
+        };
+    }
     void SetPlayerEvent()
     {
         var units = FindObjectsByType<UnitBase>(sortMode: FindObjectsSortMode.None);
@@ -57,6 +81,58 @@ public class PointerDisplay:MonoBehaviour
             else if(isAttackingPlayer && InputManager.IsClickedMoveWhenAttacking()) DisplayTargetPoint().Forget();
         }     
     }
+
+    async void ArrowMaterialColorSet()
+    {
+       var arrowMaterial = materialInfo.arrowMaterial;
+       if (arrowMaterial == null) return;
+
+       var intecityDuration = 0.5f;
+       var time = 0f;
+       var intecity = materialInfo.maxIntencity;
+       var originalColor = materialInfo.originalEmmisionColor;
+       while(time < intecityDuration && !isMoving)
+       {
+          time += Time.deltaTime;
+          var lerp = time / intecityDuration;
+          var currentIntecity = Mathf.Lerp(intecity, 0f, lerp);
+          arrowMaterial.SetColor("_EmissionColor", originalColor * currentIntecity);
+          await UniTask.Yield();
+       }
+       if (isMoving) return;
+       arrowMaterial.SetColor("_EmissionColor", originalColor * 0f);
+       arrowMaterial.DisableKeyword("_EMISSION");
+       var newColor = arrowMaterial.color;
+       var duration = 1.0f;
+       while (time < duration && !isMoving)
+       {
+           time += Time.deltaTime;
+           var lerp = time / duration;
+           var alpha = Mathf.Lerp(1.0f, 0f, lerp);
+           newColor.a = alpha;
+           arrowMaterial.color = newColor;
+           await UniTask.Yield();
+       } 
+       if(!isMoving)
+       {
+           newColor.a = 0f;
+           arrowMaterial.color = newColor;
+           arrow.SetActive(false);
+       }     
+    }
+
+    void ArrowSetToOriginal()
+    {
+        var arrowMaterial = materialInfo.arrowMaterial;
+        var originalColor = materialInfo.originalEmmisionColor;
+        var intencity = materialInfo.maxIntencity;
+        arrowMaterial.SetColor("_EmissionColor", originalColor * intencity);
+        arrowMaterial.EnableKeyword("_EMISSION");
+        arrow.SetActive(true);
+        var newColor = arrowMaterial.color;
+        newColor.a = 1.0f;  
+        arrowMaterial.color = newColor; 
+    }
     async UniTask DisplayTargetPoint()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -71,7 +147,8 @@ public class PointerDisplay:MonoBehaviour
                     ParticleSystem particle = null;
                     try
                     {
-                        arrow.SetActive(true);
+                        isMoving = true;
+                        ArrowSetToOriginal();
                         Debug.Log("ƒqƒbƒg");
                         var targetPos = hit.point;
                         Debug.Log(player);
@@ -86,14 +163,14 @@ public class PointerDisplay:MonoBehaviour
                     finally
                     {
                         if (particle != null) Destroy(particle.gameObject);
-                        arrow.SetActive(false);
                     }
+                    isMoving = false;
+                    ArrowMaterialColorSet();
                     break;
                 }        
             }
         }
     }
-
     Vector3 GetGeneratePos(Vector3 direction,Vector3 targetPos)
     {
         RaycastHit[] hits;

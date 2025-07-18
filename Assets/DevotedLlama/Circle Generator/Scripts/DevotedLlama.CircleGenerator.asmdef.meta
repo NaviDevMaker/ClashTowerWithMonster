@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d87df853ccdd14e8fb15e6a8d6a91ec1
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213175
+  packageName: Circle Generator
+  packageVersion: 1.0.3
+  assetPath: Assets/DevotedLlama/Circle Generator/Scripts/DevotedLlama.CircleGenerator.asmdef
+  uploadId: 737245

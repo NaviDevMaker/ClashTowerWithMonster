@@ -31,6 +31,8 @@ namespace Game.Monsters.Archer
         public List<GunMover> shotGuns { get; set;}
         public UnityAction<float, float> OnDestoryedTower;
         public bool isDestroyedTower { get; set; } = false;
+
+        public StatusConditionEffect statusCondition { get; private set; }
         private void Start()
         {
             //Time.timeScale = 0.3f;

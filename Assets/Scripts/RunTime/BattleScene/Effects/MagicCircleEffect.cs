@@ -6,12 +6,12 @@ using DG.Tweening;
 using System.Threading;
 using UnityEngine.Rendering.PostProcessing;
 
-public class MagicCircleEffect
+public class MagicCircleEffect:IEffectSetter
 {
 
     public MagicCircleEffect()
     {
-        SetSummonParticle().Forget();
+        SetEffect();
     }
 
     GameObject summonParticle;
@@ -70,7 +70,7 @@ public class MagicCircleEffect
         yield return null;
     }
 
-    async UniTask SetSummonParticle()
+    public async void SetEffect()
     {
         summonParticle = await SetFieldFromAssets.SetField<GameObject>("Effects/SummonEffect");
         summonPointerParticle = await SetFieldFromAssets.SetField<GameObject>("Effects/BaseMagic");

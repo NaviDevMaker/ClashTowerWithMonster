@@ -20,7 +20,8 @@ namespace Game.Spells.Poison
         {
             var scaleDuration = 0.5f;
             particle.Play();
-            transform.DOScale(Vector3.one * scaleAmount, scaleDuration);
+            var scale = new Vector3(scaleAmount, 0.01f, scaleAmount);
+            var tween = gameObject.Scaler(new Vector3TweenSetup(scale, scaleDuration,Ease.Linear));
             var time = 0f;
             var damageInterval = 0f;
             var isFirstHit = false;
@@ -39,18 +40,15 @@ namespace Game.Spells.Poison
             }
             particle.gameObject.transform.SetParent(null);
             particle.gameObject.transform.localScale = Vector3.one;
-            StartScaleToZero();
-        }
-
-        async void StartScaleToZero()
-        {
             var duration = 1.0f;
-            var tween = transform.DOScale(Vector3.zero, duration);
-            var task = tween.ToUniTask();
-            await task;
+            var endValue = Vector3.zero;
+            var ease = Ease.Linear;
+            Vector3TweenSetup tweenSetup = new Vector3TweenSetup(endValue,duration, ease);
+            var task = gameObject.Scaler(tweenSetup).ToUniTask();
             DestroyAll();
         }
 
+       
         protected override async void DestroyAll()
         {
             Destroy(gameObject);

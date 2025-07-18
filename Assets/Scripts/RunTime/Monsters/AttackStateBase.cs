@@ -5,9 +5,14 @@ using System.Threading;
 using System.Linq;
 using UnityEngine.Events;
 
+public interface IAttackState
+{
+    bool isInterval { get;}
+}
+
 namespace Game.Monsters
 {
-    public class AttackStateBase<T> : StateMachineBase<T>, IUnitAttack where T : MonsterControllerBase<T>
+    public class AttackStateBase<T> : StateMachineBase<T>, IUnitAttack,IAttackState where T : MonsterControllerBase<T>
     {
         public AttackStateBase(T controller) : base(controller) { }
         // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -27,6 +32,7 @@ namespace Game.Monsters
         protected bool isAttacking = false;
         bool isWaitingLeftTime = false;
         bool isSettedEventClip = false;
+        public bool isInterval { get; private set; } = false;
         public override void OnEnter()
         {
             SetUp();
@@ -52,6 +58,7 @@ namespace Game.Monsters
         }
         public override void OnUpdate()
         {
+            
             Debug.Log($"アニメーターのスピー度は{controller.animator.speed}");
             Debug.Log($"{isWaitingLeftTime},{isAttacking}");
             attackAmount = controller.statusCondition != null ? controller.BuffStatus(BuffType.Power, controller.MonsterStatus.AttackAmount)
@@ -70,7 +77,7 @@ namespace Game.Monsters
 
         public override void OnExit()
         {
-            //controller.animator.speed = 1.0f;
+            controller.animator.speed = 1.0f;//凍ってるときに死んだ時用
             //cts?.Cancel();
             cts?.Dispose();
 
@@ -135,15 +142,21 @@ namespace Game.Monsters
             var canAttack = false;
             var targetPos = Vector3.zero;
             var isDead = target.isDead;
-            //if (target is TowerControlller)
-            //{
             var collider = target.GetComponent<Collider>();
             var closestPos = collider.ClosestPoint(controller.transform.position);
             //targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos);
 
             targetPos = PositionGetter.GetFlatPos(closestPos);
             var myPos = PositionGetter.GetFlatPos(controller.transform.position);
-            canAttack = (targetPos - myPos).magnitude <= attackRange && !isDead;// && !isDead;
+            var isConfused = controller.statusCondition.Confusion.isActive;
+            var targetSide = target.GetUnitSide(controller.ownerID);
+            var effectiveSide = isConfused switch
+            {
+                true => Side.PlayerSide | Side.EnemySide,
+                false => Side.EnemySide,
+            };
+
+            canAttack = (targetPos - myPos).magnitude <= attackRange && !isDead && (targetSide & effectiveSide) != 0;// && !isDead;
            
                 Debug.Log($"[距離チェック] 距離: {canAttack}, 射程: {controller.MonsterStatus.AttackRange}");
             if (!canAttack)
@@ -214,14 +227,11 @@ namespace Game.Monsters
         bool ContinueAttackState()
         {
             var monsterAttackType = controller.MonsterStatus.MonsterAttackType;
-            var serchRange = monsterAttackType == MonsterAttackType.ToEveryThing ? controller.MonsterStatus.ChaseRange
-               : monsterAttackType == MonsterAttackType.OnlyBuilding ? controller.MonsterStatus.AttackRange : 0f;
-
 
             var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(controller.gameObject, controller.MonsterStatus.ChaseRange);
 
             var myType = controller.moveType;
-            var effecttiveSide = myType switch
+            var effectiveMoveSide = myType switch
             {
                 MoveType.Walk => MoveType.Walk,
                 MoveType.Fly => MoveType.Fly | MoveType.Walk,
@@ -236,14 +246,21 @@ namespace Game.Monsters
                     var enemySide = cmp.GetUnitSide(controller.ownerID);
                     var isDead = cmp.isDead;
                     var moveType = cmp.moveType;
+                    var isConfused = controller.statusCondition.Confusion.isActive;
+                    var effectiveSide = isConfused switch
+                    {
+                       true => Side.PlayerSide | Side.EnemySide,
+                       false => Side.EnemySide,
+                    };
+
                     if (cmp.TryGetComponent<ISummonbable>(out var summonbable))
                     {
                         var isSummoned = summonbable.isSummoned;
-                        return enemySide != Side.PlayerSide && !isDead
-                          && (moveType & effecttiveSide) != 0 && isSummoned;// 
+                        return (enemySide & effectiveSide) != 0 && !isDead
+                          && (moveType & effectiveMoveSide) != 0 && isSummoned;// 
                     }
-                    return enemySide != Side.PlayerSide && !isDead
-                            && (moveType & effecttiveSide) != 0;// 
+                    return (enemySide & effectiveSide) != 0 && !isDead
+                            && (moveType & effectiveMoveSide) != 0;// 
                 }).ToArray(),
 
                 MonsterAttackType.OnlyBuilding => sortedArray.Where(cmp =>
@@ -277,6 +294,7 @@ namespace Game.Monsters
         public virtual async void StopAnimFromEvent()
         {
             Debug.Log("イベントが呼ばれました");
+            isInterval = true;
             controller.animator.speed = 0f;
             try
             {
@@ -286,6 +304,7 @@ namespace Game.Monsters
             catch (OperationCanceledException) { }
             finally 
             {
+                isInterval = false;
                 isAttacking = false;
             }
         }

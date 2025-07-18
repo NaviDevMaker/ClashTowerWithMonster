@@ -9,6 +9,7 @@ using Game.Spells;
 using System.Linq;
 using Unity.VisualScripting;
 using static UnityEngine.UI.CanvasScaler;
+using Game.Monsters;
 public class SummonMonsterPointer : MonoBehaviour
 {
     [SerializeField] NeedEnergyDisplayer needEnergyDisplayer;
@@ -131,7 +132,8 @@ public class SummonMonsterPointer : MonoBehaviour
                             if (!summonPointerParticle.activeSelf) summonPointerParticle.gameObject.SetActive(true);
                         }
                         targetPos.y += 0.5f;
-                        unitTargetPos.y += 0.5f;
+                        var cardType = currentCard.CardData.CardType;
+                        unitTargetPos.y += cardType == CardType.Monster ? 0.5f :0f;
                         if(unitBases.TryGetValue(currentCard.CardData.CardName,out var unitBase))
                         {
                             if(unitBase.UnitType == UnitType.monster && unitBase.FlyingMonsterStatus != null)
@@ -267,38 +269,10 @@ public class SummonMonsterPointer : MonoBehaviour
             var currentCardData = currentCard.CardData;
             if (cardPrefabs.TryGetValue(currentCardData.CardName, out GameObject currentPrefab))
             {
-               currentPrefab.gameObject.SetActive(onTheField);//if(currentCardData.CardType == CardType.Monster) 
+               currentPrefab.gameObject.SetActive(onTheField); 
             }
         }
     }
-
-    //void DrawSpellRange(Vector3 center)
-    //{
-    //    if (!lineRenderer.enabled)
-    //    {
-    //        lineRenderer.enabled = true;
-    //    }
-    //    var radiusX = 0f;
-    //    var radiusZ = 0f;
-    //    var offsetY = 0.5f;
-    //    if(summonbables.TryGetValue(currentCard.CardData.CardName,out var spellBase))
-    //    {
-    //        radiusX = spellBase.rangeX;
-    //        radiusZ = spellBase.rangeZ;
-    //    }
-    //    var segument = 100;
-    //    lineRenderer.positionCount = segument;
-    //    lineRenderer.loop = true;
-    //    for (int i = 0; i < segument; i++)
-    //    {
-    //        var angle = ((float)i / segument) * Mathf.PI * 2;
-    //        var x = Mathf.Cos(angle) * radiusX;
-    //        var z = Mathf.Sin(angle) * radiusZ;
-    //        var nextPos = new Vector3(x, 0, z) + center;
-    //        nextPos.y = Terrain.activeTerrain.SampleHeight(nextPos) + offsetY;
-    //        lineRenderer.SetPosition(i, nextPos);
-    //    }
-    //}
 
     void AlphaChange(UnitBase unit,bool isSummoned = false)
     {
@@ -320,6 +294,16 @@ public class SummonMonsterPointer : MonoBehaviour
         }
 
         summonbable = obj.GetComponent<ISummonbable>();
-        summonbable.isSummoned = true;
+        if(summonbable != null)
+        {
+            var name = summondCardData.CardName.ToString();
+            summonbable.SummonedCardName = name;
+            summonbable.isSummoned = true;
+        }
+        var monoCmp = obj.GetComponent<MonoBehaviour>();
+        var type = monoCmp.GetType();
+        var method = typeof(UIManager).GetMethod("SummonedNameDisplay")
+                .MakeGenericMethod(type);
+        method.Invoke(UIManager.Instance, new object[] {monoCmp});
     }
 }

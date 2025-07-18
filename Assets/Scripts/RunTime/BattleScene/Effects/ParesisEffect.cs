@@ -2,11 +2,11 @@ using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 
-public class ParesisEffect
+public class ParesisEffect:IEffectSetter
 {
     public ParesisEffect()
     {
-        SetParesisEffect().Forget();
+        SetEffect();
     }
     GameObject paresisEffect;
 
@@ -41,7 +41,7 @@ public class ParesisEffect
             UnityEngine.Object.Destroy(particleObj);
         }   
     }
-    async UniTask SetParesisEffect()
+    public async void SetEffect()
     {
         paresisEffect = await SetFieldFromAssets.SetField<GameObject>("Effects/ParesisEffect");
     }

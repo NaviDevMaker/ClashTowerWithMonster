@@ -25,6 +25,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 116a1c9c499a252469a6b995fd0db14a
+    m_Address: Effects/ConfusionHitEffect
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 31d1d063fca5ae94db01827de0d2a235
     m_Address: UI/SkillTimer
     m_ReadOnly: 0
@@ -32,6 +37,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 38072ce4e59183242ac2306561ecb5f4
     m_Address: HPBar/Enemy_Middle
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 46f3537f81e01604b9cb36237941016e
+    m_Address: Effects/ConfusionOverheadEffect
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -80,8 +90,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6d8257c165b28ff49855845ea5c7f5a4
+    m_Address: Datas/Spells/Confusion
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 756730fa4378c104297cf437164666e0
     m_Address: Effects/BuffAuraEffect_Power
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 759c23709c50e6044912699daa082bd5
+    m_Address: Materials/FreezeShaderMaterial
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -137,6 +157,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b79c188a16d454e40aa69ff34887d8b9
     m_Address: Datas/Spells/Meteo
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b8bf2105d74d5f24e82d4fcdd527a34d
+    m_Address: Datas/Spells/Freeze
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
