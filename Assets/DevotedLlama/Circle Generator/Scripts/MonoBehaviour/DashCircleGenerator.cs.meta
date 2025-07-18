@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: ba97664e6934b4f4d8522f0e26f086d0
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213175
+  packageName: Circle Generator
+  packageVersion: 1.0.3
+  assetPath: Assets/DevotedLlama/Circle Generator/Scripts/MonoBehaviour/DashCircleGenerator.cs
+  uploadId: 737245

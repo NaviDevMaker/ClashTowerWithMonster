@@ -1,16 +1,24 @@
 using UnityEngine;
 
+public interface IEffectSetter
+{
+    void SetEffect();
+}
+
 public class StatusConditionEffect
 {
     public ParesisEffect paresisEffect { get;private set; }
     public BuffEffect buffEffect { get; private set; }
 
     public ToxicSmokeEffect toxicSmokeEffect { get; private set; }
+
+    public ConfusionEffect confusionEffect { get; private set; }
     public StatusConditionEffect()
     {
         paresisEffect = new ParesisEffect();
         buffEffect = new BuffEffect();
         toxicSmokeEffect = new ToxicSmokeEffect();
+        confusionEffect = new ConfusionEffect();
     }
 }
 public  class EffectManager : SingletonMonobehavier<EffectManager>

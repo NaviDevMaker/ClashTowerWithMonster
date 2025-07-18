@@ -107,20 +107,22 @@ namespace Game.Players
                             //}
 
                             //await UniTask.Yield();
-                            var moveTween = controller.transform.DOMove(targetPos, Vector3.Distance(controller.transform.position, targetPos) / moveSpeed)
-                                .SetEase(Ease.Linear);
+                            var set = new Vector3TweenSetup(targetPos, Vector3.Distance(controller.transform.position, targetPos) / moveSpeed
+                                ,Ease.Linear);
+                            var moveTween = controller.gameObject.Mover(set);//controller.transform.DOMove(targetPos, Vector3.Distance(controller.transform.position, targetPos) / moveSpeed).SetEase(Ease.Linear);
+
                             var task = moveTween.ToUniTask(cancellationToken: cls.Token);
-                            //while (!cls.IsCancellationRequested && !task.Status.IsCompleted())
-                            //{
-                            //    Debug.Log($"ämîFíÜÇæÇÊÅÅÅÅÅÅÅÅ");
-                            //    if (!CheckMovable()) return;
-                            //    await UniTask.Yield();
-                            //}
-                            //if (cls.IsCancellationRequested)
-                            //{
-                            //    Debug.Log("tweenÇ™killÇ≥ÇÍÇ‹ÇµÇΩ");
-                            //    moveTween.Kill();
-                            //}
+
+                            while(cls.IsCancellationRequested && !task.Status.IsCompleted())
+                            {
+                                var isFreezed = controller.statusCondition.Freeze.isActive;
+                                if(isFreezed)
+                                {
+                                    cls.Cancel();
+                                    break;
+                                }
+                            }
+                            if (cls.IsCancellationRequested) break;
                             await task;
                             Debug.Log(cls.IsCancellationRequested);
                         }
@@ -142,7 +144,6 @@ namespace Game.Players
                 Debug.Log("í ÇÍÇ‹ÇπÇÒ");
                 return false;
             }
-
             return true;
         }
     }         

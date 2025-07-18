@@ -4,11 +4,11 @@ using UnityEngine.InputSystem.DualShock.LowLevel;
 using Game.Monsters.Archer;
 using Unity.VisualScripting;
 
-public class DeathEffect
+public class DeathEffect:IEffectSetter
 {
    public DeathEffect()
    {
-        SetDeathPartcle().Forget();
+        SetEffect();
    }
    GameObject deathParticle;
 
@@ -67,7 +67,7 @@ public class DeathEffect
         UnityEngine.Object.Destroy(particleObj);
    }
 
-   async UniTask SetDeathPartcle()
+   public async void SetEffect()
    {
         deathParticle = await SetFieldFromAssets.SetField<GameObject>("Effects/DeathEffect");
    }

@@ -31,7 +31,7 @@ namespace Game.Players.Sword
         }
         protected override async void Spell()
         {
-            TimerSetter.Instance.StartSkillTimer(duration,pushableObj);
+            UIManager.Instance.StartSkillTimer(duration,pushableObj);
             foreach (var p in particles)
             {
                 p.gameObject.SetActive(true);

@@ -67,7 +67,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb1416490800de14ca0d38f10104626e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tentativeID: 0
+  tentativeID: 1
 --- !u!1 &2528923325810217322
 GameObject:
   m_ObjectHideFlags: 0
@@ -1316,7 +1316,7 @@ ParticleSystem:
     curve:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 6.283185
+      scalar: 12.56637
       minScalar: 0
       maxCurve:
         serializedVersion: 2

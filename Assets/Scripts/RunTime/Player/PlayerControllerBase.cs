@@ -68,6 +68,8 @@ namespace Game.Players
             SetPlayerHeight();
             if (isDead && currentState != DeathState) ChangeState(DeathState);
 
+            var isFreezed = statusCondition.Freeze.isActive;
+            if (isFreezed) return;
             var energy = skillData.Energy;
             if (!isUsingSkill && !isDead && InputManager.IsClickedSkillButton()
                 && MeetSkillEnergy.Invoke(energy))

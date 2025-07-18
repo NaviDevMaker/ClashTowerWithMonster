@@ -37,8 +37,11 @@ namespace Game.Monsters
         {
             moveSpeed = controller.BuffStatus(BuffType.Speed, (int)controller.MonsterStatus.MoveSpeed);
             var isBuffed = controller.statusCondition.BuffSpeed.isActive;
-            if (isBuffed) { var newSpeed = 1.3f; controller.animator.speed = newSpeed; }
+            var isFreezed = controller.statusCondition.Freeze.isActive;
+            if (isBuffed && !isFreezed) { var newSpeed = 1.3f; controller.animator.speed = newSpeed; }
             Debug.Log(isChasing);
+
+            if (isFreezed) return;
             if(controller.isKnockBacked_Unit)
             {
                 try
@@ -101,11 +104,13 @@ namespace Game.Monsters
                 Debug.LogWarning("ゲームセットです");
                 return;
             }
-            if (isChasing || controller.isKnockBacked_Spell) return;
+            var isFreezed = controller.statusCondition.Freeze.isActive;
+            if (isChasing || controller.isKnockBacked_Spell || isFreezed) return;
             isChasing = true;
             try
             {
                 await moveSemaphoreSlim.WaitAsync();
+                
                 Debug.Log("追跡します");
                 cts = new CancellationTokenSource();
 
@@ -123,7 +128,6 @@ namespace Game.Monsters
                 var moveStep = controller.MonsterStatus.MoveStep;
                 var offset = Vector3.zero;
                 var targetPos = Vector3.zero;
-                //var myselfPos = controller.transform.position + Vector3.up * flyingOffsetY;
                 Tween moveTween = null;
                 UniTask moveTask = default;
 
@@ -159,7 +163,8 @@ namespace Game.Monsters
                         var targetRot = Quaternion.LookRotation(perDirection);
                         controller.transform.rotation = targetRot;
 
-                        moveTween = controller.transform.DOMove(perTargetPos, perPixelMoveTime);
+                        var set = new Vector3TweenSetup(perTargetPos, perPixelMoveTime);
+                        moveTween = controller.gameObject.Mover(set);//controller.transform.DOMove(perTargetPos, perPixelMoveTime);
                         moveTask = moveTween.ToUniTask(cancellationToken: cts.Token);
 
                         Debug.DrawLine(controller.transform.position, flatTargetPosition, Color.yellow); //で目視確認
@@ -167,10 +172,11 @@ namespace Game.Monsters
                         while (!moveTask.Status.IsCompleted() && !cts.IsCancellationRequested)
                         {
                             var isDead = controller.isDead;
+                            var isFreeze = controller.statusCondition.Freeze.isActive;
                             flatMyPosition = PositionGetter.GetFlatPos(controller.transform.position);
                             //var simpleDistance = Vector3.Distance(controller.transform.position, targetPos);
                             //var correntDistance = simpleDistance - myRadius;
-                            if (isDead) { cts?.Cancel();  break; }
+                            if (isDead || isFreeze) { cts?.Cancel();  break; }
                             if (Vector3.Distance(flatMyPosition, flatTargetPosition) <= controller.MonsterStatus.AttackRange
                               || targetEnemy == null || controller.isKnockBacked_Spell)
                             {
@@ -219,14 +225,15 @@ namespace Game.Monsters
                             var targetRot = Quaternion.LookRotation(perDirection);
                             controller.transform.rotation = targetRot;
 
-                            moveTween = controller.transform.DOMove(perTargetPos, perPixelMoveTime);
+                            var set = new Vector3TweenSetup(perTargetPos, perPixelMoveTime);
+                            moveTween = controller.gameObject.Mover(set);//DOMove(perTargetPos, perPixelMoveTime);
                             moveTask = moveTween.ToUniTask(cancellationToken: cts.Token);//一歩分の動き
 
                             while (!moveTask.Status.IsCompleted() && !cts.IsCancellationRequested)
                             {
                                 var isDead = controller.isDead;
-                            　　　
-                                if (isDead) { cts?.Cancel(); break; }
+                                var isFreeze = controller.statusCondition.Freeze.isActive;　
+                                if (isDead || isFreeze) { cts?.Cancel(); break; }
 
                                 if (Vector3.Distance(controller.transform.position, targetPos) <= controller.MonsterStatus.AttackRange
                                       || controller.isKnockBacked_Spell)
@@ -241,7 +248,7 @@ namespace Game.Monsters
                             //キャンセルしても上のTaskはawaitしていないからここまで進み、下のawait moveTaskに到達するとエラーが出てしまうのでここでbreak
                             if (cts.IsCancellationRequested)
                             {
-                                Debug.Log("ノックバックされました");
+                                Debug.Log("ノックバックor死亡orフリーズ");
                                 moveTween.Kill();
                                 break;
                             }
@@ -292,7 +299,7 @@ namespace Game.Monsters
             var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(controller.gameObject, controller.MonsterStatus.ChaseRange);
 
             var myType = controller.moveType;
-            var effecttiveSide = myType switch
+            var effectiveMoveSide = myType switch
             {
                 MoveType.Walk => MoveType.Walk,
                 MoveType.Fly => MoveType.Fly | MoveType.Walk,
@@ -301,18 +308,25 @@ namespace Game.Monsters
 
             var filterdArray = sortedArray.Where(cmp =>
             {
+                var isConfused = controller.statusCondition.Confusion.isActive;
+                var effectiveSide = isConfused switch
+                {
+                   true => Side.PlayerSide | Side.EnemySide,
+                   false => Side.EnemySide,
+                };
+
                 var enemySide = cmp.GetUnitSide(controller.ownerID);
                 var isDead = cmp.isDead;
                 var moveType = cmp.moveType;
-             
                 if(cmp.TryGetComponent<ISummonbable>(out var summonbable))
                 {
                     var isSummoned = summonbable.isSummoned;
-                    return enemySide != Side.PlayerSide && !isDead
-                      && (moveType & effecttiveSide) != 0 && isSummoned;// 
+
+                    return (enemySide & effectiveSide) != 0  && !isDead
+                      && (moveType & effectiveMoveSide) != 0 && isSummoned;// 
                 }
-                return enemySide != Side.PlayerSide && !isDead
-                        && (moveType & effecttiveSide) != 0;// 
+                return (enemySide & effectiveSide) != 0 && !isDead
+                        && (moveType & effectiveMoveSide) != 0;// 
             }).ToArray();
 
             if (filterdArray.Length == 0)

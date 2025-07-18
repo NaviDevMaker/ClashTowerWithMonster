@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 559f3ccf5a9bd484b8eb10247018c1a2
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213175
+  packageName: Circle Generator
+  packageVersion: 1.0.3
+  assetPath: Assets/DevotedLlama/Circle Generator/Scripts/Tests/Playmode/Playmode.asmdef
+  uploadId: 737245

@@ -20,7 +20,7 @@ MonoBehaviour:
     x: -146
     y: -133
     width: 1511
-    height: 1767
+    height: 1823
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -78,8 +78,8 @@ MonoBehaviour:
         m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
           PublicKeyToken=b77a5c561934e089
       m_SerializableObject: 1500
-    min: -Infinity
-    max: Infinity
+    min: 0
+    max: 6000
     enumValues: []
     descendantCount: 0
   - name: Particle Size
@@ -876,7 +876,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: UnityEditor.VFX.Vector, Unity.VisualEffectGraph.Editor,
           Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-      m_SerializableObject: '{"vector":{"x":0.10000000149011612,"y":0.05000000074505806,"z":0.10000000149011612}}'
+      m_SerializableObject: '{"vector":{"x":-0.10000000149011612,"y":-8.0,"z":3.0}}'
     m_Space: 0
   m_Property:
     name: A
@@ -1046,7 +1046,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: UnityEditor.VFX.Vector, Unity.VisualEffectGraph.Editor,
           Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-      m_SerializableObject: '{"vector":{"x":-0.10000000149011612,"y":0.15000000596046449,"z":-0.10000000149011612}}'
+      m_SerializableObject: '{"vector":{"x":0.10000000149011612,"y":-12.0,"z":5.0}}'
     m_Space: 0
   m_Property:
     name: B
@@ -4641,7 +4641,7 @@ MonoBehaviour:
   - {fileID: 8926484042661614775}
   - {fileID: 8926484042661614776}
   m_UIPosition: {x: 0, y: 0}
-  m_UICollapsed: 1
+  m_UICollapsed: 0
   m_UISuperCollapsed: 0
   m_MasterSlot: {fileID: 8926484042661614772}
   m_MasterData:

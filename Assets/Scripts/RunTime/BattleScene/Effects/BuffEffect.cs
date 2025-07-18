@@ -2,11 +2,11 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using DG.Tweening;
 using System;
-public class BuffEffect
+public class BuffEffect:IEffectSetter
 {
     public BuffEffect()
     {
-        SetEffects();
+        SetEffect();
     }
 
     GameObject buffEffect_Power;
@@ -62,7 +62,7 @@ public class BuffEffect
            UnityEngine.Object.Destroy(particleObj);
         }
     }
-    async void SetEffects()
+    public async void SetEffect()
     {
         buffEffect_Power = await SetFieldFromAssets.SetField<GameObject>("Effects/Buff_PowerEffect");
         buffEffect_Speed = await SetFieldFromAssets.SetField<GameObject>("Effects/Buff_SpeedEffect");

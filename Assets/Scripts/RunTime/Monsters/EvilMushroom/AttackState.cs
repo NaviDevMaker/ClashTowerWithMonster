@@ -32,6 +32,7 @@ namespace Game.Monsters.EvilMushroom
 
         async void ParesisTarget()
         {
+            if (target == null || target is TowerControlller) return;
             var statusCondition = target.statusCondition;
             if (statusCondition != null)
             {

@@ -7,8 +7,12 @@ public class StatusEffect
    public int isEffectedCount = 0;
  
 }
-
-//public interface IStatusCondition
-//{
-//   StatusEffect Paresis { get;}
-//}
+public enum StatusConditionType
+{
+    Freeze,
+    Paresis,
+    BuffSpeed,
+    BuffPower,
+    DemonCurse,
+    Confusion,
+}

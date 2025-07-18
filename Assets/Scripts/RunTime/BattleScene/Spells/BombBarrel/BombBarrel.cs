@@ -21,7 +21,7 @@ namespace Game.Spells.BombBarrel
         }
         protected override async UniTaskVoid Spell()
         {
-            TimerSetter.Instance.StartSpellTimer(spellDuration, this);//Ç±ÇÍÇ†Ç∆Ç≈è¡ÇµÇƒÇÀ
+            UIManager.Instance.StartSpellTimer(spellDuration, this);//Ç±ÇÍÇ†Ç∆Ç≈è¡ÇµÇƒÇÀ
             await UniTask.Delay(TimeSpan.FromSeconds(spellDuration));
             addForceToUnit.KeepDistance(moveType);
             spellEffectHelper.EffectToUnit();

@@ -28,6 +28,16 @@ public static class UIFuctions
             .SetEase(Ease.Linear);
         return sequence;
     }
+
+    public static Tween SlideUI(Graphic UIComponent,float duration,float endValue,float delay = 0f)
+    {
+        var startPosX = UIComponent.rectTransform.anchoredPosition.x;
+        var sequence = DOTween.Sequence();
+        sequence.Append(UIComponent.rectTransform.DOAnchorPosX(endValue, duration))
+            .AppendInterval(delay)
+            .Append(UIComponent.rectTransform.DOAnchorPosX(startPosX, duration));
+        return sequence;
+    }
     public static void LookToCamera(GameObject rotateObject)
     {
         var camera = Camera.main.gameObject;

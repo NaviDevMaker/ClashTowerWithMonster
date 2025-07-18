@@ -2,11 +2,11 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System;
 
-public class HitEffect
+public class HitEffect:IEffectSetter
 {
     public HitEffect()
     {
-        SetHitEffectParticle().Forget();
+        SetEffect();
     }
 
     GameObject hitEffect;
@@ -41,7 +41,7 @@ public class HitEffect
         UnityEngine.Object.Destroy(particleObj);
         
     }
-    async UniTask SetHitEffectParticle()
+    public async void SetEffect()
     {
        hitEffect =  await SetFieldFromAssets.SetField<GameObject>("Effects/HitEffect");
     }
