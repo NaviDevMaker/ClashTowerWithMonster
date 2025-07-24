@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: CardDatas
+  m_EditorClassIdentifier: 
+  m_GroupName: CardDatas
+  m_GUID: e146978b65e182449bab2c3a3bcc25f1
+  m_SerializeEntries:
+  - m_GUID: 134c3783272c17841b19531e7b9bcd77
+    m_Address: Assets/Datas/CardDatas/Test 7.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CardData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2408cdf1b0ec3764dbc37b9d0f7c7704
+    m_Address: Assets/Datas/CardDatas/Test.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CardData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3d8e9de9d701b0e47a6358a700ec4671
+    m_Address: Assets/Datas/CardDatas/Test 6.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CardData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 461e9932799fbf248a93eccbe4ed4e88
+    m_Address: Assets/Datas/CardDatas/Test 4.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CardData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 65836780cef0bd74189f08a672e723eb
+    m_Address: Assets/Datas/CardDatas/Test 1.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CardData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 86201247fc1761e448350ff5f28a6099
+    m_Address: Assets/Datas/CardDatas/Test 3.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CardData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ca03b9fb64deeff439a464625f0cd8d5
+    m_Address: Assets/Datas/CardDatas/Test 2.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CardData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ec87075bb6788c84fad86b5a9cfcda47
+    m_Address: Assets/Datas/CardDatas/Test 5.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CardData
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: a9ce9cd8d232393468ebaa0b6a604e52, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: e26b8659aeab1e34a949c2174dc1eca3, type: 2}
+    - {fileID: 11400000, guid: 79f941525b3061c459a0b9f7f10c2c28, type: 2}

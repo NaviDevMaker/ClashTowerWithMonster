@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: SpellDatas
+  m_EditorClassIdentifier: 
+  m_GroupName: SpellDatas
+  m_GUID: 2f9a63b900f316e4ba063991d4dce764
+  m_SerializeEntries:
+  - m_GUID: 4d870858bdaac734fa7bfb335ae38abb
+    m_Address: Datas/Spells/ToxicCurse
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5748d2c4a87df4e4fa57fe467317bab6
+    m_Address: Datas/Spells/ShapeShiftSpell/Monsters.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6d8257c165b28ff49855845ea5c7f5a4
+    m_Address: Datas/Spells/Confusion
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 890553243bbb85f4987b12064f8b8b8a
+    m_Address: Datas/Spells/ShapeShiftSpell/ShapeShiftSpell
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8912e155f4f81bc42a57689c571d9466
+    m_Address: Datas/Spells/Poison
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b79c188a16d454e40aa69ff34887d8b9
+    m_Address: Datas/Spells/Meteo
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b8bf2105d74d5f24e82d4fcdd527a34d
+    m_Address: Datas/Spells/Freeze
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f537149191670534391f65d213f8a670
+    m_Address: Datas/Spells/BombBarrel
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f6d98ff8f2a81ef458ed4ef1a2ab48a2
+    m_Address: Datas/Spells/BoundShield
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fc9ef5c220e1b3f4f86c661e80cabb44
+    m_Address: Datas/Spells/LaneSpell
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ffeb3dc355baa0c4eac827f7d31462dc
+    m_Address: Datas/Spells/Heal
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: a9ce9cd8d232393468ebaa0b6a604e52, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: d502855981b086346bd2675fc795ca9a, type: 2}
+    - {fileID: 11400000, guid: d7bf40c7de66c7e47873da72014e80b1, type: 2}

@@ -71,7 +71,7 @@ namespace Game.Monsters
                 Attack();
 
             }
-             LookToTarget();//if (controller.MonsterStatus.MonsterMoveType == MonsterMoveType.Fly)
+            if(!controller.statusCondition.Freeze.isActive) LookToTarget();//if (controller.MonsterStatus.MonsterMoveType == MonsterMoveType.Fly)
             MoveToChaseState();//if(!isWaitingLeftTime)
         }
 

@@ -204,7 +204,7 @@ namespace Game.Spells.Freeze
                 await melt();
             }
             catch (OperationCanceledException) { return; }
-            SetOriginalMaterial(target, targetRenderers);
+            SetOriginalMaterial(target, targetRenderers,cls);
         }
         async void StartGroundFreezeAndMelt(Material groundMaterial)
         {
@@ -226,11 +226,12 @@ namespace Game.Spells.Freeze
             var melt = FreezerateSetter(groundMaterial, endValue, usualStartValue, freezeAndMeltDuration);
             await melt();
         }
-        void SetOriginalMaterial(UnitBase target, List<Renderer> renderers)
+        void SetOriginalMaterial(UnitBase target, List<Renderer> renderers,CancellationTokenSource expectedCls)
         {
+            if (!target.statusCondition.visualTokens.TryGetValue(conditionType, out var currentToken)) return;
+            if (currentToken != expectedCls) return;//仕様変わってスコープ外でも使えるらしい
             for (int i = 0; i < renderers.Count; i++)
             {
-                if (target.statusCondition.visualTokens[conditionType].IsCancellationRequested) return;
                 var originalMaterials = target.meshMaterials[i];
                 renderers[i].materials = originalMaterials;
             }

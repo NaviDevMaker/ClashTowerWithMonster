@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: DeckChooseMonsters
+  m_EditorClassIdentifier: 
+  m_GroupName: DeckChooseMonsters
+  m_GUID: ec4f8c1638d8ba64eacf97e3e5499b7f
+  m_SerializeEntries:
+  - m_GUID: 06cd6025a97e36b478079603f12b8767
+    m_Address: Assets/Prefabs/DeckChooseMonsters/GuirdSlime.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DeckChooseMonster
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 09da467af373b1a44908f5d8e5906e8e
+    m_Address: Assets/Prefabs/DeckChooseMonsters/BigEyeMonster.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DeckChooseMonster
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0a7354c8a2a92be46bd9d787819ea14a
+    m_Address: Assets/Prefabs/DeckChooseMonsters/DestructionMachine.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DeckChooseMonster
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 303ca0e31be873844b8843ced4acc272
+    m_Address: Assets/Prefabs/DeckChooseMonsters/CactusMonster.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DeckChooseMonster
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 79669ed56e6b8ca45ba3d660dd74bdb9
+    m_Address: Assets/Prefabs/DeckChooseMonsters/SlimeKing.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DeckChooseMonster
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 91b77ec74f449404aa533366010601ca
+    m_Address: Assets/Prefabs/DeckChooseMonsters/SpeederBoy.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DeckChooseMonster
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 952ea459dc88ce045b2b4291c785aded
+    m_Address: Assets/Prefabs/DeckChooseMonsters/ChestMonster.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DeckChooseMonster
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bb44c25f653d8b346ba50261a263fa5f
+    m_Address: Assets/Prefabs/DeckChooseMonsters/Slime.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DeckChooseMonster
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d5c1aa45fb8138e4e8f84b9590cb00a9
+    m_Address: Assets/Prefabs/DeckChooseMonsters/AttackerBoy.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DeckChooseMonster
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f135d61350d39d44b88423ea6fb2bbcf
+    m_Address: Assets/Prefabs/DeckChooseMonsters/EvilMushroom .prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DeckChooseMonster
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: a9ce9cd8d232393468ebaa0b6a604e52, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 8e2ad61d670359b468db73840558ac7a, type: 2}
+    - {fileID: 11400000, guid: 9a1ca3bf39a866446bd069322c950199, type: 2}
