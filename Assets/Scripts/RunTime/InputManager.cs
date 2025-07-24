@@ -45,5 +45,12 @@ public static class InputManager
     public static bool IsClickedLeftRotateCameraButton() => Input.GetKey(KeyCode.Alpha1);
     public static bool IsClickedRightRotateCameraButton() => Input.GetKey(KeyCode.Alpha2);
 
-
-}
+    /// <summary>
+    /// デッキ作成画面でスライド用のボタン(左クリック)が押されたかどうか
+    /// </summary>
+    public static bool IsClickedSlideButton() => Input.GetMouseButton(0) && Mathf.Abs(Input.mouseScrollDelta.y) < 1.0f;
+    
+    ///<summary>
+    ///カード
+    ///</summary>
+ }
