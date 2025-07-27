@@ -25,6 +25,7 @@ namespace Game.Monsters
         
         protected override void Start()
         {
+
             isSummoned = true;
             Debug.Log("‚Š‚ƒ‚„‚³‚ƒ‚„‚“‚ˆ‚‹‚ƒ‚“‚„‚Š‚„‚“‚ƒ‚“‚„‚‹‚“‚„‚Ž");
             base.Start();
@@ -33,6 +34,7 @@ namespace Game.Monsters
             ChangeState(IdleState);
             originalAnimatorSpeed = animator.speed;
         }
+
         protected override void Update()
         {
             base.Update();
@@ -53,6 +55,15 @@ namespace Game.Monsters
         private void FixedUpdate()
         {
             if(isSummoned && IdleState.isEndSummon && !isDead) addForceToUnit.KeepDistance(moveType);
+        }
+
+        public void Test()
+        {
+            var r = AllMesh[0];
+            var m = r.material;
+            var c = m.color;
+            c.a = 0f;
+            m.color = c;
         }
         public virtual void ChangeState(StateMachineBase<T> nextState)
         {

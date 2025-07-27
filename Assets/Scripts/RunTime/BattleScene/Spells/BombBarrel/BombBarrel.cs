@@ -40,6 +40,7 @@ namespace Game.Spells.BombBarrel
                 var barrelMaterial = child.GetComponent<MeshRenderer>().material;
                 var verticles = barrelMesh.vertices;
                 var triangles = barrelMesh.triangles;
+                var uvs = barrelMesh.uv;
                 var trianglePos = child.transform.position;
                 int step = 6 * 3;
                 chunks.AddRange(this.GetDivisionMesh<BombBarrel>(
@@ -47,10 +48,10 @@ namespace Game.Spells.BombBarrel
                     step,
                     triangles,
                     verticles,
+                    uvs,
                     scale,
                     trianglePos,
                     barrelMaterial
-
                 ));
                 child.gameObject.SetActive(false);
             }

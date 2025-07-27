@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using UnityEditor.Rendering;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.VFX;
 
 namespace Game.Spells.Freeze
@@ -24,6 +26,7 @@ namespace Game.Spells.Freeze
         }
         FreezeInfo freezeInfo;
         VisualEffect snowVFX;
+
 
         readonly StatusConditionType conditionType = StatusConditionType.Freeze;
         protected override async void Initialize()
@@ -86,7 +89,7 @@ namespace Game.Spells.Freeze
             ParticlePlay(particle);
             snowVFX.Play();
             var endvalue = 1.0f;
-            MaterialFadeSetter(freezeInfo.freezeRenderer.material, endvalue).Forget();
+            GroundMaterialFadeSetter(freezeInfo.freezeRenderer.material, endvalue).Forget();
             var units = spellEffectHelper.GetUnitInRange();
             var filteredList = units.Where(unit =>
             {
@@ -120,10 +123,8 @@ namespace Game.Spells.Freeze
             snowVFX.Stop();
             var main = particle.main;
             main.loop = false;
-            await MaterialFadeSetter(freezeInfo.freezeRenderer.material, endvalue);
-
+            await GroundMaterialFadeSetter(freezeInfo.freezeRenderer.material, endvalue);
             DestroyAll();
-            //
         }
 
         void CheckCancellPreviousToken(UnitBase target)
@@ -134,8 +135,13 @@ namespace Game.Spells.Freeze
                 previousToken.Dispose();
                 target.statusCondition.visualTokens.Remove(conditionType);
             }
+            if (target.statusCondition.visualChunks.TryGetValue(conditionType, out var chunkParent))
+            {
+                Destroy(chunkParent);
+                target.statusCondition.visualChunks.Remove(conditionType);
+            }
         }
-        void ParticlePlay(ParticleSystem particle)
+            void ParticlePlay(ParticleSystem particle)
         {
             var main = particle.main;
             main.loop = true;
@@ -153,13 +159,68 @@ namespace Game.Spells.Freeze
         }
         void FreezeAction(UnitBase target, CancellationTokenSource cls)
         {
-            spellEffectHelper.EffectToEachUnit(target);
-            List<Renderer> renderers = target.AllMesh;
-            if (renderers.Count == 0)
+            if (target.AllMesh.Count == 0)
             {
                 Debug.LogWarning("meshを取得できませんでした");
                 return;
             }
+
+            spellEffectHelper.EffectToEachUnit(target);
+            List<Renderer> renderers = new List<Renderer>();
+            if (target.AllMesh.Count > 1) renderers = target.AllMesh;
+            else
+            {
+               //なぜかわからないが普通にcolorを指定しても色が変わらなかったからしゃーなし
+               var originalRenderer = target.AllMesh[0];
+               var mats = originalRenderer.materials;
+               var duration = 0.01f;
+               foreach ( var mat in mats) FadeProcessHelper.FadeOutColor(duration, mat).Forget();
+
+               var name = $"{gameObject.name}_FreezeSpell";
+               var parentObj = new GameObject(name);
+               parentObj.transform.position = target.transform.position;
+               Mesh originalMesh = new Mesh();
+               if (originalRenderer is SkinnedMeshRenderer skinned) skinned.BakeMesh(originalMesh); 
+               var triangles = originalMesh.triangles;
+               var verticles = originalMesh.vertices;
+               var uvs = originalMesh.uv;
+               var step = 512 * 3;
+               var scale = Vector3.one;
+               var pos = originalRenderer.transform.position;//target.transform.position
+                var chunks = new List<GameObject>();
+               chunks.AddRange(this.GetDivisionMesh<UnitBase>
+               (
+                    step,
+                    triangles,
+                    verticles,
+                    uvs,
+                    scale,
+                    pos,
+                    originalRenderer.material  
+               ));
+
+               var UvScale = 0.1f;
+               var eulerAngle = target.transform.rotation.eulerAngles;
+               chunks.ForEach(chunk =>
+               {
+                   chunk.transform.SetParent(parentObj.transform,true);
+                   var renderer = chunk.GetComponent<MeshRenderer>();
+                   renderers.Add(renderer);
+                   var mesh = renderer.GetComponent<MeshFilter>().mesh;
+                   var verts = mesh.vertices;
+                   Vector2[] newUvs = new Vector2[verts.Length];
+                   for (int i = 0; i < verts.Length; i++)
+                   {
+                       var vert = verts[i];
+                       newUvs[i] = new Vector2(vert.x * UvScale, vert.z * UvScale);
+                   }
+                   mesh.uv = newUvs;
+                   chunk.transform.rotation = Quaternion.Euler(-90f + eulerAngle.x, eulerAngle.y, eulerAngle.z);
+               });
+                Debug.Log($"Registering visual chunk for {conditionType}");
+                target.statusCondition.visualChunks[conditionType] = parentObj;
+            }          
+            
             for (int i = 0; i < renderers.Count; i++)
             {
                 //Debug.Log(freezeMaterial.name);
@@ -196,14 +257,32 @@ namespace Game.Spells.Freeze
             var freeze = FreezerateSetter(freezeMaterial, startValue, endValue, duration, cls);
             var interval = freezeInfo.interval;
 
+            Func<CancellationTokenSource,UniTask> checkTargetDie =(async (cls)  =>
+            {
+                var time = 0f;
+                while(time < spellDuration)
+                {
+                    time += Time.deltaTime;
+                    if (target.isDead)
+                    {
+                        cls.Cancel();
+                        SetOriginalMaterial(target, targetRenderers, cls);
+                        break;
+                    }
+                    await UniTask.Yield();
+                }
+            });
+
             try
             {
+                checkTargetDie(cls).Forget();
                 await freeze();
                 await UniTask.Delay(TimeSpan.FromSeconds(interval), cancellationToken: cls.Token);
                 var melt = FreezerateSetter(freezeMaterial, endValue, 0f, duration, cls);
                 await melt();
             }
             catch (OperationCanceledException) { return; }
+
             SetOriginalMaterial(target, targetRenderers,cls);
         }
         async void StartGroundFreezeAndMelt(Material groundMaterial)
@@ -230,11 +309,29 @@ namespace Game.Spells.Freeze
         {
             if (!target.statusCondition.visualTokens.TryGetValue(conditionType, out var currentToken)) return;
             if (currentToken != expectedCls) return;//仕様変わってスコープ外でも使えるらしい
-            for (int i = 0; i < renderers.Count; i++)
+
+            if(target.AllMesh.Count > 1)
             {
-                var originalMaterials = target.meshMaterials[i];
-                renderers[i].materials = originalMaterials;
+                for (int i = 0; i < renderers.Count; i++)
+                {
+                    var originalMaterials = target.meshMaterials[i];
+                    renderers[i].materials = originalMaterials;
+                }
             }
+            else
+            {
+                Debug.Log($"Trying to access visual chunk for {conditionType}");
+                if (target.statusCondition.visualChunks.TryGetValue(conditionType,out var chunkParent))
+                {
+                    Destroy(chunkParent);
+                    target.statusCondition.visualChunks.Remove(conditionType);
+                }            
+                var renderer = target.AllMesh[0];
+                var mats = renderer.materials;
+                var duration = 0.01f;
+                foreach (var material in mats) FadeProcessHelper.FadeInColor(duration, material).Forget();
+            }
+            
         }
         Func<UniTask> FreezerateSetter(Material freezeMaterial, float start, float end, float duration, CancellationTokenSource cls = null)
         {
@@ -265,7 +362,7 @@ namespace Game.Spells.Freeze
             });
             return action;
         }
-        async UniTask MaterialFadeSetter(Material freezeMaterial, float endValue)
+        async UniTask GroundMaterialFadeSetter(Material freezeMaterial, float endValue)
         {
             if (!freezeMaterial.HasProperty("_Alpha"))
             {

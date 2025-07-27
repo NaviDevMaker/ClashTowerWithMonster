@@ -13,30 +13,43 @@ public class MonstersManager : MonoBehaviour
         Initialize();
     }
 
-    // Update is called once per frame
-    void Update()
+    void Initialize()
     {
-        
+        SetStoneMaterial();
+        SetMonster();
     }
 
-    async void Initialize()
+    async void SetMonster()
     {
-        try
+        List<GameObject> monsterObjs = new List<GameObject>();
+        try 
         {
-            stoneMaterial = await SetFieldFromAssets.SetField<Material>("");
-
+            monsterObjs = (await SetFieldFromAssets.SetFieldByLabel<GameObject>("DeckChooseMonster")).ToList();
         }
-        catch(OperatorException )
+        catch (OperatorException)
         {
             Debug.LogWarning("このアドレスは存在しません");
             return;
         }
-
-        var monstersObj = (await SetFieldFromAssets.SetFieldByLabel<GameObject>("DeckChooseMonster")).ToList();
-        foreach (GameObject monster in monstersObj)
+        foreach (GameObject monster in monsterObjs)
         {
-            var selectableMonster = monster.GetComponent<SelectableMonster>();
-            selectableMonster.stoneMaterial = stoneMaterial;
-        } 
+            var monsterObj = Instantiate(monster);
+            var selectableMonster = monsterObj.GetComponent<SelectableMonster>();
+            selectableMonster.Initialize(stoneMaterial);
+            monsters.Add(selectableMonster);
+        }
+    }
+    async void SetStoneMaterial()
+    {
+        try
+        {
+            stoneMaterial = await SetFieldFromAssets.SetField<Material>("Materiials/StoneShader");
+
+        }
+        catch (OperatorException)
+        {
+            Debug.LogWarning("このアドレスは存在しません");
+            return;
+        }
     }
 }

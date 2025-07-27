@@ -136,6 +136,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4360957418159596944}
   - component: {fileID: 5818858702581133909}
+  - component: {fileID: 7459899443493073490}
   m_Layer: 0
   m_Name: mushroom
   m_TagString: Untagged
@@ -231,6 +232,28 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.58135295, y: 0.17860109, z: -0.0034438968}
     m_Extent: {x: 0.76219964, y: 0.78188795, z: 0.6265786}
   m_DirtyAABB: 0
+--- !u!64 &7459899443493073490
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4282549676669794613}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -7588155868070637639, guid: a736566565a0467eb2ba23a7007ba560, type: 3}
 --- !u!1 &4312498307884881949
 GameObject:
   m_ObjectHideFlags: 0
@@ -241,6 +264,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5037819370948752184}
   - component: {fileID: 5531508212927006620}
+  - component: {fileID: -5943819913245719170}
   m_Layer: 0
   m_Name: 'EvilMushroom '
   m_TagString: Untagged
@@ -287,6 +311,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-5943819913245719170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4312498307884881949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 491a56a8b6330ef41ad117a9f0f87b8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4445486319751234820
 GameObject:
   m_ObjectHideFlags: 0

@@ -1688,6 +1688,7 @@ GameObject:
   m_Component:
   - component: {fileID: 509006183432991760}
   - component: {fileID: 367818230421952690}
+  - component: {fileID: -197932824353507523}
   m_Layer: 0
   m_Name: DestructionMachine
   m_TagString: Untagged
@@ -1740,6 +1741,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-197932824353507523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5387397634716032797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 491a56a8b6330ef41ad117a9f0f87b8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5466931558672821276
 GameObject:
   m_ObjectHideFlags: 0

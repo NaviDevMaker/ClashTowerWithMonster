@@ -7,7 +7,7 @@ using DG.Tweening;
 
 public static class FadeProcessHelper
 {
-    public static async UniTask FadeOutColor(float fadeDuration, CancellationToken cancellationToken, Material material)
+    public static async UniTask FadeOutColor(float fadeDuration, Material material,CancellationToken cancellationToken = default)
     {
         Debug.Log("Playerのフェイドアウト開始");
         var time = 0f;
@@ -15,7 +15,7 @@ public static class FadeProcessHelper
 
 
         var startColor = meshMaterial.color;
-        var startAlpha = startColor.a;
+        var startAlpha = 1.0f;//startColor.a
 
         try
         {
@@ -28,12 +28,14 @@ public static class FadeProcessHelper
                 meshMaterial.color = color;
                 //Debug.Log(meshMaterial.color.a);
                 time += Time.deltaTime;
+
                 await UniTask.Yield(cancellationToken: cancellationToken);
             }
         }
         catch (OperationCanceledException)
         {
             Debug.Log("色変更キャンセルされました");
+            return;
         }
         finally
         {
@@ -44,7 +46,7 @@ public static class FadeProcessHelper
         }
     }
 
-    public static async UniTask FadeInColor(float fadeDuration,CancellationToken cancellationToken,Material material)
+    public static async UniTask FadeInColor(float fadeDuration, Material material,CancellationToken cancellationToken = default)
     {
         var time = 0f;
         var meshMaterial = material;

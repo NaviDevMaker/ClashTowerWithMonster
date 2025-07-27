@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using Game.Spells;
+using static UnitBase;
 
 
 public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
@@ -87,6 +88,7 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
                 var otherScaleType = other.UnitScale;
                 if ((otherScaleType & effectiveScale) != 0)
                 {
+                    if (other.statusCondition.Freeze.isActive) return;
                     other.isKnockBacked_Unit = true;
                     //targetPos_me = me.transform.position - push / 2;
                     targetPos_other = other.transform.position + push; // / 2
