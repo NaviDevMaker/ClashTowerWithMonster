@@ -75,6 +75,7 @@ GameObject:
   - component: {fileID: 8037454825051548784}
   - component: {fileID: 514895403153304972}
   - component: {fileID: -8740740754216207601}
+  - component: {fileID: -7801859370686335891}
   m_Layer: 0
   m_Name: ChestMonster
   m_TagString: Untagged
@@ -91,7 +92,7 @@ Transform:
   m_GameObject: {fileID: 1822826765498077019}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 16.4, y: 0, z: -4.29}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -133,6 +134,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 491a56a8b6330ef41ad117a9f0f87b8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sortOrder: 5
+  isFlying: 0
+  bodyMesh: {fileID: 1558227517446738358}
+--- !u!65 &-7801859370686335891
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1822826765498077019}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.42, y: 1.43, z: 1.16}
+  m_Center: {x: 0, y: 0.73, z: 0}
 --- !u!1 &2353295802857847853
 GameObject:
   m_ObjectHideFlags: 0

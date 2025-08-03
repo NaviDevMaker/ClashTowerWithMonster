@@ -2,6 +2,7 @@ Shader "URP/PetrifyByMaskTexture_WorldUV"
 {
     Properties
     {
+        _Alpha("Alpha",Range(0,1)) = 0.0
         _Color("Color", Color) = (1,1,1,1)
         _MainTex("Main Texture", 2D) = "white" {}
         _StoneTex("Stone Texture", 2D) = "white" {}
@@ -12,13 +13,16 @@ Shader "URP/PetrifyByMaskTexture_WorldUV"
 
     SubShader
     {
-        Tags { "RenderType" = "Opaque" "Queue" = "Geometry" }
+        Tags { "RenderType" = "Transparent" "Queue" = "Transparent" }
         LOD 100
 
         Pass
         {
             Name "ForwardLit"
             Tags { "LightMode" = "UniversalForward" }
+
+            Blend SrcAlpha OneMinusSrcAlpha
+            ZWrite Off
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -42,6 +46,7 @@ Shader "URP/PetrifyByMaskTexture_WorldUV"
             sampler2D _PetrifyMask;
 
             float4 _Color;
+            float _Alpha;
             float _PetrifyProgress;
             float _BoundaryBlurAmount;
 
@@ -66,7 +71,7 @@ Shader "URP/PetrifyByMaskTexture_WorldUV"
                 float4 mainCol = tex2D(_MainTex, uv);
                 float4 stoneCol = tex2D(_StoneTex, uv); // TRANSFORM_TEX ‚È‚µ
                 float4 finalCol = lerp(mainCol, stoneCol, rate) * _Color;
-
+                finalCol.a *= _Alpha; 
                 return finalCol;
             }
 

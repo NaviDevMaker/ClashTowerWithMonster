@@ -57,14 +57,7 @@ namespace Game.Monsters
             if(isSummoned && IdleState.isEndSummon && !isDead) addForceToUnit.KeepDistance(moveType);
         }
 
-        public void Test()
-        {
-            var r = AllMesh[0];
-            var m = r.material;
-            var c = m.color;
-            c.a = 0f;
-            m.color = c;
-        }
+      
         public virtual void ChangeState(StateMachineBase<T> nextState)
         {
             currentState?.OnExit();
