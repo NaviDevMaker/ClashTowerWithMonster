@@ -290,6 +290,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7269562829248805308}
   - component: {fileID: 5456366783702018957}
+  - component: {fileID: 7098454506570075319}
+  - component: {fileID: -561671322018644989}
   m_Layer: 0
   m_Name: GuirdSlime
   m_TagString: Untagged
@@ -306,7 +308,7 @@ Transform:
   m_GameObject: {fileID: 2332528451027877875}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 18.7, y: 0, z: -5.5}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -336,6 +338,42 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7098454506570075319
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2332528451027877875}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 491a56a8b6330ef41ad117a9f0f87b8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sortOrder: 2
+  isFlying: 0
+  bodyMesh: {fileID: 3679650995374491466}
+--- !u!65 &-561671322018644989
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2332528451027877875}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.31, y: 1, z: 1.41}
+  m_Center: {x: 0, y: 0.46, z: 0}
 --- !u!1 &3395815460228761037
 GameObject:
   m_ObjectHideFlags: 0
@@ -570,6 +608,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6689245767520194157}
   - component: {fileID: 3679650995374491466}
+  - component: {fileID: 8295402229982200984}
   m_Layer: 0
   m_Name: TurtleShell
   m_TagString: Untagged
@@ -586,7 +625,7 @@ Transform:
   m_GameObject: {fileID: 5088273990327979065}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 33.1, y: -0.012334714, z: -15.7}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -678,6 +717,28 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.446875, y: 0.3599043, z: 0}
     m_Extent: {x: 0.7597805, y: 0.7337334, z: 0.7809485}
   m_DirtyAABB: 0
+--- !u!64 &8295402229982200984
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5088273990327979065}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 7274137689646547217, guid: 942e6d5330e147fe84c5ab6ab2193ca1, type: 3}
 --- !u!1 &5373114071360736512
 GameObject:
   m_ObjectHideFlags: 0

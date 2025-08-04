@@ -371,6 +371,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 502eeeb63603f464dbea86ced30f074a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tentativeID: 0
   unitScale: 1
   unitType: 0
   mySkinnedMeshes:
@@ -378,8 +379,6 @@ MonoBehaviour:
   myMeshes: []
   bodyMesh: {fileID: 3679650995374491466}
   statusData: {fileID: 11400000, guid: d1e4d0dc9983faf449ccd12fd7d7e046, type: 2}
-  Side: 0
-  ownerID: 1
   monsterAnimPar: {fileID: 11400000, guid: c86b8f83d9673264d95e86cd55b9ac2c, type: 2}
 --- !u!1 &3395815460228761037
 GameObject:
@@ -631,7 +630,7 @@ Transform:
   m_GameObject: {fileID: 5088273990327979065}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 33.1, y: -0.012334714, z: -15.7}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

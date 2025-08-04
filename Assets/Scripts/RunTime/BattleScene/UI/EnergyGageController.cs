@@ -44,10 +44,10 @@ public class EnergyGageController : MonoBehaviour
     {
         if (currentEnergy == maxEnergy) return;
         energyTimer += Time.deltaTime;
-        if(energyTimer >= energyChargeTime_1)
+        if(energyTimer >= energyChargeTIme_3)
         {
             Debug.Log(energyTimer);
-            energyTimer -= energyChargeTime_1;
+            energyTimer -= energyChargeTIme_3;
             currentEnergy++;
             energyCountText.text = currentEnergy.ToString();
             var tween = UIFuctions.ShakeUI(energyCountText);
@@ -58,7 +58,7 @@ public class EnergyGageController : MonoBehaviour
     void RenewChargeImageVisual()
     {
         var currentFill = (float)currentEnergy / maxEnergy;
-        var plusFill = (energyTimer / energyChargeTime_1) / maxEnergy;
+        var plusFill = (energyTimer / energyChargeTIme_3) / maxEnergy;
         var targetFill = currentFill + plusFill;
         var targetWidth = maxWidth * targetFill;
         var rect = energyLiquidImage.rectTransform;

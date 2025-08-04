@@ -25,6 +25,7 @@ namespace Game.Monsters
         
         protected override void Start()
         {
+
             isSummoned = true;
             Debug.Log("‚Š‚ƒ‚„‚³‚ƒ‚„‚“‚ˆ‚‹‚ƒ‚“‚„‚Š‚„‚“‚ƒ‚“‚„‚‹‚“‚„‚Ž");
             base.Start();
@@ -33,6 +34,7 @@ namespace Game.Monsters
             ChangeState(IdleState);
             originalAnimatorSpeed = animator.speed;
         }
+
         protected override void Update()
         {
             base.Update();
@@ -54,6 +56,8 @@ namespace Game.Monsters
         {
             if(isSummoned && IdleState.isEndSummon && !isDead) addForceToUnit.KeepDistance(moveType);
         }
+
+      
         public virtual void ChangeState(StateMachineBase<T> nextState)
         {
             currentState?.OnExit();

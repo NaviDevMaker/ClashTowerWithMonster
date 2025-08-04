@@ -40,7 +40,7 @@ namespace Game.Monsters.SpellDemon
             {
                 foreach (var material in materials)
                 {
-                    FadeProcessHelper.FadeInColor(duration, controller.GetCancellationTokenOnDestroy(), material).Forget();
+                    FadeProcessHelper.FadeInColor(duration, material,controller.GetCancellationTokenOnDestroy()).Forget();
                 }
             }
         }

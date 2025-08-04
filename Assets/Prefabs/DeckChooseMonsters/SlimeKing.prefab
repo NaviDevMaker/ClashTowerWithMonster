@@ -171,6 +171,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5779984614677648196}
   - component: {fileID: 734837980203243514}
+  - component: {fileID: 5856695518970494740}
   m_Layer: 0
   m_Name: SlimeKing
   m_TagString: Untagged
@@ -259,6 +260,28 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.3588662, y: 0.1749603, z: 0.000000059604645}
     m_Extent: {x: 0.62954795, y: 0.6683546, z: 0.4895594}
   m_DirtyAABB: 0
+--- !u!64 &5856695518970494740
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6192270186311679573}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: 6520c6d7889f4c72b416f07f34edd515, type: 3}
 --- !u!1 &6315132990289075653
 GameObject:
   m_ObjectHideFlags: 0
@@ -331,6 +354,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4203571590735066475}
   - component: {fileID: 7282360130757198772}
+  - component: {fileID: 3496498180470447396}
+  - component: {fileID: 3265880012419431166}
   m_Layer: 0
   m_Name: SlimeKing
   m_TagString: Untagged
@@ -347,7 +372,7 @@ Transform:
   m_GameObject: {fileID: 7697305663947063803}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 24, y: 0, z: -8.3}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -377,6 +402,42 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &3496498180470447396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7697305663947063803}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 491a56a8b6330ef41ad117a9f0f87b8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sortOrder: 1
+  isFlying: 0
+  bodyMesh: {fileID: 734837980203243514}
+--- !u!65 &3265880012419431166
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7697305663947063803}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.39, y: 1, z: 1}
+  m_Center: {x: 0, y: 0.45, z: 0}
 --- !u!1 &8390216563424821833
 GameObject:
   m_ObjectHideFlags: 0

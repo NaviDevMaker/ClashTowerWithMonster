@@ -18,3 +18,4 @@ MonoBehaviour:
   cardName: 4
   cardPrefab: {fileID: 3271812579567768285, guid: 929edda95240e63418a344e9a389bb44, type: 3}
   cardType: 1
+  sortOrder: 4

@@ -33,7 +33,7 @@ public class DeathMoveExecuter
         {
             foreach (var material in materials)
             {
-               FadeProcessHelper.FadeOutColor(clipLengthBySpeed, cts.Token, material).Forget();
+               FadeProcessHelper.FadeOutColor(clipLengthBySpeed,material,cts.Token).Forget();
             }
         }
 
@@ -62,7 +62,7 @@ public class DeathMoveExecuter
         {
             foreach (var material in materials)
             {
-               FadeProcessHelper.FadeOutColor(clipLengthBySpeed, cts.Token, material).Forget();
+               FadeProcessHelper.FadeOutColor(clipLengthBySpeed,material,cts.Token).Forget();
             }
         }
 
@@ -87,7 +87,7 @@ public class DeathMoveExecuter
         var mesh = archer.MyMesh;
         foreach (var material in mesh.materials)
         {
-           FadeProcessHelper.FadeOutColor(clipLengthBySpeed, token, material).Forget();
+           FadeProcessHelper.FadeOutColor(clipLengthBySpeed, material, token).Forget();
         }
         EffectManager.Instance.deathEffect.GenerateDeathEffect(archer, clipLength);
         await UniTask.Delay(TimeSpan.FromSeconds(clipLength));
@@ -117,7 +117,7 @@ public class DeathMoveExecuter
                 }
             }
             Debug.Log(length);
-            FadeProcessHelper.FadeOutColor(length, cts.Token,material).Forget();
+            FadeProcessHelper.FadeOutColor(length, material, cts.Token).Forget();
         }
         EffectManager.Instance.deathEffect.GenerateDeathEffect(tower, length);
         tower.EnableHpBar();

@@ -22,6 +22,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         public StatusEffect Confusion { get; set; }
 
         public Dictionary<StatusConditionType,CancellationTokenSource> visualTokens = new Dictionary<StatusConditionType,CancellationTokenSource>();
+        public Dictionary<StatusConditionType,GameObject> visualChunks = new Dictionary<StatusConditionType,GameObject>();
         public StatusCondition()
         {
             Paresis = new StatusEffect();
@@ -116,6 +117,8 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
     public UnitScale UnitScale { get => unitScale;}
     public Renderer BodyMesh => bodyMesh;
 
+    //bool test = false;
+    //float time = 0f;
     public List<Renderer> AllMesh { get; private set; } = new List<Renderer>();
     protected virtual void Awake()
     {
@@ -132,6 +135,12 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
     }
     protected virtual void Update()
     {
+        //time += Time.deltaTime;
+        //if (time > 3f && !test)
+        //{
+        //    Test();
+        //    test = true;
+        //}
 
         if (!isDisplayedHpBar && currentHP != maxHP && hPBar!= null)
         {
@@ -146,6 +155,14 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         }
     }
 
+    //public void Test()
+    //{
+    //    var r = AllMesh[0];
+    //    var m = r.material;
+    //    var c = m.color;
+    //    c.a = 0f;
+    //    m.color = c;
+    //}
     // è´óàÇÕstartÇ≈åƒÇŒÇ»Ç¢Ç©ÇÁãCÇïtÇØÇƒÇÀ
     public virtual void Initialize(int owner)
     {
@@ -324,6 +341,8 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         {
             foreach(var material in materials)
             {
+                var currentAlpha = material.color.a;
+                color.a = currentAlpha;
                 material.color = color;
             }
         }
@@ -332,7 +351,10 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         {
             for(int j = 0; j < meshMaterials[i].Length;j++)
             {
-                meshMaterials[i][j].color = originalMaterialColors[i][j];
+                var newColor = originalMaterialColors[i][j];
+                var currentAlpha = meshMaterials[i][j].color.a;
+                newColor.a = currentAlpha;
+                meshMaterials[i][j].color = newColor;
             }
         }
     }

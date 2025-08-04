@@ -1,7 +1,8 @@
-Shader "URP/PetrifyByMaskTexture"
+Shader "URP/PetrifyByMaskTexture_WorldUV"
 {
     Properties
     {
+        _Alpha("Alpha",Range(0,1)) = 0.0
         _Color("Color", Color) = (1,1,1,1)
         _MainTex("Main Texture", 2D) = "white" {}
         _StoneTex("Stone Texture", 2D) = "white" {}
@@ -12,13 +13,16 @@ Shader "URP/PetrifyByMaskTexture"
 
     SubShader
     {
-        Tags { "RenderType" = "Opaque" "Queue" = "Geometry" }
+        Tags { "RenderType" = "Transparent" "Queue" = "Transparent" }
         LOD 100
 
         Pass
         {
             Name "ForwardLit"
             Tags { "LightMode" = "UniversalForward" }
+
+            Blend SrcAlpha OneMinusSrcAlpha
+            ZWrite Off
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -40,11 +44,9 @@ Shader "URP/PetrifyByMaskTexture"
             sampler2D _MainTex;
             sampler2D _StoneTex;
             sampler2D _PetrifyMask;
-            float4 _MainTex_ST;
-            float4 _StoneTex_ST;
-            float4 _PetrifyMask_ST;
 
             float4 _Color;
+            float _Alpha;
             float _PetrifyProgress;
             float _BoundaryBlurAmount;
 
@@ -52,7 +54,7 @@ Shader "URP/PetrifyByMaskTexture"
             {
                 Varyings OUT;
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
-                OUT.uv = TRANSFORM_TEX(IN.uv, _MainTex);
+                OUT.uv = IN.uv; // TRANSFORM_TEX は使わない（ワールドUV直接受け取り）
                 return OUT;
             }
 
@@ -60,19 +62,19 @@ Shader "URP/PetrifyByMaskTexture"
             {
                 float2 uv = IN.uv;
 
-                // マスク（青チャンネル）取得
                 float maskValue = tex2D(_PetrifyMask, uv).b;
                 float blurOffset = 51 - _BoundaryBlurAmount;
                 maskValue = maskValue * (blurOffset - 1) / blurOffset;
                 float rate = blurOffset * (_PetrifyProgress - maskValue);
-                rate = saturate(rate); // clamp between 0 and 1
+                rate = saturate(rate);
 
                 float4 mainCol = tex2D(_MainTex, uv);
-                float4 stoneCol = tex2D(_StoneTex, uv);
+                float4 stoneCol = tex2D(_StoneTex, uv); // TRANSFORM_TEX なし
                 float4 finalCol = lerp(mainCol, stoneCol, rate) * _Color;
-
+                finalCol.a *= _Alpha; 
                 return finalCol;
             }
+
             ENDHLSL
         }
     }

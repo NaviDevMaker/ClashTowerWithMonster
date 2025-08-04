@@ -119,12 +119,14 @@ namespace Game.Spells.Meteo
             var meteoMaterial = GetComponent<MeshRenderer>().material;
             var verticles = meteoMesh.vertices;
             var triangles = meteoMesh.triangles;
+            var uvs = meteoMesh.uv;
             var scale = transform.localScale;
             var pos = transform.position;
             chunks = this.GetDivisionMesh<MeteoMover>(
                step,
                triangles,
                verticles,
+               uvs,
                scale,
                pos,
                meteoMaterial
