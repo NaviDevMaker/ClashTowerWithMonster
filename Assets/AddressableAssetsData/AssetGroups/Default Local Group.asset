@@ -90,6 +90,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c86b8f83d9673264d95e86cd55b9ac2c
+    m_Address: Animations/MonsterAnimatorPar
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dfb17cbd7707bb048a3edae692a7d3f1
     m_Address: UI/SummonTimer
     m_ReadOnly: 0

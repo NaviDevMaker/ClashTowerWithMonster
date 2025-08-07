@@ -4096,6 +4096,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d82e3bad400162478b4d84441cd6826, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sortOrder: 0
 --- !u!1 &1482178531564921800
 GameObject:
   m_ObjectHideFlags: 0
@@ -4492,6 +4493,7 @@ MonoBehaviour:
   sortOrder: 0
   isFlying: 0
   bodyMesh: {fileID: 0}
+  monsterStatusData: {fileID: 0}
 --- !u!1 &1709129223138811222
 GameObject:
   m_ObjectHideFlags: 0
@@ -5058,6 +5060,7 @@ MonoBehaviour:
   sortOrder: 0
   isFlying: 0
   bodyMesh: {fileID: 0}
+  monsterStatusData: {fileID: 0}
 --- !u!64 &2138517282021123277
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -5427,6 +5430,7 @@ MonoBehaviour:
   sortOrder: 0
   isFlying: 0
   bodyMesh: {fileID: 0}
+  monsterStatusData: {fileID: 0}
 --- !u!4 &2350264639073736578
 Transform:
   m_ObjectHideFlags: 0
@@ -5610,6 +5614,7 @@ MonoBehaviour:
   sortOrder: 0
   isFlying: 0
   bodyMesh: {fileID: 0}
+  monsterStatusData: {fileID: 0}
 --- !u!4 &2416972386274159149
 Transform:
   m_ObjectHideFlags: 0
@@ -6387,6 +6392,7 @@ MonoBehaviour:
   sortOrder: 0
   isFlying: 0
   bodyMesh: {fileID: 0}
+  monsterStatusData: {fileID: 0}
 --- !u!4 &2913688778201335044
 Transform:
   m_ObjectHideFlags: 0
@@ -6961,6 +6967,8 @@ GameObject:
   - component: {fileID: 4457067973876329021}
   - component: {fileID: 4585275242786151322}
   - component: {fileID: 1479505258272504545}
+  - component: {fileID: 4585275242786151324}
+  - component: {fileID: 4585275242786151323}
   m_Layer: 7
   m_Name: SelectableCard
   m_TagString: Untagged
@@ -9223,6 +9231,31 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4585275242786151323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3212398281663358312}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55c33c01c0c46a24398686a78085187b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4585275242786151324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3212398281663358312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates: []
 --- !u!4 &4597707807094339005
 Transform:
   m_ObjectHideFlags: 0
@@ -11095,6 +11128,7 @@ MonoBehaviour:
   sortOrder: 0
   isFlying: 0
   bodyMesh: {fileID: 0}
+  monsterStatusData: {fileID: 0}
 --- !u!4 &5678602751217893281
 Transform:
   m_ObjectHideFlags: 0
@@ -12112,6 +12146,7 @@ MonoBehaviour:
   sortOrder: 0
   isFlying: 0
   bodyMesh: {fileID: 0}
+  monsterStatusData: {fileID: 0}
 --- !u!4 &6361949754781248022
 Transform:
   m_ObjectHideFlags: 0
@@ -14464,6 +14499,7 @@ MonoBehaviour:
   sortOrder: 0
   isFlying: 0
   bodyMesh: {fileID: 0}
+  monsterStatusData: {fileID: 0}
 --- !u!4 &7577057806464393218
 Transform:
   m_ObjectHideFlags: 0
@@ -14863,6 +14899,7 @@ MonoBehaviour:
   sortOrder: 0
   isFlying: 0
   bodyMesh: {fileID: 0}
+  monsterStatusData: {fileID: 0}
 --- !u!1 &7783057190388685447
 GameObject:
   m_ObjectHideFlags: 0
@@ -16950,6 +16987,7 @@ MonoBehaviour:
   sortOrder: 0
   isFlying: 0
   bodyMesh: {fileID: 0}
+  monsterStatusData: {fileID: 0}
 --- !u!95 &9006433289781839305
 Animator:
   serializedVersion: 7

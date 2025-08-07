@@ -25,15 +25,18 @@ public class SelectableMonster : PrefabBase, ISelectableMonster
     List<GameObject> chunks = new List<GameObject>();
     List<UniTask> depetrificationTasks = new List<UniTask>();
     public Material stoneMaterial { get; set; } = null;
+    public MonsterAnimatorPar monsterAnimatorPar { get; set; }
     Animator animator;
 
     [SerializeField] bool isFlying;
     [SerializeField] SkinnedMeshRenderer bodyMesh;
+    [SerializeField] MonsterStatusData monsterStatusData;
     bool isOneMesh = false;
     bool isPetrification = false;
     public CancellationTokenSource expectedCls { get; set;} = null;
     public SkinnedMeshRenderer _bodyMesh => bodyMesh;
     public bool _isFlying => isFlying;
+
     public override void Initialize()
     {
         var col = GetComponent<BoxCollider>();
@@ -217,7 +220,6 @@ public class SelectableMonster : PrefabBase, ISelectableMonster
                 SetEmission(originalMaterial,cls);
             }
         }
-
     }
     public void Repetrification()
     {

@@ -390,6 +390,7 @@ MonoBehaviour:
   sortOrder: 3
   isFlying: 1
   bodyMesh: {fileID: 970785776889327531}
+  monsterStatusData: {fileID: 0}
 --- !u!65 &9051300674338793539
 BoxCollider:
   m_ObjectHideFlags: 0

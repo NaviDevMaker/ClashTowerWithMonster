@@ -16,6 +16,7 @@ public class SelectablePrefabManager : MonoBehaviour
 {
     public List<SelectableMonster> monsters { get; set; } = new List<SelectableMonster>();
     Material stoneMaterial;
+    MonsterAnimatorPar monsterAnimatorPar;
 
     [SerializeField] LineUpFields lineUpFields; 
     int line = 0;
@@ -24,7 +25,7 @@ public class SelectablePrefabManager : MonoBehaviour
 
     public async void Initialize()
     {
-        await SetStoneMaterial();
+        await SetAssetsFromAdrea();
         SetMonster();
     }
 
@@ -59,12 +60,12 @@ public class SelectablePrefabManager : MonoBehaviour
         }
         MonsterLineUp();
     }
-    async UniTask SetStoneMaterial()
+    async UniTask SetAssetsFromAdrea()
     {
         try
         {
             stoneMaterial = await SetFieldFromAssets.SetField<Material>("Materiials/StoneShader");
-
+            monsterAnimatorPar = await SetFieldFromAssets.SetField<MonsterAnimatorPar>("Animations/MonsterAnimatorPar");
         }
         catch (OperatorException)
         {
@@ -93,6 +94,7 @@ public class SelectablePrefabManager : MonoBehaviour
                 pos.y = Terrain.activeTerrain.SampleHeight(pos);
                 selectableMonster.transform.position = pos;
                 selectableMonster.stoneMaterial = stoneMaterial;
+                selectableMonster.monsterAnimatorPar = monsterAnimatorPar;
                 selectableMonster.Initialize();
                 if (count == monsters.Count) break;
                 index++;
