@@ -4097,6 +4097,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sortOrder: 0
+  lineupIndex: 0
 --- !u!1 &1482178531564921800
 GameObject:
   m_ObjectHideFlags: 0

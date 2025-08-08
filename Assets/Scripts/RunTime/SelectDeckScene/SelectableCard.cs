@@ -158,7 +158,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
             if (!isDeck) iconImage.rectTransform.localScale = originalScale * scaleDownAmount;
             else iconImage.rectTransform.localScale = inDeckOriginalScale * scaleDownAmount;
         }
-        public async void OpenUseAndCloseButtonUI()
+        public async void OpenUseAndStatusButtonUI()
         {
             var duration = tweenFields.buttonScaleDuration;
             var buttonScaleUp = tweenFields.buttonScaleUpSet;
@@ -203,16 +203,17 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
             var d = 0.2f;
             var originalPosSet = new Vector2TweenSetup(currentImageRectPos, d);
             var scaleSet = new Vector3TweenSetup(originalScale, d);
-            var useButtonMoveSet = new Vector2TweenSetup(currentUseButtonPos, d);
-            var statusButtonMoveSet = new Vector2TweenSetup(currentStatusButtonPos, d);
+            //var useButtonMoveSet = new Vector2TweenSetup(currentUseButtonPos, d);
+            //var statusButtonMoveSet = new Vector2TweenSetup(currentStatusButtonPos, d);
             var moveTween =  iconImage.RectMover(originalPosSet);
             var scaleTween =  iconImage.gameObject.Scaler(scaleSet);
             var parentSequence = DOTween.Sequence();
+            var buttonSequence = GetButtonMoveSequence(d);
             parentSequence.Append(moveTween)
                 .Join(scaleTween)
-                .Join(useButtonImage.RectMover(useButtonMoveSet))
-                .Join(statusButtonImage.RectMover(statusButtonMoveSet));
-            if(isCalledScroll)
+                .Join(buttonSequence);
+          
+            if (isCalledScroll)
             {
                 var buttonScaleSet = new Vector3TweenSetup(Vector3.one, d);
                 var childSequence = DOTween.Sequence();
@@ -222,6 +223,15 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
             }
         }
 
+        Sequence GetButtonMoveSequence(float duration)
+        {
+            var useButtonMoveSet = new Vector2TweenSetup(currentUseButtonPos, duration);
+            var statusButtonMoveSet = new Vector2TweenSetup(currentStatusButtonPos,duration);
+            var sequence = DOTween.Sequence();
+            sequence.Append(useButtonImage.RectMover(useButtonMoveSet))
+                .Join(statusButtonImage.RectMover(statusButtonMoveSet));
+            return sequence;
+        }
         public async void FadeOutIUI(CancellationTokenSource cls)
         {
             var set = tweenFields.fadeOutSet;
@@ -271,6 +281,11 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
         }
         public void SetCardToDeck(int index,int deckColumCount,int deckLine)
         {
+            HeightSet(useButtonImage, originalHeight_Use);
+            HeightSet(statusButtonImage, originalHeight_Status);
+
+            var duration = 0.01f;
+            var buttonScaleMoveTween = GetButtonMoveSequence(duration);
             CloseUseAndStatusButtonUI();
             iconImage.transform.SetParent(parentImage.transform);
             //-540,950 差は200と-230 scaleは0.8
@@ -285,13 +300,20 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
             var pos = new Vector2(x + spaceX * column, y + spaceY * line);
             iconImage.rectTransform.localPosition = pos;
         }
+        public void SetCardToPool(Vector2 pos)
+        {
+            iconImage.transform.localScale = originalScale;
+           
+            CloseRemoveButtonUI();
+            iconImage.rectTransform.anchoredPosition = pos;
+            SetCurrentPos();
+        }
         void HeightSet(Image targetImage,float targetHeight)
         {
             var newSize = targetImage.rectTransform.sizeDelta;
             newSize.y = targetHeight;
             targetImage.rectTransform.sizeDelta = newSize;  
         }
-
         public void SetCurrentPos()
         {
             currentImageRectPos = iconImage.rectTransform.anchoredPosition;
@@ -303,7 +325,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
     ScrollRect scrollRect;
     public SelectableCardImage selectableCardImage { get; private set;}
     public int sortOrder = 0;
-    public int lineupIndex { get; set; } = 0;
+    public int lineupIndex = 0;// { get; set; }
     bool IsSelected = false;
     public bool isSelectedDeck { get;private set;} = false;//このFlagは単にこのカードがDeckのなかに入ってるかどうかのこと
     public bool _isSelected 
@@ -327,7 +349,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
     UnityAction<SelectableCard> OnSelectedCardFromDeck;
     public void Initialize(ScrollRect scrollRect,UnityAction<bool> stopScrollAction,
         UnityAction<SelectableCard> selectedCardChanged,UnityAction<SelectableCard> selectedCardtoDeck,
-        UnityAction<SelectableCard> selectedFromDeck,Canvas parentCanvas,Image parentImage)
+        UnityAction<SelectableCard> selectedFromDeck,UnityAction<SelectableCard> removedFromDeck,Canvas parentCanvas,Image parentImage)
     {
         this.scrollRect = scrollRect;
         this.SetCardImageFromData(cardData);
@@ -356,6 +378,13 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
         {
             selectedCardtoDeck.Invoke(this);
             isSelectedDeck = true;
+        });
+
+        removeButton.onClick.AddListener(() =>
+        {
+            removedFromDeck.Invoke(this);
+            IsSelected = false;
+            isSelectedDeck = false;
         });
         sortOrder = cardData.SortOrder;
     }
@@ -386,7 +415,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
         if (!isSelectedDeck)
         {
             selectableCardImage?.OnPointerUp();
-            selectableCardImage?.OpenUseAndCloseButtonUI();
+            selectableCardImage?.OpenUseAndStatusButtonUI();
             OnSelectedCard?.Invoke(this);
         }
         else

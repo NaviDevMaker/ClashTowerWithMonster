@@ -26,7 +26,7 @@ public class SelectableCardManager : MonoBehaviour
         public readonly int deckColum = 4;
         public readonly int deckLine = 2;
         public readonly int deckCount = 8;
-        public List<SelectableCard> deck;//Ç±ÇÍå„ÅXScriptableObjectÇ≈ä«óùÇµÇƒGameManagerÇ…ìnÇ∑ó\íË
+        public List<SelectableCard> deck;//Ç±ÇÍå„ÅXScriptableObjectÇ≈ä«óùÇµÇƒGameManagerÇ…ìnÇ∑ó\íË...Ç‚Ç¡ÇœÇªÇÍé´ÇﬂÇ≈Ç´Ç‹Ç¡ÇΩÇÁëóÇÈÇÊÇ§Ç…ÇµÇÊÇ§
 
         public CardDeckInfo() => deck = Enumerable.Repeat<SelectableCard>(null, deckCount).ToList();
     }
@@ -47,16 +47,35 @@ public class SelectableCardManager : MonoBehaviour
     Func<SelectableCard, PrefabBase> OnSelectedCard;
     CardLineupInfo cardLineupInfo = new CardLineupInfo();
     CardDeckInfo cardDeckInfo;
+    DeckPreserver deckPreserver;
     private void Awake()
     {
         if (Instance != null) Instance = null;
         Instance = this;
+    }
+
+    private void Update()//ÉeÉXÉgóp
+    {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            List<CardData> deckCardDatas = Enumerable.Repeat<CardData>(null,cardDeckInfo.deckCount).ToList();
+            for (int i = 0; i < deckCardDatas.Count; i++)
+            {
+                var c = cardDeckInfo.deck[i];
+                if (c == null) continue;
+                var d = c.cardData;
+                deckCardDatas[i] = d;
+            }
+            deckPreserver.ChoosenDecks = deckCardDatas;
+        }
     }
     public async UniTask Initialize(Func<SelectableCard, PrefabBase> action, Action<int, int> lineSetAction)
     {
         cardDeckInfo = new CardDeckInfo();
         OnSelectedCard = action;
         await LineUpCards(lineSetAction);
+        deckPreserver = await SetFieldFromAssets.SetField<DeckPreserver>("Datas/DeckPreserver");
+        Debug.Log(deckPreserver);
     }
     async UniTask LineUpCards(Action<int, int> lineSetAction)
     {
@@ -92,7 +111,8 @@ public class SelectableCardManager : MonoBehaviour
                     cmp.lineupIndex = index;
                     selectableCards.Add(cmp);
                     UnityAction<bool> stopAction = (isDowned) => ScrollManager.Instance.isPointerDowned = isDowned;
-                    cmp.Initialize(scrollRect, stopAction, OnSelectedCardChanged, OnCardSelectedToDeck, OnSelectedCardFromDeck, parentCanvas, parentImage);
+                    cmp.Initialize(scrollRect, stopAction, OnSelectedCardChanged, OnCardSelectedToDeck, OnSelectedCardFromDeck,
+                        OnRemovedFromDeck,parentCanvas, parentImage);
                     instanciatedCount++;
                     if (instanciatedCount == dataCount) break;
                     index++;
@@ -126,20 +146,51 @@ public class SelectableCardManager : MonoBehaviour
 
         selectedCard.selectableCardImage.SetCardToDeck(index, column, line);
         cardDeckInfo.deck[index] = selectedCard;
-        var lineupedList = selectableCards
-            .Where(card => !card.isSelectedDeck)
-            .OrderBy(card => card.lineupIndex).ToList();
+        var lineupedList = GetLineupedList();
         for (int i = cardIndex + 1; i < lineupedList.Count; i++)
         {
             var targetCard = lineupedList[i];
-            var selectableCardImage = targetCard.selectableCardImage;
-            var icon = selectableCardImage.iconImage;
             var positionIndex = i - 1;
             var pos = cardLineupInfo.cardPositionList[positionIndex];
             targetCard.lineupIndex = positionIndex;
-            icon.rectTransform.anchoredPosition = pos;
-            selectableCardImage.SetCurrentPos();
+            targetCard.selectableCardImage.SetCardToPool(pos);
         }
+    }
+    void OnRemovedFromDeck(SelectableCard removedCard)
+    {
+        ScrollManager.Instance.currentSelectedCard = null;
+        var deckIndex = cardDeckInfo.deck.FindIndex(card => card == removedCard);
+        if (deckIndex == -1) return;
+        cardDeckInfo.deck[deckIndex] = null;
+        var removedCardOrder = removedCard.sortOrder;
+        var frontIndexCard = selectableCards.Where(card =>
+            {
+                var isFront = removedCardOrder > card.sortOrder;
+                var isNotDeck = !card.isSelectedDeck;
+                return isFront && isNotDeck;
+            }).LastOrDefault();
+        var startLineupIndex = frontIndexCard != null ? frontIndexCard.lineupIndex + 1 : 0;
+        var lineupedList = GetLineupedList();
+
+        removedCard.lineupIndex = startLineupIndex;
+        var removedCardPos = cardLineupInfo.cardPositionList[startLineupIndex];
+        removedCard.selectableCardImage.SetCardToPool(removedCardPos);
+
+        for (var i = startLineupIndex; i < lineupedList.Count; i++)
+        {
+            var targetCard = lineupedList[i];
+            var positionIndex = i + 1;
+            var pos = cardLineupInfo.cardPositionList[positionIndex];
+            targetCard.lineupIndex = positionIndex;
+            targetCard.selectableCardImage.SetCardToPool(pos);
+        }
+    }
+    List<SelectableCard> GetLineupedList()
+    {
+        var lineupedList = selectableCards
+            .Where(card => !card.isSelectedDeck)
+            .OrderBy(card => card.lineupIndex).ToList();
+        return lineupedList;
     }
     async void OnSelectedCardChanged(SelectableCard selectedCard)
     {
@@ -175,7 +226,7 @@ public class SelectableCardManager : MonoBehaviour
         await deckChooseCameraMover.MoveToFrontOfObj();
         var currentPrefab = deckChooseCameraMover.currentSelectedPrefab;
         Func<bool> GetSetOriginalPos = (() => deckChooseCameraMover.isSettedOriginalPos);
-        if (currentPrefab is ISelectableMonster selectableMonster)//!sameCard &&
+        if (currentPrefab is ISelectableMonster selectableMonster)
         {
             selectableMonster.expectedCls = cls;
             selectableMonster.Depetrification(cls, GetSetOriginalPos);

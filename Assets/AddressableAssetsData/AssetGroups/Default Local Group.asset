@@ -35,6 +35,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 43b21b9b185202948be8e24bea1d0324
+    m_Address: Datas/DeckPreserver
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6276bcb0acf05e043a0abe90d73c6f31
     m_Address: Prefabs/Monsters/Slime
     m_ReadOnly: 0
