@@ -13,7 +13,8 @@ namespace Game.Monsters.EvilMushroom
         {
             base.OnEnter();
             //This paremetars are examples,so please change it to your preference!!
-            if(attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<EvilMushroomController>(controller, this, clipLength, 15, 1.5f);
+            if(attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<EvilMushroomController>(controller, this, clipLength, 15,
+                controller.MonsterStatus.AttackInterval);
             if (controller.statusCondition.Paresis.inverval == 0f) controller.statusCondition.Paresis.inverval = 1.5f;
         }
         public override void OnUpdate()

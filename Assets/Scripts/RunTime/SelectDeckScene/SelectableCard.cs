@@ -141,6 +141,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
         }
         public async void OnPointerUpInDeck()
         {
+            iconImage.transform.SetAsLastSibling();
             var d = 0.2f;
             var scaleSet = tweenFields.scaleUpWhenInDeck;
             var originalScaleSet = new Vector3TweenSetup(inDeckOriginalScale, d);
@@ -327,7 +328,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
     public int sortOrder = 0;
     public int lineupIndex = 0;// { get; set; }
     bool IsSelected = false;
-    public bool isSelectedDeck { get;private set;} = false;//このFlagは単にこのカードがDeckのなかに入ってるかどうかのこと
+    public bool isSelectedDeck  = false;//このFlagは単にこのカードがDeckのなかに入ってるかどうかのこと{ get;private set;}
     public bool _isSelected 
     { 
         get => IsSelected; 
@@ -346,10 +347,16 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
 
     public UnityAction<bool> OnPointerDownStatus;
     public UnityAction<SelectableCard> OnSelectedCard;
-    UnityAction<SelectableCard> OnSelectedCardFromDeck;
+    UnityAction<SelectableCard,BaseEventData> OnSelectedCardFromDeck;
+
+    public CancellationTokenSource statusButtonCls = new CancellationTokenSource();
+    CancellationTokenSource useButtonCls = new CancellationTokenSource();
     public void Initialize(ScrollRect scrollRect,UnityAction<bool> stopScrollAction,
         UnityAction<SelectableCard> selectedCardChanged,UnityAction<SelectableCard> selectedCardtoDeck,
-        UnityAction<SelectableCard> selectedFromDeck,UnityAction<SelectableCard> removedFromDeck,Canvas parentCanvas,Image parentImage)
+        UnityAction<SelectableCard,BaseEventData> selectedFromDeck,UnityAction<SelectableCard> removedFromDeck,
+        Action<MonsterStatusData,CancellationTokenSource> appearStatusUIAction,
+        Func<SelectableCard,(MonsterStatusData data,SelectableMonster prefab)> getStatusAndPrefabAction, 
+        Canvas parentCanvas,Image parentImage)
     {
         this.scrollRect = scrollRect;
         this.SetCardImageFromData(cardData);
@@ -376,18 +383,38 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
         selectableCardImage.SetCurrentPos();
         useButton.onClick.AddListener(() =>
         {
+            useButtonCls?.Cancel();
+            useButtonCls?.Dispose();
+            useButtonCls = new CancellationTokenSource();
             selectedCardtoDeck.Invoke(this);
-            isSelectedDeck = true;
+            DeckSelectedStateChange(true);
         });
 
+        statusButton.onClick.AddListener(() =>
+        {
+            statusButtonCls = new CancellationTokenSource();
+            var statusData = getStatusAndPrefabAction(this).data;
+            var monsterPrefab = getStatusAndPrefabAction(this).prefab;
+            if(statusData == null)
+            {
+                Debug.LogWarning("The data don't exist!!");
+                return;
+            }
+            var scrollCls = ScrollManager.Instance.scrollCls;
+            var doubleCls = CancellationTokenSource.CreateLinkedTokenSource(scrollCls.Token, statusButtonCls.Token);
+            var motionCls = CancellationTokenSource.CreateLinkedTokenSource(scrollCls.Token, useButtonCls.Token);
+            appearStatusUIAction.Invoke(statusData, doubleCls);
+            monsterPrefab.attackMotionPlay(monsterPrefab,motionCls);
+        });
         removeButton.onClick.AddListener(() =>
         {
             removedFromDeck.Invoke(this);
             IsSelected = false;
-            isSelectedDeck = false;
+            DeckSelectedStateChange(false);
         });
         sortOrder = cardData.SortOrder;
     }
+    public void DeckSelectedStateChange(bool isSelectedDeck) => this.isSelectedDeck = isSelectedDeck;
     public void OnEndDrag(PointerEventData eventData)
     {
         Debug.Log("Drag終了");
@@ -412,6 +439,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
     public void OnPointerUp(PointerEventData eventData)
     {
         IsSelected = true;
+
         if (!isSelectedDeck)
         {
             selectableCardImage?.OnPointerUp();
@@ -422,7 +450,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
         {
             selectableCardImage?.OpenRemoveButtonUI();
             selectableCardImage?.OnPointerUpInDeck();
-            OnSelectedCardFromDeck?.Invoke(this);
+            OnSelectedCardFromDeck?.Invoke(this,eventData);
         }
     }
 }

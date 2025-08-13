@@ -11,7 +11,8 @@ namespace Game.Monsters.SpeederBoy
             base.OnEnter();
 
             //This paremetars are examples,so please change it to your preference!!
-            StateFieldSetter.AttackStateFieldSet<SpeederBoyController>(controller, this, clipLength, 8, 1.0f);      
+            StateFieldSetter.AttackStateFieldSet<SpeederBoyController>(controller, this, clipLength, 8,
+                controller.MonsterStatus.AttackInterval);      
         }
         public override void OnUpdate()
         {

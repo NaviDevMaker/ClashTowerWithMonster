@@ -4,13 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.InputSystem.XR;
 
 
 public interface ISelectableMonster
 {
     SkinnedMeshRenderer _bodyMesh { get;}
-
+    MonsterStatusData _statusData { get;}
     bool _isFlying { get; }
+
     CancellationTokenSource expectedCls { get; set; }
 
     void Depetrification(CancellationTokenSource cls, Func<bool> isSettedOriginalPos);
@@ -26,7 +29,7 @@ public class SelectableMonster : PrefabBase, ISelectableMonster
     List<UniTask> depetrificationTasks = new List<UniTask>();
     public Material stoneMaterial { get; set; } = null;
     public MonsterAnimatorPar monsterAnimatorPar { get; set; }
-    Animator animator;
+    public Animator animator { get; private set; }
 
     [SerializeField] bool isFlying;
     [SerializeField] SkinnedMeshRenderer bodyMesh;
@@ -34,14 +37,17 @@ public class SelectableMonster : PrefabBase, ISelectableMonster
     bool isOneMesh = false;
     bool isPetrification = false;
     public CancellationTokenSource expectedCls { get; set;} = null;
+    public CancellationTokenSource currentMotionCls { get; set; } = null;
     public SkinnedMeshRenderer _bodyMesh => bodyMesh;
     public bool _isFlying => isFlying;
-
+    public MonsterStatusData _statusData => monsterStatusData;
+    public UnityAction<SelectableMonster, CancellationTokenSource> attackMotionPlay;
     public override void Initialize()
     {
         var col = GetComponent<BoxCollider>();
         colliderSize = col.bounds.size;
         animator = GetComponent<Animator>();
+        //ChangeClipForAnimationEvent();
         animator.Play("Idle");
         animator.speed = 0f;
         myMeshRenderers = GetComponentsInChildren<Renderer>().ToList();
@@ -141,7 +147,6 @@ public class SelectableMonster : PrefabBase, ISelectableMonster
         });
         gameObject.SetActive(false);
     }
-
     public async void Depetrification(CancellationTokenSource cls,Func<bool> isSettedOriginalPos)
     {
         isPetrification = false;
@@ -301,4 +306,59 @@ public class SelectableMonster : PrefabBase, ISelectableMonster
         
         if(expectedCls != null && expectedCls == cls && !isPetrification) animator.speed = 1.0f;
     }
+    public async void AppearAttackMotion()//スクロールのやつとuseButtonが押されたときのやつ
+    {
+        try
+        {
+            animator.speed = 0f;
+            var interval = monsterStatusData.AttackInterval;
+            await UniTask.Delay(TimeSpan.FromSeconds(interval),cancellationToken:currentMotionCls.Token);
+        }
+        catch(OperationCanceledException)
+        {
+            animator.SetBool(monsterAnimatorPar.Attack,false);
+            animator.Play("Idle");
+        } 
+        finally
+        {
+            animator.speed = 1.0f;
+        }
+    }
+    //public async void PlayAttackMotion(CancellationTokenSource motionCls)
+    //{
+    //    try
+    //    {
+    //        //Emissionが終わるまでを意味する
+    //        await UniTask.WaitUntil(() => animator.speed == 1.0f, cancellationToken:motionCls.Token);
+    //    }
+    //    catch (OperationCanceledException) { return; }
+    //    currentMotionCls = motionCls;
+    //    animator.SetBool(monsterAnimatorPar.Attack, true);
+    //    animator.Play("Attack");
+    //    try
+    //    {
+    //        await UniTask.WaitUntil(() => animator.GetCurrentAnimatorStateInfo(0).IsName("Attack"), cancellationToken:motionCls.Token);
+    //    }
+    //    catch (OperationCanceledException) { return; }
+    //}
+    //void ChangeClipForAnimationEvent()
+    //{
+    //    var runTimeAnimator = animator.runtimeAnimatorController;
+    //    var clip = runTimeAnimator.animationClips.ToList().FirstOrDefault(clip => clip.name == monsterAnimatorPar.attackAnimClipName);
+    //    var clipLength = clip.length;
+    //    var eventSetTime = clipLength - 0.01f;
+
+    //    var originalController = animator.runtimeAnimatorController;
+    //    var overrideController = new AnimatorOverrideController(originalController);
+    //    animator.runtimeAnimatorController = overrideController;
+
+    //    var newClip = Instantiate(clip);
+    //    AnimationEvent animationEvent = new AnimationEvent();
+    //    animationEvent.functionName = "AppearAttackMotion";
+    //    newClip.name = clip.name;
+    //    animationEvent.time = eventSetTime;
+    //    newClip.AddEvent(animationEvent);
+
+    //    overrideController[clip.name] = newClip;
+    //}
 }

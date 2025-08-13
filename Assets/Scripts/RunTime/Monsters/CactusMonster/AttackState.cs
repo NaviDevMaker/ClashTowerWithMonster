@@ -11,7 +11,8 @@ namespace Game.Monsters.CactusMonster
             base.OnEnter();
 
             //This paremetars are examples,so please change it to your preference!!
-            if(attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<CactusMonsterController>(controller, this, clipLength, 10, 0.3f);      
+            if(attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<CactusMonsterController>(controller, this, clipLength, 10,
+                controller.MonsterStatus.AttackInterval);      
         }
         public override void OnUpdate()
         {

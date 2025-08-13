@@ -47,7 +47,7 @@ public class ScrollManager : MonoBehaviour
             else scrollRect.vertical = false;
         }
     }
-    public void Initialize(UnityAction<BaseEventData> setCameraPosToOriginal,UnityAction FadeInAction)
+    public void Initialize(UnityAction<BaseEventData> setCameraPosToOriginal,UnityAction FadeInAction,UnityAction CloseStatusUIAction)
     {
         AddOnBeginDragEvent();
 
@@ -60,8 +60,8 @@ public class ScrollManager : MonoBehaviour
             scrollCls = new CancellationTokenSource();
             setCameraPosToOriginal.Invoke(data);
             FadeInAction.Invoke();
+            CloseStatusUIAction.Invoke();
         });
-
         eventTrigger.triggers.Add(entry);
     }
     void StartSliding()

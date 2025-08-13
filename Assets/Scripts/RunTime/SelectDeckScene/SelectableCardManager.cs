@@ -7,6 +7,8 @@ using System.Threading;
 using System;
 using Cysharp.Threading.Tasks;
 using Unity.VisualScripting;
+using System.IO;
+using UnityEngine.EventSystems;
 
 public class SelectableCardManager : MonoBehaviour
 {
@@ -48,36 +50,131 @@ public class SelectableCardManager : MonoBehaviour
     CardLineupInfo cardLineupInfo = new CardLineupInfo();
     CardDeckInfo cardDeckInfo;
     DeckPreserver deckPreserver;
+
+    public readonly string fileName = "selectableCardData";
     private void Awake()
     {
         if (Instance != null) Instance = null;
         Instance = this;
     }
 
-    private void Update()//テスト用
+    private void Start()
+    {
+        Application.quitting += SaveDataToJson;
+    }
+    private void Update()
     {
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            List<CardData> deckCardDatas = Enumerable.Repeat<CardData>(null,cardDeckInfo.deckCount).ToList();
-            for (int i = 0; i < deckCardDatas.Count; i++)
+            //SaveDataToJson();
+            string filePath = System.IO.Path.Combine(Application.persistentDataPath, fileName + ".json");
+            if (File.Exists(filePath))
             {
-                var c = cardDeckInfo.deck[i];
-                if (c == null) continue;
-                var d = c.cardData;
-                deckCardDatas[i] = d;
+                File.Delete(filePath);
+                Debug.LogWarning("The file is deleted!!");
             }
-            deckPreserver.ChoosenDecks = deckCardDatas;
         }
     }
-    public async UniTask Initialize(Func<SelectableCard, PrefabBase> action, Action<int, int> lineSetAction)
+    public async UniTask Initialize(Func<SelectableCard, PrefabBase> action, Action<int, int> lineSetAction,
+        Action<MonsterStatusData,CancellationTokenSource> apperStatusUIAction,
+        Func<SelectableCard,(MonsterStatusData,SelectableMonster)> getStatusAndPrefabAction)
     {
         cardDeckInfo = new CardDeckInfo();
         OnSelectedCard = action;
-        await LineUpCards(lineSetAction);
+        await LineUpCards(lineSetAction,apperStatusUIAction,getStatusAndPrefabAction);
         deckPreserver = await SetFieldFromAssets.SetField<DeckPreserver>("Datas/DeckPreserver");
         Debug.Log(deckPreserver);
+        var savedCardData = LoadDataFromJson();
+        if (savedCardData == null) return;
+        LineupedBySavedData(savedCardData);
     }
-    async UniTask LineUpCards(Action<int, int> lineSetAction)
+    void SaveDataToJson()
+    {
+        var deck = cardDeckInfo.deck;
+        // デッキの状態をデバッグ出力
+        Debug.Log($"保存時のデッキ状態:");
+        for (int i = 0; i < deck.Count; i++)
+        {
+            var card = deck[i];
+            Debug.Log($"デッキ[{i}]: {(card != null ? $"sortOrder={card.sortOrder}" : "null")}");
+        }
+        var sortOrders = deck.Where(card => card != null).Select(card => card.sortOrder).ToList();
+        Debug.Log(sortOrders.Count);
+        var deckPlaceNumber = new List<int>();
+        for (int i = 0; i < deck.Count; i++)
+        {
+            var card = deck[i];
+            if(card != null) deckPlaceNumber.Add(i);
+        }
+        deckPlaceNumber.ForEach(n => Debug.Log(n));
+        var deckData = new SaveCardData {
+            sortOrders = sortOrders,
+            deckPlaceNumber = deckPlaceNumber
+        };
+        string json = JsonUtility.ToJson(deckData);
+        string filePath = System.IO.Path.Combine(Application.persistentDataPath,fileName + ".json");
+        System.IO.File.WriteAllText(filePath, json);
+        Debug.Log($"The data is saved to {filePath}");
+    }
+    SaveCardData LoadDataFromJson()
+    {
+        string filePath = System.IO.Path.Combine(Application.persistentDataPath, fileName + ".json");
+        if (!File.Exists(filePath))
+        {
+            Debug.LogWarning("Not founed file path!!");
+            return null;
+        }
+        string json = File.ReadAllText(filePath);
+        SaveCardData data = JsonUtility.FromJson<SaveCardData>(json);
+        return data;
+    }
+
+    void LineupedBySavedData(SaveCardData savedCardData)
+    {
+        var sortOrders = savedCardData.sortOrders;
+     
+        var placeNumber = savedCardData.deckPlaceNumber;
+        for (int i = 0; i < placeNumber.Count; i++)
+        {
+            var deckIndex = placeNumber[i];
+            var sortOrder = sortOrders[i];
+            var card = selectableCards.FirstOrDefault(card => card.sortOrder == sortOrder);
+            if (card != null)
+            {
+                cardDeckInfo.deck[deckIndex] = card;
+                Debug.Log($"カード発見: sortOrder={card.sortOrder}, lineupIndex={card.lineupIndex}");
+            }
+        }
+
+        var deck = cardDeckInfo.deck;
+        Debug.Log($"デッキのカウントは{deck.Count}");
+        deck.ForEach(x => Debug.Log(x));
+
+        var line = cardDeckInfo.deckLine;
+        var column = cardDeckInfo.deckColum;
+        Action<SelectableCard, int> moveToDeckAction = ((card, index) =>
+        {
+            card.selectableCardImage.SetCardToDeck(index, column, line);
+            card.DeckSelectedStateChange(true);
+        });
+
+        for (int i = 0; i < deck.Count; i++)
+        {
+            var card = deck[i];
+            if (card == null) continue;
+            moveToDeckAction.Invoke(card, i);
+        }
+        var reminingCards = GetLineupedList();
+        for (int i = 0; i < reminingCards.Count; i++)
+        {
+            var card = reminingCards[i];
+            var pos = cardLineupInfo.cardPositionList[i];
+            card.lineupIndex = i;
+            card.selectableCardImage.SetCardToPool(pos);
+        }
+    }
+    async UniTask LineUpCards(Action<int, int> lineSetAction,Action<MonsterStatusData,CancellationTokenSource> appearStatusUIAction,
+        Func<SelectableCard,(MonsterStatusData,SelectableMonster)> getStatusAndPrefabAction)
     {
         var cardDatas = (await SetFieldFromAssets.SetFieldByLabel<CardData>("CardData")).ToList();
         allCardDatas = cardDatas.OrderBy(data => data.SortOrder).ToList();
@@ -112,7 +209,7 @@ public class SelectableCardManager : MonoBehaviour
                     selectableCards.Add(cmp);
                     UnityAction<bool> stopAction = (isDowned) => ScrollManager.Instance.isPointerDowned = isDowned;
                     cmp.Initialize(scrollRect, stopAction, OnSelectedCardChanged, OnCardSelectedToDeck, OnSelectedCardFromDeck,
-                        OnRemovedFromDeck,parentCanvas, parentImage);
+                        OnRemovedFromDeck,appearStatusUIAction,getStatusAndPrefabAction, parentCanvas, parentImage);
                     instanciatedCount++;
                     if (instanciatedCount == dataCount) break;
                     index++;
@@ -125,7 +222,7 @@ public class SelectableCardManager : MonoBehaviour
     {
         selectableCards.ForEach(card =>
         {
-            if (card._isSelected || card.isSelectedDeck) return;
+            if (card._isSelected) return;// || card.isSelectedDeck
             card.selectableCardImage.FadeOutIUI(scrollCls);
         });
     }
@@ -138,6 +235,7 @@ public class SelectableCardManager : MonoBehaviour
     }
     void OnCardSelectedToDeck(SelectableCard selectedCard)
     {
+        if (selectedCard == null) return;
         var cardIndex = selectedCard.lineupIndex;
         var column = cardDeckInfo.deckColum;
         var line = cardDeckInfo.deckLine;
@@ -146,8 +244,13 @@ public class SelectableCardManager : MonoBehaviour
 
         selectedCard.selectableCardImage.SetCardToDeck(index, column, line);
         cardDeckInfo.deck[index] = selectedCard;
+
+        LineUpToPool(cardIndex);
+    }
+    void LineUpToPool(int lineupIndex)
+    {
         var lineupedList = GetLineupedList();
-        for (int i = cardIndex + 1; i < lineupedList.Count; i++)
+        for (int i = lineupIndex + 1; i < lineupedList.Count; i++)
         {
             var targetCard = lineupedList[i];
             var positionIndex = i - 1;
@@ -155,6 +258,7 @@ public class SelectableCardManager : MonoBehaviour
             targetCard.lineupIndex = positionIndex;
             targetCard.selectableCardImage.SetCardToPool(pos);
         }
+        cardDeckInfo.deck.ForEach(x => Debug.Log(x));
     }
     void OnRemovedFromDeck(SelectableCard removedCard)
     {
@@ -232,14 +336,47 @@ public class SelectableCardManager : MonoBehaviour
             selectableMonster.Depetrification(cls, GetSetOriginalPos);
         }
     }
-    void OnSelectedCardFromDeck(SelectableCard selectedCard)
-    {
-        var sameCard = selectedCard == currentSelectedCard;
-        if(currentSelectedCard != null && !sameCard)
+    void OnSelectedCardFromDeck(SelectableCard selectedCard,BaseEventData eventData)
+    {       
+        cls?.Cancel();
+        cls?.Dispose();
+
+        var previousPrefab = deckChooseCameraMover.currentSelectedPrefab;
+        if (previousPrefab != null && !currentSelectedCard.isSelectedDeck)
         {
-            currentSelectedCard._isSelected = false;
-            currentSelectedCard = selectedCard;
+            if (previousPrefab is ISelectableMonster monster)
+            {
+                monster.expectedCls = null;
+            }
+        }
+
+        cls = new CancellationTokenSource();
+        selectableCards.ForEach(card => card.selectableCardImage.FadeCancelAction());
+        ///これ順番大事、ぐちゃぐちゃになってるすまん俺
+        deckChooseCameraMover.selectedCardCls = cls;
+        deckChooseCameraMover.SetOriginalPos(eventData);
+        deckChooseCameraMover.currentSelectedPrefab = null;
+        var previousSelectedCard = currentSelectedCard;
+        currentSelectedCard = selectedCard;
+        var sameCard = selectedCard == previousSelectedCard;
+        if(previousSelectedCard != null && !sameCard)
+        {
+            previousSelectedCard._isSelected = false;
+           if(!previousSelectedCard.isSelectedDeck) previousSelectedCard.selectableCardImage.SetOriginal();
         }
         ScrollManager.Instance.currentSelectedCard = selectedCard;
+    }
+
+    public List<CardData> GetChoosenDeckDatas()
+    {
+        List<CardData> deckCardDatas = Enumerable.Repeat<CardData>(null, cardDeckInfo.deckCount).ToList();
+        for (int i = 0; i < deckCardDatas.Count; i++)
+        {
+            var c = cardDeckInfo.deck[i];
+            if (c == null) continue;
+            var d = c.cardData;
+            deckCardDatas[i] = d;
+        }       
+        return deckCardDatas;
     }
 }

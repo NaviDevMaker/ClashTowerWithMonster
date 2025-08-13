@@ -15,14 +15,16 @@ MonoBehaviour:
   attackAmount: 3
   hp: 300
   pushAmount: 10
-  animaSpeedInfo:
+  animInfo:
     attackStateAnimSpeed: 1
     deathStateAnimSpeed: 1
+    attackMotionType: 0
+  attackInterval: 1
   chaseRange: 0
   summonWaitTime: 1
   attackRange: 1
   moveSpeed: 3
   moveStep: 0.5
   attackType: 0
-  monsterAttackType: 0
+  monsterAttackType: 1
   monsterMoveType: 0

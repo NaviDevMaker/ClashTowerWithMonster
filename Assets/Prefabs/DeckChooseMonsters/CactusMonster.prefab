@@ -264,6 +264,7 @@ MonoBehaviour:
   sortOrder: 4
   isFlying: 0
   bodyMesh: {fileID: 6489457362741436212}
+  monsterStatusData: {fileID: 11400000, guid: 445ae099abd14764cb3abba43ab3f62c, type: 2}
 --- !u!65 &1656091969130155926
 BoxCollider:
   m_ObjectHideFlags: 0
