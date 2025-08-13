@@ -19,7 +19,13 @@ public static class GraphicFader
                 newColor.a = value;
                 origin.color = newColor;
                 await UniTask.Yield(cancellationToken: cls.Token);
-        }
-       
+        }     
+    }
+
+    public static void AlphaChange(this Graphic origin,float endValue)
+    {
+        var color = origin.color;
+        color.a = endValue;
+        origin.color = color;
     }
 }

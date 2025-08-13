@@ -12,6 +12,7 @@ public class DeckSceneManager : MonoBehaviour
     [SerializeField] DeckChooseCameraMover deckChooseCameraMover;
     [SerializeField] ScrollManager scrollManager;
     [SerializeField] StatusUIAppear statusUIAppear;
+    [SerializeField] BattleButtonUI battleButtonUI;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     async void Start()
@@ -23,7 +24,13 @@ public class DeckSceneManager : MonoBehaviour
         UnityAction<BaseEventData> positionSetEvent = deckChooseCameraMover.SetOriginalPos;
         UnityAction fadeInEvent = cardManager.CardFadeIn;
         UnityAction closeStatusUIEvent = statusUIAppear.CloseStatusUI;
-        scrollManager.Initialize(positionSetEvent,fadeInEvent,closeStatusUIEvent);
+        UnityAction fadeOutBattleButtonEvent = battleButtonUI.FadeOutAndMove;
+        UnityAction<float> transparentButton = battleButtonUI.GraphicAlphaChange;
+        scrollManager.Initialize(positionSetEvent,fadeInEvent,closeStatusUIEvent
+            ,fadeOutBattleButtonEvent,transparentButton);
+        Func<CancellationTokenSource> getCurrentCls = cardManager.GetClickedCancellationTokenSource;
+        Func<bool> saveDeck = cardManager.GetChoosenDeckDatas;
+        battleButtonUI.Initialize(saveDeck,getCurrentCls);
     }
     PrefabBase GetSelectedCardPrefab(SelectableCard selectableCard)
     {
@@ -38,7 +45,6 @@ public class DeckSceneManager : MonoBehaviour
         }
         return null;
     }
-
     public (MonsterStatusData,SelectableMonster) GetMonsterStatusDataAndPrefab(SelectableCard selectableCard)
     {
         var targetIndex = selectableCard.cardData.SortOrder;

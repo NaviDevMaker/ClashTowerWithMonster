@@ -6,20 +6,32 @@ public class GameManager : SingletonMonobehavier<GameManager>
 {
     [SerializeField] PlayerSetter playerSetter;
     [SerializeField] SwordPlayerController player;
-    private void Start()
+    DeckPreserver deckPreserver;
+    private async void Start()
     {
-        playerSetter.Setup<SwordPlayerController>(player);
+        deckPreserver = await SetFieldFromAssets.SetField<DeckPreserver>("Datas/DeckPreserver");
+        //playerSetter.Setup<SwordPlayerController>(player);
+        SceneManager.activeSceneChanged += SetupField;
     }
 
-    void SetupField(Scene scene)
+    void SetupField(Scene previousScene,Scene newScene)
     {
-        switch (scene.name)
+        switch (newScene.name)
         {
-            case "DeckChooseScene":
-                break;
             case "BattleScene":
+                playerSetter = GameObject.FindFirstObjectByType<PlayerSetter>();
+
+                var players = GameObject.FindObjectsByType<SwordPlayerController>(sortMode:FindObjectsSortMode.None);
+                foreach (var player in players)
+                {
+                    //Ç±Ç±ç≈èIìIÇ…ÇÕPhotonÇÃisMineÇ©Ç«Ç§Ç©Ç≈îªífÇ∑ÇÈÅAÇ‡ÇµÇ≠ÇÕIDÇ≈îªífÇ∑ÇÈÇØÇ«ç°ÇÕÇOÇ™ñ°ï˚ÇæÇ©ÇÁÇ±ÇÍÇ≈çsÇ≠
+                    var id = player.ownerID;
+                    if (id == 0) this.player = player;
+                    break;
+                }
+                break;
+            default:
                 break;
         }
-
     }
 }

@@ -120,7 +120,8 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
             Debug.Log(moveSet.endValue);
             try
             {
-                await iconImage.gameObject.Scaler(scaleUpSet).ToUniTask(cancellationToken:scaleCls.Token);
+                await iconImage.gameObject.Scaler(scaleUpSet).ToUniTask(tweenCancelBehaviour: TweenCancelBehaviour.KillAndCancelAwait
+                    , cancellationToken:scaleCls.Token);
 
                 HeightSet(useButtonImage, newHeight_Use);
                 HeightSet(statusButtonImage, newHeight_Status);
@@ -131,7 +132,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
                     .Join(statusButton.gameObject.Scaler(buttonScale))
                     .Join(useButtonImage.RectMover(useButtonMoveSet))
                     .Join(statusButtonImage.RectMover(statusButtonMoveSet));
-                var task = sequence.ToUniTask(cancellationToken:scaleCls.Token);
+                var task = sequence.ToUniTask(tweenCancelBehaviour: TweenCancelBehaviour.KillAndCancelAwait,cancellationToken:scaleCls.Token);
                 await task;
             }
             catch (OperationCanceledException)
@@ -149,7 +150,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
             sequence.Append(iconImage.gameObject.Scaler(scaleSet))
                 .Join(iconImage.gameObject.Scaler(originalScaleSet));
                 
-            var task = sequence.ToUniTask(cancellationToken: scaleCls.Token);
+            var task = sequence.ToUniTask(tweenCancelBehaviour: TweenCancelBehaviour.KillAndCancelAwait,cancellationToken: scaleCls.Token);
             try { await task; }
             catch (OperationCanceledException) { }
             finally{ iconImage.transform.localScale = inDeckOriginalScale;}          
@@ -237,8 +238,8 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
         {
             var set = tweenFields.fadeOutSet;
             doubleCls = CancellationTokenSource.CreateLinkedTokenSource(cls.Token,fadeCls.Token);
-            var task = iconImage.Fader(set).ToUniTask(cancellationToken: doubleCls.Token);
-            var task2 = energyImage.Fader(set).ToUniTask(cancellationToken: doubleCls.Token);
+            var task = iconImage.Fader(set).ToUniTask(tweenCancelBehaviour:TweenCancelBehaviour.KillAndCancelAwait,cancellationToken: doubleCls.Token);
+            var task2 = energyImage.Fader(set).ToUniTask(tweenCancelBehaviour: TweenCancelBehaviour.KillAndCancelAwait,cancellationToken: doubleCls.Token);
 
             try
             {
@@ -262,7 +263,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
             {
                 await UniTask.WhenAll(task,task2);
             }
-            catch (OperationCanceledException) { return; }
+            //catch (OperationCanceledException) { return; }
             finally { isFadingIn = false; }
         }
         public void FadeCancelAction()

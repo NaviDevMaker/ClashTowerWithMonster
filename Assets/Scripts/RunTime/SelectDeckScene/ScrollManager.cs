@@ -19,10 +19,9 @@ public class ScrollManager : MonoBehaviour
     public bool isPointerDowned = false;
     EventTrigger eventTrigger;
     public SelectableCard currentSelectedCard {get;set;}
-    public UnityAction OnScrolledImage;
-    public UnityAction<CancellationTokenSource> FadeInAction;
-    private void Awake() => Instance = this;
 
+    private void Awake() => Instance = this;
+    UnityAction fadeOutBattleButton;
     private void Start()
     {
         scrollRect = GetComponent<ScrollRect>();
@@ -47,7 +46,8 @@ public class ScrollManager : MonoBehaviour
             else scrollRect.vertical = false;
         }
     }
-    public void Initialize(UnityAction<BaseEventData> setCameraPosToOriginal,UnityAction FadeInAction,UnityAction CloseStatusUIAction)
+    public void Initialize(UnityAction<BaseEventData> setCameraPosToOriginal,UnityAction fadeInAction,
+        UnityAction closeStatusUIAction,UnityAction fadeOutBattleButton,UnityAction<float> transparentBattleButton)
     {
         AddOnBeginDragEvent();
 
@@ -59,10 +59,12 @@ public class ScrollManager : MonoBehaviour
             scrollCls?.Dispose();
             scrollCls = new CancellationTokenSource();
             setCameraPosToOriginal.Invoke(data);
-            FadeInAction.Invoke();
-            CloseStatusUIAction.Invoke();
+            fadeInAction.Invoke();
+            closeStatusUIAction.Invoke();
+            transparentBattleButton.Invoke(0f);
         });
         eventTrigger.triggers.Add(entry);
+        this.fadeOutBattleButton = fadeOutBattleButton;
     }
     void StartSliding()
     {
@@ -99,6 +101,7 @@ public class ScrollManager : MonoBehaviour
         finally
         {
             scrollRect.vertical = false;
+            fadeOutBattleButton.Invoke();
             isSliding = false;
             isStoping = false;
         }

@@ -367,7 +367,7 @@ public class SelectableCardManager : MonoBehaviour
         ScrollManager.Instance.currentSelectedCard = selectedCard;
     }
 
-    public List<CardData> GetChoosenDeckDatas()
+    public bool GetChoosenDeckDatas()
     {
         List<CardData> deckCardDatas = Enumerable.Repeat<CardData>(null, cardDeckInfo.deckCount).ToList();
         for (int i = 0; i < deckCardDatas.Count; i++)
@@ -376,7 +376,14 @@ public class SelectableCardManager : MonoBehaviour
             if (c == null) continue;
             var d = c.cardData;
             deckCardDatas[i] = d;
-        }       
-        return deckCardDatas;
+        }
+        if (deckCardDatas.Contains(null)) return false;
+        else
+        {
+            deckPreserver.ChoosenDecks = deckCardDatas;
+            return true;
+        }
     }
+
+   public CancellationTokenSource GetClickedCancellationTokenSource() => cls;
 }

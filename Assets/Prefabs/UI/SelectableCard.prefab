@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4457067974465264828}
   - component: {fileID: 4585275244415544603}
   - component: {fileID: 1479505259935632480}
+  - component: {fileID: 5098701631472938301}
   m_Layer: 7
   m_Name: SelectableCard
   m_TagString: Untagged
@@ -93,7 +94,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sortOrder: 0
+  lineupIndex: 0
   isSelectedDeck: 0
+--- !u!114 &5098701631472938301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3212398283161867241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 16, y: -4}
+  m_UseGraphicAlpha: 1
 --- !u!1 &3830013124428057170
 GameObject:
   m_ObjectHideFlags: 0
@@ -187,6 +204,7 @@ GameObject:
   - component: {fileID: 4970525326443861006}
   - component: {fileID: 502802253632208645}
   - component: {fileID: 5384087666511300297}
+  - component: {fileID: 1185919529793588255}
   m_Layer: 5
   m_Name: StatusButton
   m_TagString: Untagged
@@ -296,6 +314,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1185919529793588255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4321809156198361491}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 5.78, y: -8.78}
+  m_UseGraphicAlpha: 1
 --- !u!1 &5271068599729281436
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,6 +422,7 @@ GameObject:
   - component: {fileID: 5093941388301255950}
   - component: {fileID: 5142549180710621756}
   - component: {fileID: 631435234151631324}
+  - component: {fileID: 546919401872793513}
   m_Layer: 5
   m_Name: RemoveButton
   m_TagString: Untagged
@@ -498,6 +532,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &546919401872793513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5476137771480323569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 7.71, y: -7.44}
+  m_UseGraphicAlpha: 1
 --- !u!1 &6600472927352981109
 GameObject:
   m_ObjectHideFlags: 0
@@ -585,6 +634,7 @@ GameObject:
   - component: {fileID: 146758596452237257}
   - component: {fileID: 2949331273383396573}
   - component: {fileID: 8293044037669948737}
+  - component: {fileID: 7701091211800318830}
   m_Layer: 7
   m_Name: UseButton
   m_TagString: Untagged
@@ -694,6 +744,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7701091211800318830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6966338128320990302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 4.89, y: -11.28}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8846089353489186252
 GameObject:
   m_ObjectHideFlags: 0
