@@ -56,7 +56,7 @@ public class DeckChooseCameraMover : MonoBehaviour
             transform.position = originalPos;
         }
     }
-    public async void SetOriginalPos(BaseEventData data)
+    public async void SetOriginalPos()
     {
         if (isSettedOriginalPos || selectedCardCls == null) return;
         if (currentSelectedPrefab is ISelectableMonster monster) monster.Repetrification();

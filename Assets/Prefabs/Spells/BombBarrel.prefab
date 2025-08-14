@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8050840915851115593}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: BombBarrel_Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47,7 +47,7 @@ GameObject:
   - component: {fileID: 8906596759301591981}
   - component: {fileID: 3938201608911038979}
   - component: {fileID: 6810177820858101923}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Barrel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -155,7 +155,7 @@ GameObject:
   - component: {fileID: 7070075053040581527}
   - component: {fileID: 7338954788716701895}
   - component: {fileID: 4148508029990566836}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5058,7 +5058,7 @@ GameObject:
   - component: {fileID: 2857650497800441037}
   - component: {fileID: 8704379242802693228}
   - component: {fileID: 5839687298805152032}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: BigExplosion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10003,7 +10003,7 @@ GameObject:
   - component: {fileID: 6403615501716133588}
   - component: {fileID: 3491326131449282834}
   - component: {fileID: 5609065149142730576}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Lid Top
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10111,7 +10111,7 @@ GameObject:
   - component: {fileID: 3381085573240084689}
   - component: {fileID: 1881140633738558965}
   - component: {fileID: 4653252065095556618}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: BombBarrel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10168,6 +10168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b847f0f23aaa4944da0dc86a2f0fb85b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tentativeID: 0
 --- !u!1 &5958746487401103327
 GameObject:
   m_ObjectHideFlags: 0
@@ -10179,7 +10180,7 @@ GameObject:
   - component: {fileID: 1606806470460301681}
   - component: {fileID: 7005874406171397784}
   - component: {fileID: 3083245276333740415}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: SmokeTrail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15024,7 +15025,7 @@ GameObject:
   - component: {fileID: 1645958500973474998}
   - component: {fileID: 6650117936722903783}
   - component: {fileID: 4529325051193990411}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: AdditonalSmoke
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19946,7 +19947,7 @@ GameObject:
   - component: {fileID: 3320767626667779355}
   - component: {fileID: 1644540604029271006}
   - component: {fileID: 6533814510931701085}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Rope
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20054,7 +20055,7 @@ GameObject:
   - component: {fileID: 2602615876041940580}
   - component: {fileID: 6933543131393157269}
   - component: {fileID: 4831148457543315287}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Debris
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24958,7 +24959,7 @@ GameObject:
   - component: {fileID: 3695074015569991686}
   - component: {fileID: 3769810302244074677}
   - component: {fileID: 1208305081819708007}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Embers (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29781,7 +29782,7 @@ GameObject:
   - component: {fileID: 5243127675003288614}
   - component: {fileID: 7845188800847948921}
   - component: {fileID: 4962306597746820414}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Lid Bottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29889,7 +29890,7 @@ GameObject:
   - component: {fileID: 757383498296515161}
   - component: {fileID: 605857631496559983}
   - component: {fileID: 5869184743573419528}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Shockwave
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34792,7 +34793,7 @@ GameObject:
   - component: {fileID: 153689717527176400}
   - component: {fileID: 1984816934504355589}
   - component: {fileID: 8637971759460071236}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Embers
   m_TagString: Untagged
   m_Icon: {fileID: 0}

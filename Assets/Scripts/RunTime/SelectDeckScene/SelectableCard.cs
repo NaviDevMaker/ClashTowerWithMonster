@@ -348,16 +348,17 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
 
     public UnityAction<bool> OnPointerDownStatus;
     public UnityAction<SelectableCard> OnSelectedCard;
-    UnityAction<SelectableCard,BaseEventData> OnSelectedCardFromDeck;
+    UnityAction<SelectableCard> OnSelectedCardFromDeck;
 
     public CancellationTokenSource statusButtonCls = new CancellationTokenSource();
     CancellationTokenSource useButtonCls = new CancellationTokenSource();
+    public CancellationTokenSource removedButtonCls { get; private set;} = new CancellationTokenSource();
     public void Initialize(ScrollRect scrollRect,UnityAction<bool> stopScrollAction,
         UnityAction<SelectableCard> selectedCardChanged,UnityAction<SelectableCard> selectedCardtoDeck,
-        UnityAction<SelectableCard,BaseEventData> selectedFromDeck,UnityAction<SelectableCard> removedFromDeck,
+        UnityAction<SelectableCard> selectedFromDeck,UnityAction<SelectableCard> removedFromDeck,
         Action<MonsterStatusData,CancellationTokenSource> appearStatusUIAction,
         Func<SelectableCard,(MonsterStatusData data,SelectableMonster prefab)> getStatusAndPrefabAction, 
-        Canvas parentCanvas,Image parentImage)
+        UnityAction setCameraPosAction,Canvas parentCanvas,Image parentImage)
     {
         this.scrollRect = scrollRect;
         this.SetCardImageFromData(cardData);
@@ -387,6 +388,9 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
             useButtonCls?.Cancel();
             useButtonCls?.Dispose();
             useButtonCls = new CancellationTokenSource();
+            setCameraPosAction.Invoke();
+            var monsterPrefab = getStatusAndPrefabAction(this).prefab;
+            monsterPrefab.SetSelectedEffect(removedButtonCls);
             selectedCardtoDeck.Invoke(this);
             DeckSelectedStateChange(true);
         });
@@ -407,11 +411,17 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
             appearStatusUIAction.Invoke(statusData, doubleCls);
             monsterPrefab.attackMotionPlay(monsterPrefab,motionCls);
         });
+
         removeButton.onClick.AddListener(() =>
         {
+            removedButtonCls?.Cancel();
+            removedButtonCls?.Dispose();
+            removedButtonCls = new CancellationTokenSource();
             removedFromDeck.Invoke(this);
             IsSelected = false;
             DeckSelectedStateChange(false);
+            var prefab = getStatusAndPrefabAction(this).prefab;
+            prefab.ScalerToZero();
         });
         sortOrder = cardData.SortOrder;
     }
@@ -451,7 +461,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
         {
             selectableCardImage?.OpenRemoveButtonUI();
             selectableCardImage?.OnPointerUpInDeck();
-            OnSelectedCardFromDeck?.Invoke(this,eventData);
+            OnSelectedCardFromDeck?.Invoke(this);
         }
     }
 }

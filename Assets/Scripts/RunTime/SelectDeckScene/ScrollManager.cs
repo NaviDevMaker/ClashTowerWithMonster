@@ -30,7 +30,8 @@ public class ScrollManager : MonoBehaviour
     void Update()
     {
         Debug.Log(Input.mouseScrollDelta.y);
-        if(InputManager.IsClickedSlideButton())
+
+        if (InputManager.IsClickedSlideButton())
         {
             if (!isSliding) StartSliding();
             else
@@ -46,24 +47,32 @@ public class ScrollManager : MonoBehaviour
             else scrollRect.vertical = false;
         }
     }
-    public void Initialize(UnityAction<BaseEventData> setCameraPosToOriginal,UnityAction fadeInAction,
-        UnityAction closeStatusUIAction,UnityAction fadeOutBattleButton,UnityAction<float> transparentBattleButton)
+    public void Initialize(UnityAction setCameraPosToOriginal,UnityAction fadeInAction,
+        UnityAction closeStatusUIAction,UnityAction fadeOutBattleButton,UnityAction transparentBattleButton)
     {
         AddOnBeginDragEvent();
 
-        var entry = new EventTrigger.Entry();
-        entry.eventID = EventTriggerType.BeginDrag;
-        entry.callback.AddListener((BaseEventData data) =>
+        var beginDragEntry = new EventTrigger.Entry();
+        beginDragEntry.eventID = EventTriggerType.BeginDrag;
+        beginDragEntry.callback.AddListener((BaseEventData data) =>
         {
             scrollCls?.Cancel();
             scrollCls?.Dispose();
             scrollCls = new CancellationTokenSource();
-            setCameraPosToOriginal.Invoke(data);
-            fadeInAction.Invoke();
-            closeStatusUIAction.Invoke();
-            transparentBattleButton.Invoke(0f);
+            setCameraPosToOriginal?.Invoke();
+            fadeInAction?.Invoke();
+            closeStatusUIAction?.Invoke();
+            transparentBattleButton?.Invoke();
         });
-        eventTrigger.triggers.Add(entry);
+
+        var endDragEntry = new EventTrigger.Entry();
+        endDragEntry.eventID = EventTriggerType.EndDrag;
+        endDragEntry.callback.AddListener((BaseEventData data) =>
+        {
+            fadeOutBattleButton?.Invoke();
+        });
+        eventTrigger.triggers.Add(beginDragEntry);
+        eventTrigger.triggers.Add(endDragEntry);
         this.fadeOutBattleButton = fadeOutBattleButton;
     }
     void StartSliding()
@@ -101,7 +110,6 @@ public class ScrollManager : MonoBehaviour
         finally
         {
             scrollRect.vertical = false;
-            fadeOutBattleButton.Invoke();
             isSliding = false;
             isStoping = false;
         }

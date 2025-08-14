@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4160514060073839292}
   - component: {fileID: 8642592672775686739}
   - component: {fileID: 448085239853669526}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Particle System (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4844,7 +4844,7 @@ GameObject:
   - component: {fileID: 7605460792330907928}
   - component: {fileID: 8706275174198400634}
   - component: {fileID: 3157623894947010016}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Particle System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9677,7 +9677,7 @@ GameObject:
   - component: {fileID: 4893029780718736816}
   - component: {fileID: 2274921255898150399}
   - component: {fileID: 4221595991045035416}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Particle System (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14512,7 +14512,7 @@ GameObject:
   - component: {fileID: 1382636359538877576}
   - component: {fileID: 2031266611940893942}
   - component: {fileID: -8858774561484548765}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Heal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19372,6 +19372,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ce79e396ac57634a8f6b7e7178b22a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tentativeID: 0
 --- !u!1 &4346303643845561129
 GameObject:
   m_ObjectHideFlags: 0
@@ -19383,7 +19384,7 @@ GameObject:
   - component: {fileID: 5778439347235660548}
   - component: {fileID: 4402899864430105936}
   - component: {fileID: 4147556134065608546}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Particle System (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24216,7 +24217,7 @@ GameObject:
   - component: {fileID: 5608703180230676196}
   - component: {fileID: 1361812793738763985}
   - component: {fileID: 3468943980149994789}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Particle System (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

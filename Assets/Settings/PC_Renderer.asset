@@ -17,7 +17,7 @@ MonoBehaviour:
     Event: 450
     _CustomDataLayerMask:
       serializedVersion: 2
-      m_Bits: 4294967295
+      m_Bits: 1096
     _DepthMaskLayerMask:
       serializedVersion: 2
       m_Bits: 0

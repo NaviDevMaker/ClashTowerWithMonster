@@ -50,7 +50,7 @@ public class SelectableCardManager : MonoBehaviour
     CardLineupInfo cardLineupInfo = new CardLineupInfo();
     CardDeckInfo cardDeckInfo;
     DeckPreserver deckPreserver;
-
+    UnityAction SetButtleButtonToOriginal;
     public readonly string fileName = "selectableCardData";
     private void Awake()
     {
@@ -76,12 +76,14 @@ public class SelectableCardManager : MonoBehaviour
         }
     }
     public async UniTask Initialize(Func<SelectableCard, PrefabBase> action, Action<int, int> lineSetAction,
-        Action<MonsterStatusData,CancellationTokenSource> apperStatusUIAction,
-        Func<SelectableCard,(MonsterStatusData,SelectableMonster)> getStatusAndPrefabAction)
+        Action<MonsterStatusData, CancellationTokenSource> apperStatusUIAction,
+        Func<SelectableCard, (MonsterStatusData, SelectableMonster)> getStatusAndPrefabAction,
+        UnityAction setBattleButtonToOriginal, UnityAction cameraPositionSetAction)
     {
         cardDeckInfo = new CardDeckInfo();
         OnSelectedCard = action;
-        await LineUpCards(lineSetAction,apperStatusUIAction,getStatusAndPrefabAction);
+        SetButtleButtonToOriginal = setBattleButtonToOriginal;
+        await LineUpCards(lineSetAction,apperStatusUIAction,getStatusAndPrefabAction,cameraPositionSetAction);
         deckPreserver = await SetFieldFromAssets.SetField<DeckPreserver>("Datas/DeckPreserver");
         Debug.Log(deckPreserver);
         var savedCardData = LoadDataFromJson();
@@ -174,7 +176,7 @@ public class SelectableCardManager : MonoBehaviour
         }
     }
     async UniTask LineUpCards(Action<int, int> lineSetAction,Action<MonsterStatusData,CancellationTokenSource> appearStatusUIAction,
-        Func<SelectableCard,(MonsterStatusData,SelectableMonster)> getStatusAndPrefabAction)
+        Func<SelectableCard,(MonsterStatusData,SelectableMonster)> getStatusAndPrefabAction,UnityAction setCameraPosAction)
     {
         var cardDatas = (await SetFieldFromAssets.SetFieldByLabel<CardData>("CardData")).ToList();
         allCardDatas = cardDatas.OrderBy(data => data.SortOrder).ToList();
@@ -209,7 +211,8 @@ public class SelectableCardManager : MonoBehaviour
                     selectableCards.Add(cmp);
                     UnityAction<bool> stopAction = (isDowned) => ScrollManager.Instance.isPointerDowned = isDowned;
                     cmp.Initialize(scrollRect, stopAction, OnSelectedCardChanged, OnCardSelectedToDeck, OnSelectedCardFromDeck,
-                        OnRemovedFromDeck,appearStatusUIAction,getStatusAndPrefabAction, parentCanvas, parentImage);
+                        OnRemovedFromDeck,appearStatusUIAction,getStatusAndPrefabAction,setCameraPosAction,
+                        parentCanvas, parentImage);
                     instanciatedCount++;
                     if (instanciatedCount == dataCount) break;
                     index++;
@@ -298,6 +301,7 @@ public class SelectableCardManager : MonoBehaviour
     }
     async void OnSelectedCardChanged(SelectableCard selectedCard)
     {
+        SetButtleButtonToOriginal?.Invoke();
         var sameCard = currentSelectedCard == selectedCard;
         if (currentSelectedCard != null && !sameCard)
         {
@@ -336,7 +340,7 @@ public class SelectableCardManager : MonoBehaviour
             selectableMonster.Depetrification(cls, GetSetOriginalPos);
         }
     }
-    void OnSelectedCardFromDeck(SelectableCard selectedCard,BaseEventData eventData)
+    void OnSelectedCardFromDeck(SelectableCard selectedCard)
     {       
         cls?.Cancel();
         cls?.Dispose();
@@ -354,7 +358,7 @@ public class SelectableCardManager : MonoBehaviour
         selectableCards.ForEach(card => card.selectableCardImage.FadeCancelAction());
         ///‚±‚ê‡”Ô‘åŽ–A‚®‚¿‚á‚®‚¿‚á‚É‚È‚Á‚Ä‚é‚·‚Ü‚ñ‰´
         deckChooseCameraMover.selectedCardCls = cls;
-        deckChooseCameraMover.SetOriginalPos(eventData);
+        deckChooseCameraMover.SetOriginalPos();
         deckChooseCameraMover.currentSelectedPrefab = null;
         var previousSelectedCard = currentSelectedCard;
         currentSelectedCard = selectedCard;
@@ -386,4 +390,5 @@ public class SelectableCardManager : MonoBehaviour
     }
 
    public CancellationTokenSource GetClickedCancellationTokenSource() => cls;
+   public List<SelectableCard> GetDeck() => cardDeckInfo.deck;
 }

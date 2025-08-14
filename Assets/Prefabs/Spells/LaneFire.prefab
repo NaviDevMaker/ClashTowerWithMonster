@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6146965848585887980}
   - component: {fileID: 3241784987094743573}
   - component: {fileID: 565032863711038067}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: FireBlackBoom01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4867,7 +4867,7 @@ GameObject:
   - component: {fileID: 8305426651474539135}
   - component: {fileID: 5558506925368287464}
   - component: {fileID: 6155169312656289144}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: FireDiedStar01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9572,7 +9572,7 @@ GameObject:
   - component: {fileID: 7720688592728422629}
   - component: {fileID: 4571621699654955889}
   - component: {fileID: 2281410033437366934}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: SubEmitterBirth
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14286,7 +14286,7 @@ GameObject:
   - component: {fileID: 4674219047077350287}
   - component: {fileID: 5916463610572506671}
   - component: {fileID: 3140980970965254659}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: FireDiedStar01 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18991,7 +18991,7 @@ GameObject:
   - component: {fileID: 332282748521622649}
   - component: {fileID: 4664529803406171732}
   - component: {fileID: 1749779865520536592}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: FireSub01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23797,7 +23797,7 @@ GameObject:
   - component: {fileID: 6513169787962398969}
   - component: {fileID: 698586114594508137}
   - component: {fileID: 8404902766377984309}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: FireDied001_BigEnd
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28629,7 +28629,7 @@ GameObject:
   - component: {fileID: 3727468440526080482}
   - component: {fileID: 179557447999741771}
   - component: {fileID: 6239356159760769079}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: FireDiedSmoke004 (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33450,7 +33450,7 @@ GameObject:
   - component: {fileID: 7529409114070075108}
   - component: {fileID: 2427679440913809121}
   - component: {fileID: 6231065521015281246}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: FireA001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38213,7 +38213,7 @@ GameObject:
   - component: {fileID: 612363263601555927}
   - component: {fileID: 5447515033304906721}
   - component: {fileID: 8097350081570187682}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Fireblack01 (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43051,7 +43051,7 @@ GameObject:
   - component: {fileID: 8202255655343422490}
   - component: {fileID: 4136843908717470834}
   - component: {fileID: 2697711753536230419}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: FireBoomSub01_BigEnd
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47916,7 +47916,7 @@ GameObject:
   - component: {fileID: 1392801366405242096}
   - component: {fileID: 8093593978087179172}
   - component: {fileID: 6200781446411254578}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: SubEmitterBirth
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52631,7 +52631,7 @@ GameObject:
   - component: {fileID: 5330854682169748885}
   - component: {fileID: 6488104893649205435}
   - component: {fileID: 7675677960676306096}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: FireBlackBoom01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57480,7 +57480,7 @@ GameObject:
   - component: {fileID: 9046884941333015074}
   - component: {fileID: 175579276499891194}
   - component: {fileID: 8055790756556988899}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Fireblack01 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -62368,6 +62368,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 158ac0dbee6852548a5b5f17bbfcb94b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tentativeID: 0
 --- !u!1 &7012529703674105700
 GameObject:
   m_ObjectHideFlags: 0
@@ -62379,7 +62380,7 @@ GameObject:
   - component: {fileID: 2936214195495522}
   - component: {fileID: 5274648785177051826}
   - component: {fileID: 6937305984615392529}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: FireDiedSmoke004 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -67200,7 +67201,7 @@ GameObject:
   - component: {fileID: 8388628803100250586}
   - component: {fileID: 6016782534320459241}
   - component: {fileID: 1699184692878711824}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Spell_Fire
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -72018,7 +72019,7 @@ GameObject:
   - component: {fileID: 9152407526171514171}
   - component: {fileID: 6122168134408504941}
   - component: {fileID: 3049015856532072184}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: FireDied002
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -1003,6 +1003,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4799a0285edbfc428504937e6813a38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tentativeID: 0
   unitScale: 16
   unitType: 1
   mySkinnedMeshes: []
@@ -1010,8 +1011,6 @@ MonoBehaviour:
   - {fileID: 174118681}
   bodyMesh: {fileID: 174118681}
   statusData: {fileID: 11400000, guid: fc9c4db4da49e7c4cb227a91b81ff20c, type: 2}
-  Side: 0
-  ownerID: 1
   archer: {fileID: 574644946}
 --- !u!23 &174118681
 MeshRenderer:
@@ -4124,6 +4123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a51b89714a49f245b68041b74126157, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tentativeID: 0
   unitScale: 0
   unitType: 0
   mySkinnedMeshes:
@@ -4131,8 +4131,6 @@ MonoBehaviour:
   myMeshes: []
   bodyMesh: {fileID: 0}
   statusData: {fileID: 11400000, guid: b89c3a3c9b6a05b4d89ec04d8fbf09aa, type: 2}
-  Side: 0
-  ownerID: 1
   monsterAnimPar: {fileID: 11400000, guid: c86b8f83d9673264d95e86cd55b9ac2c, type: 2}
 --- !u!95 &1031309284
 Animator:
@@ -5173,6 +5171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4799a0285edbfc428504937e6813a38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tentativeID: 0
   unitScale: 16
   unitType: 1
   mySkinnedMeshes: []
@@ -5180,8 +5179,6 @@ MonoBehaviour:
   - {fileID: 1386371340}
   bodyMesh: {fileID: 1386371340}
   statusData: {fileID: 11400000, guid: fc9c4db4da49e7c4cb227a91b81ff20c, type: 2}
-  Side: 0
-  ownerID: 0
   archer: {fileID: 1309546703}
 --- !u!23 &1386371340
 MeshRenderer:
@@ -7133,6 +7130,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f95d4264c517dd44f89b9d401b8da27f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tentativeID: 0
   unitScale: 8
   unitType: 2
   mySkinnedMeshes:
@@ -7147,8 +7145,6 @@ MonoBehaviour:
   - {fileID: 1851156613}
   bodyMesh: {fileID: 10185192020637558}
   statusData: {fileID: 11400000, guid: 10df85feb26596d45b4a54e9d5454d93, type: 2}
-  Side: 0
-  ownerID: 0
   animatorPar: {fileID: 11400000, guid: 48c341a6e40921948b40cca76f285916, type: 2}
   skillData: {fileID: 11400000, guid: 0afacd58e12ef3148b5a2a6138b78864, type: 2}
 --- !u!1 &1792347680
@@ -38331,6 +38327,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4799a0285edbfc428504937e6813a38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tentativeID: 0
   unitScale: 16
   unitType: 1
   mySkinnedMeshes: []
@@ -38338,8 +38335,6 @@ MonoBehaviour:
   - {fileID: 5367871703300075883}
   bodyMesh: {fileID: 5367871703300075883}
   statusData: {fileID: 11400000, guid: fc9c4db4da49e7c4cb227a91b81ff20c, type: 2}
-  Side: 0
-  ownerID: 0
   archer: {fileID: 6647369245338763988}
 --- !u!64 &9124348376496090780
 MeshCollider:

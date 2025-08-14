@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8631144005179461527}
   - component: {fileID: 5349750386362935551}
   - component: {fileID: 1223257605287452080}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Snow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -137,7 +137,7 @@ GameObject:
   - component: {fileID: 8368541336244949672}
   - component: {fileID: 1086490292484428466}
   - component: {fileID: 8358314072504657496}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Spherical
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4993,7 +4993,7 @@ GameObject:
   - component: {fileID: 2398265126183741585}
   - component: {fileID: 2222115051626433684}
   - component: {fileID: 6764020738490875148}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: FreezeSpell
   m_TagString: Untagged
   m_Icon: {fileID: 0}

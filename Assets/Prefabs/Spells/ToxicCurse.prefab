@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8823120839743853354}
   - component: {fileID: 2160233555253869528}
   - component: {fileID: 8573765914535653722}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Poison-Smoke
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4784,7 +4784,7 @@ GameObject:
   - component: {fileID: 8778391765984822309}
   - component: {fileID: 4500042378170059081}
   - component: {fileID: 23508456052585619}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Poison-Spark
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9559,7 +9559,7 @@ GameObject:
   - component: {fileID: 6433080808296828160}
   - component: {fileID: 8285363924798310247}
   - component: {fileID: 7673951989103495342}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: ToxicCurse
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14431,6 +14431,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38c923353a776074588a49cfb229f0db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tentativeID: 0
 --- !u!1 &5803231595105873594
 GameObject:
   m_ObjectHideFlags: 0
@@ -14442,7 +14443,7 @@ GameObject:
   - component: {fileID: 1401339240046067596}
   - component: {fileID: 2671076960489133681}
   - component: {fileID: 8227557821797599081}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Poison-Smoke
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19206,7 +19207,7 @@ GameObject:
   - component: {fileID: 4862202037283872196}
   - component: {fileID: 7118581908717262029}
   - component: {fileID: 2766271651685936668}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Poison-Smoke
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23979,7 +23980,7 @@ GameObject:
   - component: {fileID: 8966184728586328490}
   - component: {fileID: 48012483369915419}
   - component: {fileID: 7394975299401927021}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Poison-Flash
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -26,14 +27,14 @@ public class SelectablePrefabManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     Dictionary<AttackMotionType, UnityAction<SelectableMonster, CancellationTokenSource>> attackMotions = new Dictionary<AttackMotionType, UnityAction<SelectableMonster, CancellationTokenSource>>();
-    public async void Initialize()
+    public async void Initialize(Func<SelectableCard,(MonsterStatusData, SelectableMonster)> getMosnterDataAndPrefab) 
     {
         //attackMotions[AttackMotionType.DestractionMachine] = motions.DestractionMachineAttack;
-        await SetAssetsFromAdrea();
-        SetMonster();
+        await SetAssetsFromAdress();
+        SetMonster(getMosnterDataAndPrefab);
     }
 
-    async void SetMonster()
+    async void SetMonster(Func<SelectableCard, (MonsterStatusData, SelectableMonster prefab)> getMosnterDataAndPrefab)
     {
         List<GameObject> monsterObjs = new List<GameObject>();
         try
@@ -64,8 +65,16 @@ public class SelectablePrefabManager : MonoBehaviour
             monster.cardType = cardType;
         }
         MonsterLineUp();
+        var deck = SelectableCardManager.Instance.GetDeck();
+        deck.ForEach(card =>
+        {
+            if (card == null) return;
+            var prefab = getMosnterDataAndPrefab(card).prefab;
+            var cls = card.removedButtonCls;
+            prefab.SetSelectedEffect(cls);
+        });
     }
-    async UniTask SetAssetsFromAdrea()
+    async UniTask SetAssetsFromAdress()
     {
         try
         {

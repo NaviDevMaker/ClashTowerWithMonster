@@ -12,7 +12,7 @@ public class BattleButtonUI : MonoBehaviour
     {
         public readonly float fadeOutValue = 1.0f;
         float fadeInValue = 0f;
-        float fadeOutDuration = 5.0f;
+        float fadeOutDuration = 1.0f;
         float fadeInDuration = 0.1f;
         public FadeSet fadeOutSet { get; private set;}
         public FadeSet fadeInSet { get; private set;}
@@ -35,7 +35,6 @@ public class BattleButtonUI : MonoBehaviour
 
     Vector2 originalPos;
     CancellationTokenSource buttonCls = new CancellationTokenSource();
-    public CancellationTokenSource currentClickedCls = new CancellationTokenSource();
     TweenProcess tweenProcess;
     Func<CancellationTokenSource> getCardCls;
     bool isFadingOut = false;
@@ -45,8 +44,8 @@ public class BattleButtonUI : MonoBehaviour
         image = GetComponent<Image>();
         text = GetComponentInChildren<Text>();
 
-        var endValue = 1.0f;
-        GraphicAlphaChange(endValue);
+        var transparent = 0f;
+        GraphicAlphaChange(transparent);
         originalPos = image.rectTransform.anchoredPosition;
         tweenProcess = new TweenProcess(originalPos);
         battleButton.onClick.AddListener(() =>
@@ -60,6 +59,7 @@ public class BattleButtonUI : MonoBehaviour
             }
         });
         getCardCls = getCurrentCardCls;
+        FadeOutAndMove();
     }
     //スクロールが終わった時
     public async void FadeOutAndMove()
@@ -69,8 +69,9 @@ public class BattleButtonUI : MonoBehaviour
         Debug.Log("現れます");
         var scrollCls = ScrollManager.Instance.scrollCls;
         var cardCls = getCardCls.Invoke();
+        Debug.Log(cardCls);
         //ここのclsはカード押されたとき、scrollされたとき、fade中にbattleボタン押されたとき(buttonCls)
-        var tripleCls = CancellationTokenSource.CreateLinkedTokenSource(currentClickedCls.Token,buttonCls.Token,cardCls.Token);
+        var tripleCls = CancellationTokenSource.CreateLinkedTokenSource(scrollCls.Token,buttonCls.Token,cardCls.Token);
         var fadeOutSet = tweenProcess.fadeOutSet;
         var moveSet = tweenProcess.moveSetUp;
         var imageFadeOut = image.Fader(fadeOutSet).ToUniTask(tweenCancelBehaviour:TweenCancelBehaviour.KillAndCancelAwait,
@@ -94,18 +95,25 @@ public class BattleButtonUI : MonoBehaviour
             }
             else if(scrollCls.IsCancellationRequested || cardCls.IsCancellationRequested)
             {
-                var fadeInSet = tweenProcess.fadeInSet;
-                var moveToOriginalSet = tweenProcess.moveSetToOriginal;
-                var imageFadeIn = image.Fader(fadeInSet);
-                var textFadeIn = text.Fader(fadeInSet);
-                var moveToOriginal = image.RectMover(moveToOriginalSet);
+                Debug.Log("スクロール、もしくはカードが押されたのでキャンセルされました");
+                SetOriginal();
             }
         }
         finally { isFadingOut = false; }
     }
-    public void GraphicAlphaChange(float endValue)
+    void GraphicAlphaChange(float endValue)
     {
         image.AlphaChange(endValue);
         text.AlphaChange(endValue);
+    }
+    public void SetOriginal()
+    {
+        Debug.Log("最初のポジションに戻します");
+        if (image.rectTransform.anchoredPosition == originalPos) return;
+        var fadeInSet = tweenProcess.fadeInSet;
+        var moveToOriginalSet = tweenProcess.moveSetToOriginal;
+        var imageFadeIn = image.Fader(fadeInSet);
+        var textFadeIn = text.Fader(fadeInSet);
+        var moveToOriginal = image.RectMover(moveToOriginalSet);
     }
 }

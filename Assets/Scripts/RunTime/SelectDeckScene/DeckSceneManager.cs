@@ -19,15 +19,17 @@ public class DeckSceneManager : MonoBehaviour
     {
         Action<int,int> action = selectablePrefabManager.SetLine;
         Action<MonsterStatusData, CancellationTokenSource> apppearStatusAction = statusUIAppear.ApperUI;
-        await cardManager.Initialize(GetSelectedCardPrefab, action,apppearStatusAction, GetMonsterStatusDataAndPrefab);
-        selectablePrefabManager.Initialize();
-        UnityAction<BaseEventData> positionSetEvent = deckChooseCameraMover.SetOriginalPos;
+        UnityAction battleButtonToOriginal = battleButtonUI.SetOriginal;
+        UnityAction positionSetEvent = deckChooseCameraMover.SetOriginalPos;
+
+        await cardManager.Initialize(GetSelectedCardPrefab, action,apppearStatusAction, 
+            GetMonsterStatusDataAndPrefab,battleButtonToOriginal,positionSetEvent);
+        selectablePrefabManager.Initialize(GetMonsterStatusDataAndPrefab);
         UnityAction fadeInEvent = cardManager.CardFadeIn;
         UnityAction closeStatusUIEvent = statusUIAppear.CloseStatusUI;
         UnityAction fadeOutBattleButtonEvent = battleButtonUI.FadeOutAndMove;
-        UnityAction<float> transparentButton = battleButtonUI.GraphicAlphaChange;
         scrollManager.Initialize(positionSetEvent,fadeInEvent,closeStatusUIEvent
-            ,fadeOutBattleButtonEvent,transparentButton);
+            ,fadeOutBattleButtonEvent,battleButtonToOriginal);
         Func<CancellationTokenSource> getCurrentCls = cardManager.GetClickedCancellationTokenSource;
         Func<bool> saveDeck = cardManager.GetChoosenDeckDatas;
         battleButtonUI.Initialize(saveDeck,getCurrentCls);

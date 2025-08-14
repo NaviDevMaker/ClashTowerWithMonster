@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6346385573114244478}
   - component: {fileID: 5200553207500154332}
   - component: {fileID: 7488657488412395345}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: ConfusionSpell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
