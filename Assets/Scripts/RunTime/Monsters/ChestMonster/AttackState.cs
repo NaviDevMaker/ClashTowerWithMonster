@@ -11,7 +11,8 @@ namespace Game.Monsters.ChestMonster
         public override void OnEnter()
         {
             base.OnEnter();
-            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<ChestMonsterContoller>(controller, this, clipLength, 12, 2.0f);
+            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<ChestMonsterContoller>(controller, this, clipLength, 12,
+                controller.MonsterStatus.AttackInterval);
         }
         public override void OnUpdate()
         {

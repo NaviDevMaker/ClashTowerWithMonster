@@ -56,7 +56,7 @@ public class DeckChooseCameraMover : MonoBehaviour
             transform.position = originalPos;
         }
     }
-    public async void SetOriginalPos(BaseEventData data)
+    public async void SetOriginalPos()
     {
         if (isSettedOriginalPos || selectedCardCls == null) return;
         if (currentSelectedPrefab is ISelectableMonster monster) monster.Repetrification();
@@ -79,15 +79,14 @@ public class DeckChooseCameraMover : MonoBehaviour
     {
         var size = currentSelectedPrefab.colliderSize;
         var z = size.z;
-        var adjust = 0f;
-        if(currentSelectedPrefab is ISelectableMonster monster)
-        {
-            if (monster._isFlying) adjust = 6.0f;
-            else adjust = 2.0f;
-        }
+        var adjust = 2.0f;    
         var offsetY = 0.5f;
         var targetPos = currentSelectedPrefab.transform.position;
-        targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + offsetY;
+        if (currentSelectedPrefab is ISelectableMonster monster)
+        {
+            targetPos.y = !monster._isFlying ? Terrain.activeTerrain.SampleHeight(targetPos) + offsetY : targetPos.y + offsetY;
+            adjust = !monster._isFlying ? 2.0f : 3.0f;
+        }
         var offset = currentSelectedPrefab.gameObject.transform.forward * z * adjust;
         targetPos += offset;
         return targetPos;

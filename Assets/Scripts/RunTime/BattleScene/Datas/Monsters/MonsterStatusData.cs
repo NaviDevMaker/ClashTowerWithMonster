@@ -1,19 +1,22 @@
 using UnityEngine;
 
 [System.Serializable]
-public class StateAnimaSpeedInfo
+public class StateAnimaInfo
 {
     [SerializeField] float attackStateAnimSpeed;
     [SerializeField] float deathStateAnimSpeed;
+    [SerializeField] AttackMotionType attackMotionType;
     public float AttackStateAnimSpeed { get => attackStateAnimSpeed;}
     public float DeathStateAnimSpeed { get => deathStateAnimSpeed;}
+    public AttackMotionType AttackMotionType { get => attackMotionType;}
 }
 
 [CreateAssetMenu]
 
 public class MonsterStatusData : StatusData
 {
-    [SerializeField] StateAnimaSpeedInfo animaSpeedInfo;
+    [SerializeField] StateAnimaInfo animInfo;
+    [SerializeField] float attackInterval;
     [SerializeField] float chaseRange;
     [SerializeField] float summonWaitTime;
     [Tooltip("‚±‚Ìƒ‚ƒ“ƒXƒ^[‚ÌCollider‚Ì”¼ŒaˆÈã(‰Ÿ‚µo‚µ”»’è‚æ‚è‘å‚«‚¢)‚É‚µ‚È‚¢‚Æ‰Ÿ‚µo‚³‚ê‚éŠÖŒW‚Å‰i‰“‚ÉUŒ‚ƒ‚[ƒh‚É“ü‚ç‚È‚¢‚©‚ç‚»‚±‚¾‚¯‚æ‚ë‚µ‚­‰´")]
@@ -31,7 +34,8 @@ public class MonsterStatusData : StatusData
     public MonsterAttackType MonsterAttackType { get => monsterAttackType;}
     public MonsterMoveType MonsterMoveType { get => monsterMoveType;}
     public float SummonWaitTime { get => summonWaitTime;}
-    public StateAnimaSpeedInfo AnimaSpeedInfo { get => animaSpeedInfo;}
+    public StateAnimaInfo AnimaSpeedInfo { get => animInfo;}
+    public float AttackInterval { get => attackInterval;}
 }
 //UŒ‚‚Ìí—Ş
 public enum AttackType
@@ -51,6 +55,12 @@ public enum MonsterMoveType
    Walk,
    Fly,
 }
+public enum AttackMotionType
+{ 
+    Simple,
+    DestractionMachine,
+}
+
 
 
 

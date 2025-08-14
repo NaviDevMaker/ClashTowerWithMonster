@@ -14,14 +14,14 @@ public class ScrollManager : MonoBehaviour
 
     bool isSliding = false;
     bool isStoping = false;
-    public CancellationTokenSource cls { get; private set; } = new CancellationTokenSource();
+    CancellationTokenSource cls = new CancellationTokenSource();
+    public CancellationTokenSource scrollCls { get; private set;} = new CancellationTokenSource();
     public bool isPointerDowned = false;
     EventTrigger eventTrigger;
     public SelectableCard currentSelectedCard {get;set;}
-    public UnityAction OnScrolledImage;
-    public UnityAction<CancellationTokenSource> FadeInAction;
-    private void Awake() => Instance = this;
 
+    private void Awake() => Instance = this;
+    UnityAction fadeOutBattleButton;
     private void Start()
     {
         scrollRect = GetComponent<ScrollRect>();
@@ -30,7 +30,8 @@ public class ScrollManager : MonoBehaviour
     void Update()
     {
         Debug.Log(Input.mouseScrollDelta.y);
-        if(InputManager.IsClickedSlideButton())
+
+        if (InputManager.IsClickedSlideButton())
         {
             if (!isSliding) StartSliding();
             else
@@ -46,24 +47,33 @@ public class ScrollManager : MonoBehaviour
             else scrollRect.vertical = false;
         }
     }
-    public void Initialize(UnityAction<BaseEventData> setCameraPosToOriginal,UnityAction FadeInAction)
+    public void Initialize(UnityAction setCameraPosToOriginal,UnityAction fadeInAction,
+        UnityAction closeStatusUIAction,UnityAction fadeOutBattleButton,UnityAction transparentBattleButton)
     {
         AddOnBeginDragEvent();
 
-        var entry = new EventTrigger.Entry();
-        entry.eventID = EventTriggerType.BeginDrag;
-        entry.callback.AddListener((BaseEventData data) =>
+        var beginDragEntry = new EventTrigger.Entry();
+        beginDragEntry.eventID = EventTriggerType.BeginDrag;
+        beginDragEntry.callback.AddListener((BaseEventData data) =>
         {
-            setCameraPosToOriginal.Invoke(data);
-            FadeInAction.Invoke();
+            scrollCls?.Cancel();
+            scrollCls?.Dispose();
+            scrollCls = new CancellationTokenSource();
+            setCameraPosToOriginal?.Invoke();
+            fadeInAction?.Invoke();
+            closeStatusUIAction?.Invoke();
+            transparentBattleButton?.Invoke();
         });
 
-        eventTrigger.triggers.Add(entry);
-
-        //var entry_FadeIn = new EventTrigger.Entry();
-        //entry_FadeIn.eventID = EventTriggerType.BeginDrag;
-        //entry_FadeIn.callback.AddListener((BaseEventData data) => FadeInAction.Invoke(cls));
-        //eventTrigger.triggers.Add(entry_FadeIn);
+        var endDragEntry = new EventTrigger.Entry();
+        endDragEntry.eventID = EventTriggerType.EndDrag;
+        endDragEntry.callback.AddListener((BaseEventData data) =>
+        {
+            fadeOutBattleButton?.Invoke();
+        });
+        eventTrigger.triggers.Add(beginDragEntry);
+        eventTrigger.triggers.Add(endDragEntry);
+        this.fadeOutBattleButton = fadeOutBattleButton;
     }
     void StartSliding()
     {
@@ -116,7 +126,8 @@ public class ScrollManager : MonoBehaviour
     void SelectedCardSet(BaseEventData data)
     {
         if (currentSelectedCard == null) return;
-        currentSelectedCard.selectableCardImage.SetOriginal();
+        if (!currentSelectedCard.isSelectedDeck) currentSelectedCard.selectableCardImage.SetOriginal(isCalledScroll: true);
+        if (currentSelectedCard.isSelectedDeck) currentSelectedCard.selectableCardImage.CloseRemoveButtonUI();
         currentSelectedCard = null;
     }
 }

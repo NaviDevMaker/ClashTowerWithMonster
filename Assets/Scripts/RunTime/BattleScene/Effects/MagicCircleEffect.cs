@@ -41,7 +41,7 @@ public class MagicCircleEffect:IEffectSetter
         var particleObj = UnityEngine.Object.Instantiate(summonParticle, particlePos, Quaternion.identity);
         var particle = particleObj.GetComponentInChildren<ParticleSystem>();
 
-        particle.Play(); //if(cardType == CardType.Monster) 
+        particle.Play(); 
         var duration = particle.main.duration;
 
         var baseParticleObj = particleObj.transform.GetChild(1).gameObject;

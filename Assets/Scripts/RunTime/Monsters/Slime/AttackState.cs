@@ -10,7 +10,8 @@ namespace Game.Monsters.Slime
         {
             base.OnEnter();
 
-            if(attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<SlimeController>(controller, this, clipLength, 10, 1.0f);      
+            if(attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<SlimeController>(controller, this, clipLength, 10,
+                controller.MonsterStatus.AttackInterval);      
         }
         public override void OnUpdate()
         {

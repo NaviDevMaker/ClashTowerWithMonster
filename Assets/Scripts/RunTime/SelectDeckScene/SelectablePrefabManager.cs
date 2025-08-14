@@ -1,8 +1,11 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 
 [System.Serializable]
 public class LineUpFields
@@ -16,19 +19,22 @@ public class SelectablePrefabManager : MonoBehaviour
 {
     public List<SelectableMonster> monsters { get; set; } = new List<SelectableMonster>();
     Material stoneMaterial;
+    MonsterAnimatorPar monsterAnimatorPar;
 
     [SerializeField] LineUpFields lineUpFields; 
     int line = 0;
     int columCount = 0;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
-    public async void Initialize()
+    Dictionary<AttackMotionType, UnityAction<SelectableMonster, CancellationTokenSource>> attackMotions = new Dictionary<AttackMotionType, UnityAction<SelectableMonster, CancellationTokenSource>>();
+    public async void Initialize(Func<SelectableCard,(MonsterStatusData, SelectableMonster)> getMosnterDataAndPrefab) 
     {
-        await SetStoneMaterial();
-        SetMonster();
+        //attackMotions[AttackMotionType.DestractionMachine] = motions.DestractionMachineAttack;
+        await SetAssetsFromAdress();
+        SetMonster(getMosnterDataAndPrefab);
     }
 
-    async void SetMonster()
+    async void SetMonster(Func<SelectableCard, (MonsterStatusData, SelectableMonster prefab)> getMosnterDataAndPrefab)
     {
         List<GameObject> monsterObjs = new List<GameObject>();
         try
@@ -46,6 +52,7 @@ public class SelectablePrefabManager : MonoBehaviour
         {
             var monsterObj = Instantiate(monster);
             var selectableMonster = monsterObj.GetComponent<SelectableMonster>();
+            
             mosntersFromAddress.Add(selectableMonster);
         }
         monsters = mosntersFromAddress.OrderBy(monster => monster.sortOrder).ToList();
@@ -58,13 +65,21 @@ public class SelectablePrefabManager : MonoBehaviour
             monster.cardType = cardType;
         }
         MonsterLineUp();
+        var deck = SelectableCardManager.Instance.GetDeck();
+        deck.ForEach(card =>
+        {
+            if (card == null) return;
+            var prefab = getMosnterDataAndPrefab(card).prefab;
+            var cls = card.removedButtonCls;
+            prefab.SetSelectedEffect(cls);
+        });
     }
-    async UniTask SetStoneMaterial()
+    async UniTask SetAssetsFromAdress()
     {
         try
         {
             stoneMaterial = await SetFieldFromAssets.SetField<Material>("Materiials/StoneShader");
-
+            monsterAnimatorPar = await SetFieldFromAssets.SetField<MonsterAnimatorPar>("Animations/MonsterAnimatorPar");
         }
         catch (OperatorException)
         {
@@ -74,6 +89,9 @@ public class SelectablePrefabManager : MonoBehaviour
     }
     void MonsterLineUp()
     {
+        var motions = new AttackMotion();
+        attackMotions[AttackMotionType.Simple] = motions.SimpleAttackMotion;
+        attackMotions[AttackMotionType.DestractionMachine] = motions.DestractionMachineAttack;
         Debug.Log($"Line‚Í{line},ƒRƒ‰ƒ€‚Í{columCount}");
         var criterioX = lineUpFields.criterioX;
         var criterioZ = lineUpFields.criterioZ;
@@ -93,7 +111,14 @@ public class SelectablePrefabManager : MonoBehaviour
                 pos.y = Terrain.activeTerrain.SampleHeight(pos);
                 selectableMonster.transform.position = pos;
                 selectableMonster.stoneMaterial = stoneMaterial;
+                selectableMonster.monsterAnimatorPar = monsterAnimatorPar;
                 selectableMonster.Initialize();
+                var attackMotionType = selectableMonster._statusData.AnimaSpeedInfo.AttackMotionType;
+                if (attackMotionType == AttackMotionType.Simple)
+                {
+                    motions.AnimationEventSetup(selectableMonster);
+                }
+                selectableMonster.attackMotionPlay = attackMotions[attackMotionType];
                 if (count == monsters.Count) break;
                 index++;
             }

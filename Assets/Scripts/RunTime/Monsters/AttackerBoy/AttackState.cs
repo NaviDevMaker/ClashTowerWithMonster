@@ -10,7 +10,8 @@ namespace Game.Monsters.AttackerBoy
         {
             base.OnEnter();
             //This paremetars are examples,so please change it to your preference!!
-            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<AttackerBoyController>(controller, this, clipLength, 8, 1.0f);
+            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<AttackerBoyController>(controller, this, clipLength, 8,
+                controller.MonsterStatus.AttackInterval);
             Debug.Log(interval);
         }
         public override void OnUpdate()

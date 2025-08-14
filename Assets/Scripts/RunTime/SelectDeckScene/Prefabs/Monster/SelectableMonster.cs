@@ -4,13 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.InputSystem.XR;
 
 
 public interface ISelectableMonster
 {
     SkinnedMeshRenderer _bodyMesh { get;}
-
+    MonsterStatusData _statusData { get;}
     bool _isFlying { get; }
+
     CancellationTokenSource expectedCls { get; set; }
 
     void Depetrification(CancellationTokenSource cls, Func<bool> isSettedOriginalPos);
@@ -25,20 +28,28 @@ public class SelectableMonster : PrefabBase, ISelectableMonster
     List<GameObject> chunks = new List<GameObject>();
     List<UniTask> depetrificationTasks = new List<UniTask>();
     public Material stoneMaterial { get; set; } = null;
-    Animator animator;
+    public MonsterAnimatorPar monsterAnimatorPar { get; set; }
+    public Animator animator { get; private set; }
 
     [SerializeField] bool isFlying;
     [SerializeField] SkinnedMeshRenderer bodyMesh;
+    [SerializeField] MonsterStatusData monsterStatusData;
+
     bool isOneMesh = false;
     bool isPetrification = false;
     public CancellationTokenSource expectedCls { get; set;} = null;
+    public CancellationTokenSource currentMotionCls { get; set; } = null;
     public SkinnedMeshRenderer _bodyMesh => bodyMesh;
     public bool _isFlying => isFlying;
+    public MonsterStatusData _statusData => monsterStatusData;
+    public UnityAction<SelectableMonster, CancellationTokenSource> attackMotionPlay;
     public override void Initialize()
     {
+        base.Initialize();
         var col = GetComponent<BoxCollider>();
         colliderSize = col.bounds.size;
         animator = GetComponent<Animator>();
+        //ChangeClipForAnimationEvent();
         animator.Play("Idle");
         animator.speed = 0f;
         myMeshRenderers = GetComponentsInChildren<Renderer>().ToList();
@@ -123,6 +134,7 @@ public class SelectableMonster : PrefabBase, ISelectableMonster
         chunks.ForEach(chunk =>
         {
             chunk.transform.SetParent(parentObj.transform);
+            chunk.layer = LayerMask.NameToLayer("Monster");
             var chunkMesh = chunk.GetComponent<MeshFilter>().mesh;
             var vertices = chunkMesh.vertices;         
 
@@ -138,7 +150,6 @@ public class SelectableMonster : PrefabBase, ISelectableMonster
         });
         gameObject.SetActive(false);
     }
-
     public async void Depetrification(CancellationTokenSource cls,Func<bool> isSettedOriginalPos)
     {
         isPetrification = false;
@@ -217,7 +228,6 @@ public class SelectableMonster : PrefabBase, ISelectableMonster
                 SetEmission(originalMaterial,cls);
             }
         }
-
     }
     public void Repetrification()
     {
@@ -298,5 +308,23 @@ public class SelectableMonster : PrefabBase, ISelectableMonster
         originalMaterial.DisableKeyword("_EMISSION");
         
         if(expectedCls != null && expectedCls == cls && !isPetrification) animator.speed = 1.0f;
+    }
+    public async void AppearAttackMotion()//ÉXÉNÉçÅ[ÉãÇÃÇ‚Ç¬Ç∆useButtonÇ™âüÇ≥ÇÍÇΩÇ∆Ç´ÇÃÇ‚Ç¬
+    {
+        try
+        {
+            animator.speed = 0f;
+            var interval = monsterStatusData.AttackInterval;
+            await UniTask.Delay(TimeSpan.FromSeconds(interval),cancellationToken:currentMotionCls.Token);
+        }
+        catch(OperationCanceledException)
+        {
+            animator.SetBool(monsterAnimatorPar.Attack,false);
+            animator.Play("Idle");
+        } 
+        finally
+        {
+            animator.speed = 1.0f;
+        }
     }
 }

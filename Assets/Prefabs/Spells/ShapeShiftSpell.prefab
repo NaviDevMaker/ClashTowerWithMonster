@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2475276818928345990}
   - component: {fileID: 6367124411020538317}
   - component: {fileID: 4230543452807863192}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: ShapeShiftSpell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -79,7 +79,7 @@ GameObject:
   - component: {fileID: 2772182047826915566}
   - component: {fileID: 7087830732815187999}
   - component: {fileID: 4698484869108850832}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: QuestinoMarkEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -11,7 +11,8 @@ namespace Game.Monsters.GuirdSlime
         {
             base.OnEnter();
 
-            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<GuirdSlimeController>(controller, this, clipLength, 12, 1.0f);
+            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<GuirdSlimeController>(controller, this, clipLength, 12,
+                controller.MonsterStatus.AttackInterval);
         }
         public override void OnUpdate()
         {

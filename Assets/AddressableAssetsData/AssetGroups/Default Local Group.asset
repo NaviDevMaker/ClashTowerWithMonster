@@ -35,6 +35,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 43b21b9b185202948be8e24bea1d0324
+    m_Address: Datas/DeckPreserver
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6276bcb0acf05e043a0abe90d73c6f31
     m_Address: Prefabs/Monsters/Slime
     m_ReadOnly: 0
@@ -75,6 +80,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 948606759a9175f44b909dc84bf4f0b0
+    m_Address: Datas/SceneNames
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b46ab7721ee72ab46bf02d2c860abe6a
     m_Address: HPBar/Enemy_Large
     m_ReadOnly: 0
@@ -87,6 +97,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c702202bc0ab0984d8622729f139b21d
     m_Address: Monsters/SpellDemon
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c86b8f83d9673264d95e86cd55b9ac2c
+    m_Address: Animations/MonsterAnimatorPar
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

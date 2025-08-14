@@ -11,7 +11,8 @@ namespace Game.Monsters.BigEyeMonster
         public override void OnEnter()
         {
             base.OnEnter();
-            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<BigEyeBallMonsterController>(controller, this, clipLength, 15, 0.5f);
+            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<BigEyeBallMonsterController>(controller, this, clipLength, 15,
+                controller.MonsterStatus.AttackInterval);
         }
         public override void OnUpdate()
         {
