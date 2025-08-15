@@ -358,7 +358,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
         UnityAction<SelectableCard> selectedFromDeck,UnityAction<SelectableCard> removedFromDeck,
         Action<MonsterStatusData,CancellationTokenSource> appearStatusUIAction,
         Func<SelectableCard,(MonsterStatusData data,SelectableMonster prefab)> getStatusAndPrefabAction, 
-        UnityAction setCameraPosAction,Canvas parentCanvas,Image parentImage)
+        UnityAction setCameraPosAction,UnityAction closeStatusUIAction,Canvas parentCanvas,Image parentImage)
     {
         this.scrollRect = scrollRect;
         this.SetCardImageFromData(cardData);
@@ -385,6 +385,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
         selectableCardImage.SetCurrentPos();
         useButton.onClick.AddListener(() =>
         {
+            closeStatusUIAction.Invoke();
             useButtonCls?.Cancel();
             useButtonCls?.Dispose();
             useButtonCls = new CancellationTokenSource();
@@ -406,7 +407,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
                 return;
             }
             var scrollCls = ScrollManager.Instance.scrollCls;
-            var doubleCls = CancellationTokenSource.CreateLinkedTokenSource(scrollCls.Token, statusButtonCls.Token);
+            var doubleCls = CancellationTokenSource.CreateLinkedTokenSource(scrollCls.Token, useButtonCls.Token);//statusButtonCls
             var motionCls = CancellationTokenSource.CreateLinkedTokenSource(scrollCls.Token, useButtonCls.Token);
             appearStatusUIAction.Invoke(statusData, doubleCls);
             monsterPrefab.attackMotionPlay(monsterPrefab,motionCls);

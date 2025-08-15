@@ -2,12 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework.Constraints;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using System;
-using UnityEditor;
-using Unity.VisualScripting;
+
 public class StatusUIAppear: MonoBehaviour
 {
     [System.Serializable]
@@ -39,13 +37,16 @@ public class StatusUIAppear: MonoBehaviour
         };
 
         public Dictionary<IconType, Text> textMap { get; set; } = new Dictionary<IconType, Text>();
-        public Dictionary<IconType, Image> imageMap { get; set; } = new Dictionary<IconType, Image>();
+        public Dictionary<IconType, Image> iconImageMap { get; set; } = new Dictionary<IconType, Image>();
+        public Dictionary<IconType, Image> lusterImageMap { get; set; } = new Dictionary<IconType, Image>();
     }
 
     [SerializeField] IconImages iconImages;
 
     List<Text> texts = new List<Text>();
-    List<Image> images = new List<Image>();
+    List<Image> _iconImages = new List<Image>();
+    List<Image> lusterBackGroundImages = new List<Image>();
+    string lusterObjName = "Luster";
 
     List<Graphic> currentTargetGraphics = new List<Graphic>();
     CancellationTokenSource transparentCls = new CancellationTokenSource();
@@ -53,7 +54,12 @@ public class StatusUIAppear: MonoBehaviour
     private void Start() => Setup();
     public async void ApperUI(MonsterStatusData monsterStatusData,CancellationTokenSource cls)
     {
-        GetComponentsInChildren<Graphic>().ToList().ForEach(g => g.gameObject.SetActive(false));
+        GetComponentsInChildren<Graphic>().ToList().ForEach(g =>
+        {
+            if (g.name == lusterObjName) return;
+            g.gameObject.SetActive(false);
+        });
+
         transparentCls?.Cancel();
         transparentCls?.Dispose();
         transparentCls = new CancellationTokenSource();
@@ -99,35 +105,26 @@ public class StatusUIAppear: MonoBehaviour
             _=> default,
         };
 
+        var currentTargetLusterImages = new List<Image>();
         foreach (var keyValuePair in statusDic)
         {
             var type = keyValuePair.Key;
-            var content = keyValuePair.Value;
-            if(iconImages.imageMap.TryGetValue(type,out var image)) image.gameObject.SetActive(true);
+            if(iconImages.iconImageMap.TryGetValue(type,out var image)) image.gameObject.SetActive(true);
+            if(iconImages.lusterImageMap.TryGetValue(type,out var lusterImage))
+            {
+                currentTargetLusterImages.Add(lusterImage);    
+            }
             if (iconImages.textMap.TryGetValue(type, out var text))
             {
-                text.gameObject.SetActive(true);    
+                text.gameObject.SetActive(true);
+                var content = keyValuePair.Value;
                 text.text = content;
             }
             else continue;
             currentTargetGraphics.Add(text);
             currentTargetGraphics.Add(image);
+            currentTargetGraphics.Add(lusterImage);
         }
-            //var text = ;
-            //var image = images[i];
-            //var type = (IconType)i;
-            //if(statusDic.TryGetValue(type,out var content)) text.text = content;
-            //else
-            //{
-            //    text.gameObject.SetActive(false);
-            //    image.gameObject.SetActive(false);
-            //    continue;
-            //}
-            //var content = content;
-           
-
-            //currentTargetGraphics.Add(text);
-            //currentTargetGraphics.Add(image);
 
         var endAlpha = 1.0f;
         var duration = 0.5f;
@@ -145,6 +142,7 @@ public class StatusUIAppear: MonoBehaviour
 
         try
         {
+            SlideLusterImage(currentTargetLusterImages,cls);
             await fadeTasks;
         }
         catch (OperationCanceledException) { CloseStatusUI(); } 
@@ -153,13 +151,15 @@ public class StatusUIAppear: MonoBehaviour
     }
     void Setup()
     {
-        var sortedImage = GetComponentsInChildren<Image>().ToList().OrderBy(image => image.transform.GetSiblingIndex()).ToList();
+        var sortedImage = GetComponentsInChildren<Image>().ToList()
+            .Where(image => image.gameObject.name != lusterObjName)
+            .OrderBy(image => image.transform.GetSiblingIndex()).ToList();
         var sortedTexts = GetComponentsInChildren<Text>().ToList().OrderBy(text => text.transform.GetSiblingIndex()).ToList();
         texts = sortedTexts;
-        images = sortedImage;
+        _iconImages = sortedImage;
 
         var spriteDic = iconImages.iconMap;
-        var imageDic = iconImages.imageMap;
+        var imageDic = iconImages.iconImageMap;
         for (int i = 0; i < sortedImage.Count; i++)
         {
             var icon = sortedImage[i];
@@ -171,11 +171,15 @@ public class StatusUIAppear: MonoBehaviour
         }
 
         var textDic = iconImages.textMap;
+        var lusterDic = iconImages.lusterImageMap;
         for (int i = 0;i < texts.Count; i++)
         {
             var text = texts[i];
+            var lusterImage = text.GetComponentInChildren<Image>();
             var type = (IconType)i;
             textDic[type] = text;
+            lusterDic[type] = lusterImage;
+
             TransparentGraphic(text);          
         }
     }
@@ -210,6 +214,51 @@ public class StatusUIAppear: MonoBehaviour
         {
             currentTargetGraphics.Clear();
             currentTargetGraphics.TrimExcess();
+        }
+    }
+    void SlideLusterImage(List<Image> currentLusterImages,CancellationTokenSource cls)
+    {
+        var direction = 1;
+        var moveSpeed = 200f;
+        var absAmount = 400f;
+        var delay = 1.5f;
+        Func<Image,Vector2,UniTask> imageMover = async (lusterImage,originalPos) =>
+        {
+            try
+            {
+                var originalPosX = originalPos.x;
+                var currentPos = lusterImage.rectTransform.anchoredPosition;
+                var targetPos = new Vector2(originalPosX + absAmount * direction, currentPos.y);
+                Debug.Log(targetPos);
+                while (!cls.IsCancellationRequested)
+                {
+                    currentPos = lusterImage.rectTransform.anchoredPosition;
+                    var newPos = Vector2.MoveTowards(currentPos, targetPos,Time.deltaTime * moveSpeed);
+                    lusterImage.rectTransform.anchoredPosition = newPos;
+
+                    if (Mathf.Approximately(newPos.x,targetPos.x))
+                    {
+                        direction = -direction;
+                        targetPos = new Vector2(originalPosX + absAmount * direction, currentPos.y);
+                        Debug.Log(targetPos);
+                        await UniTask.Delay(TimeSpan.FromSeconds(delay),cancellationToken:cls.Token);
+                    }
+
+                    await UniTask.Yield(cancellationToken: cls.Token);
+                }
+            }
+            catch (OperationCanceledException) { }
+            finally
+            {
+                lusterImage.rectTransform.anchoredPosition = originalPos;
+            }
+        };
+
+        for (var i = 0;i < currentLusterImages.Count;i++) 
+        {
+            var lusterImage = currentLusterImages[i];
+            var originalPos = lusterImage.rectTransform.anchoredPosition;
+            imageMover(lusterImage,originalPos);
         }
     }
 }

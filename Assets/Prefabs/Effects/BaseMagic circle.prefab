@@ -14595,7 +14595,7 @@ GameObject:
   - component: {fileID: 3498906508000338271}
   - component: {fileID: 663573076146524875}
   - component: {fileID: 5933486800251871447}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: BaseMagic circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -55,7 +55,12 @@ public class BattleButtonUI : MonoBehaviour
             buttonCls = new CancellationTokenSource();
             if(saveDeckData.Invoke())
             {
+                Debug.Log("成功です、バトル画面に移動します");
                 return;
+            }
+            else
+            {
+                Debug.LogWarning("警告文を出します");
             }
         });
         getCardCls = getCurrentCardCls;

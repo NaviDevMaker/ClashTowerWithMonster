@@ -35,6 +35,7 @@ public class SelectableCardManager : MonoBehaviour
 
     public List<CardData> allCardDatas { get; set; } = new List<CardData>();
     [SerializeField] DeckChooseCameraMover deckChooseCameraMover;
+    [SerializeField] DeckWarningText deckWarningText;   
     [SerializeField] Image parentImage;
     [SerializeField] ScrollRect scrollRect;
     [SerializeField] Canvas parentCanvas;
@@ -78,12 +79,13 @@ public class SelectableCardManager : MonoBehaviour
     public async UniTask Initialize(Func<SelectableCard, PrefabBase> action, Action<int, int> lineSetAction,
         Action<MonsterStatusData, CancellationTokenSource> apperStatusUIAction,
         Func<SelectableCard, (MonsterStatusData, SelectableMonster)> getStatusAndPrefabAction,
-        UnityAction setBattleButtonToOriginal, UnityAction cameraPositionSetAction)
+        UnityAction setBattleButtonToOriginal, UnityAction cameraPositionSetAction,UnityAction closeStatusUIAction)
     {
         cardDeckInfo = new CardDeckInfo();
         OnSelectedCard = action;
         SetButtleButtonToOriginal = setBattleButtonToOriginal;
-        await LineUpCards(lineSetAction,apperStatusUIAction,getStatusAndPrefabAction,cameraPositionSetAction);
+        await LineUpCards(lineSetAction,apperStatusUIAction,getStatusAndPrefabAction,
+                          cameraPositionSetAction,closeStatusUIAction);
         deckPreserver = await SetFieldFromAssets.SetField<DeckPreserver>("Datas/DeckPreserver");
         Debug.Log(deckPreserver);
         var savedCardData = LoadDataFromJson();
@@ -176,7 +178,8 @@ public class SelectableCardManager : MonoBehaviour
         }
     }
     async UniTask LineUpCards(Action<int, int> lineSetAction,Action<MonsterStatusData,CancellationTokenSource> appearStatusUIAction,
-        Func<SelectableCard,(MonsterStatusData,SelectableMonster)> getStatusAndPrefabAction,UnityAction setCameraPosAction)
+        Func<SelectableCard,(MonsterStatusData,SelectableMonster)> getStatusAndPrefabAction,UnityAction setCameraPosAction,
+        UnityAction closeStatusUIAction)
     {
         var cardDatas = (await SetFieldFromAssets.SetFieldByLabel<CardData>("CardData")).ToList();
         allCardDatas = cardDatas.OrderBy(data => data.SortOrder).ToList();
@@ -211,7 +214,7 @@ public class SelectableCardManager : MonoBehaviour
                     selectableCards.Add(cmp);
                     UnityAction<bool> stopAction = (isDowned) => ScrollManager.Instance.isPointerDowned = isDowned;
                     cmp.Initialize(scrollRect, stopAction, OnSelectedCardChanged, OnCardSelectedToDeck, OnSelectedCardFromDeck,
-                        OnRemovedFromDeck,appearStatusUIAction,getStatusAndPrefabAction,setCameraPosAction,
+                        OnRemovedFromDeck,appearStatusUIAction,getStatusAndPrefabAction,setCameraPosAction,closeStatusUIAction,
                         parentCanvas, parentImage);
                     instanciatedCount++;
                     if (instanciatedCount == dataCount) break;
@@ -303,10 +306,12 @@ public class SelectableCardManager : MonoBehaviour
     {
         SetButtleButtonToOriginal?.Invoke();
         var sameCard = currentSelectedCard == selectedCard;
+        cls?.Cancel();
+        cls?.Dispose();
         if (currentSelectedCard != null && !sameCard)
         {
-            cls?.Cancel();
-            cls?.Dispose();
+            //cls?.Cancel();
+            //cls?.Dispose();
 
             if (!currentSelectedCard.isSelectedDeck) currentSelectedCard.selectableCardImage.SetOriginal();
             currentSelectedCard._isSelected = false;
@@ -381,7 +386,12 @@ public class SelectableCardManager : MonoBehaviour
             var d = c.cardData;
             deckCardDatas[i] = d;
         }
-        if (deckCardDatas.Contains(null)) return false;
+        if(deckCardDatas.Contains(null))
+        {
+            //var doubleCls = CancellationTokenSource.CreateLinkedTokenSource(cls.Token, battleButtonCls.Token);
+            deckWarningText.AppearWarningText(cls);
+            return false;
+        }
         else
         {
             deckPreserver.ChoosenDecks = deckCardDatas;

@@ -4,8 +4,8 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : SingletonMonobehavier<GameManager>
 {
-    [SerializeField] PlayerSetter playerSetter;
-    [SerializeField] SwordPlayerController player;
+    PlayerSetter playerSetter;// [SerializeField]
+    SwordPlayerController player;//[SerializeField]
     DeckPreserver deckPreserver;
     private async void Start()
     {
