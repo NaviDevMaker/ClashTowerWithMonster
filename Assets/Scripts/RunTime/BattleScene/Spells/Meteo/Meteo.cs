@@ -20,7 +20,7 @@ namespace Game.Spells.Meteo
             meteoPrefab = await SetFieldFromAssets.SetField<GameObject>("Spells/Meteo");
         }
 
-        protected override void SetDuration() => spellDuration = 0.3f;
+        protected override void SetDuration() => spellDuration = _SpellStatus.SpellDuration;
         protected override void SetRange()
         {
             scaleAmount = 1f;

@@ -82,7 +82,7 @@ namespace Game.Spells.Freeze
             base.SetRange();
         }
 
-        protected override void SetDuration() => spellDuration = 4.0f;
+        protected override void SetDuration() => spellDuration = _SpellStatus.SpellDuration;
 
         protected override async UniTaskVoid Spell()
         {

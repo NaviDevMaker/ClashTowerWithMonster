@@ -77,7 +77,7 @@ public class ShapeShift : SpellBase
 
         DestroyAll();
     }
-    protected override void SetDuration() => spellDuration = 0.3f;
+    protected override void SetDuration() => spellDuration = _SpellStatus.SpellDuration;
 
     protected override void DestroyAll() => Destroy(this.gameObject);
     void SummonNewMonster(UnitBase transformedUnit,Vector3 pos,ParticleSystem particle)

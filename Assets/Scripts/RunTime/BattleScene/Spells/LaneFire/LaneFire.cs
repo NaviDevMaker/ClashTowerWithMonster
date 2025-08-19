@@ -14,13 +14,22 @@ namespace Game.Spells.LaneFire
             pushEffectUnit = PushEffectUnit.OnlyEnemyUnit;
             addForceToUnit = new AddForceToUnit<SpellBase>(this, _SpellStatus.PushAmount, _SpellStatus.PerPushDurationAndStunTime, pushEffectUnit);
         }
+
+        protected override void SetDuration() => spellDuration = _SpellStatus.SpellDuration;
+
         protected override async UniTaskVoid Spell()
         {
+            var particle = transform.GetChild(0).GetComponent<ParticleSystem>();
+            this.particle = particle;
+            var main = this.particle.main;
+            var destroyTime = main.duration;
+
+            await UniTask.Delay(TimeSpan.FromSeconds(spellDuration));
             Debug.Log("ファイア発動！！！！！！！！！");
             addForceToUnit.KeepDistance(moveType);
             spellEffectHelper.EffectToUnit();
             particle.Play();
-            await UniTask.Delay(TimeSpan.FromSeconds(spellDuration));
+            await UniTask.Delay(TimeSpan.FromSeconds(destroyTime));
             //particle.Stop();
             DestroyAll();
         }

@@ -26,7 +26,7 @@ namespace Game.Spells.Heal
 
         protected override void SetDuration()
         {
-            spellDuration = 6f;
+            spellDuration = _SpellStatus.SpellDuration;
         }
         protected override async UniTaskVoid Spell()
         {

@@ -48,11 +48,23 @@ public class SelectableCardManager : MonoBehaviour
     SelectableCard currentSelectedCard;
     CancellationTokenSource cls = new CancellationTokenSource();
     Func<SelectableCard, PrefabBase> OnSelectedCard;
+    UnityAction<PrefabBase> UnableLineRenderer;
     CardLineupInfo cardLineupInfo = new CardLineupInfo();
     CardDeckInfo cardDeckInfo;
     DeckPreserver deckPreserver;
     UnityAction SetButtleButtonToOriginal;
     public readonly string fileName = "selectableCardData";
+
+    class LineupActions
+    {
+       public Action<int, int> lineSetAction;
+       public Action<MonsterStatusData, CancellationTokenSource> appearStatusUIAction;
+       public Func<SelectableCard, (MonsterStatusData, SelectableMonster)> getStatusAndPrefabAction;
+       public Func<SelectableCard, (SpellStatus, SelectableSpell)> getSpellStatusAndPrefabAction;
+       public UnityAction setCameraPosAction;
+       public UnityAction closeStatusUIAction;
+    }
+
     private void Awake()
     {
         if (Instance != null) Instance = null;
@@ -76,16 +88,29 @@ public class SelectableCardManager : MonoBehaviour
             }
         }
     }
-    public async UniTask Initialize(Func<SelectableCard, PrefabBase> action, Action<int, int> lineSetAction,
+    public async UniTask Initialize(CardManagerActions cardManagerActions)
+        /*(Func<SelectableCard, PrefabBase> action, Action<int, int> lineSetAction,
         Action<MonsterStatusData, CancellationTokenSource> apperStatusUIAction,
         Func<SelectableCard, (MonsterStatusData, SelectableMonster)> getStatusAndPrefabAction,
-        UnityAction setBattleButtonToOriginal, UnityAction cameraPositionSetAction,UnityAction closeStatusUIAction)
+        UnityAction setBattleButtonToOriginal, UnityAction cameraPositionSetAction,
+        UnityAction closeStatusUIAction, UnityAction unableLineRenderer*/
     {
         cardDeckInfo = new CardDeckInfo();
-        OnSelectedCard = action;
-        SetButtleButtonToOriginal = setBattleButtonToOriginal;
-        await LineUpCards(lineSetAction,apperStatusUIAction,getStatusAndPrefabAction,
-                          cameraPositionSetAction,closeStatusUIAction);
+        OnSelectedCard = cardManagerActions.onSelectedCardAction;
+        SetButtleButtonToOriginal = cardManagerActions.setBattleButtonToOriginal;
+        UnableLineRenderer = cardManagerActions.unableLineRenderer;
+        var lineupActions = new LineupActions
+        { 
+            lineSetAction = cardManagerActions.lineSetAction,
+            appearStatusUIAction = cardManagerActions.apperStatusUIAction,
+            getStatusAndPrefabAction = cardManagerActions.getStatusAndPrefabAction,
+            getSpellStatusAndPrefabAction = cardManagerActions.getSpellStatusAndPrefabAction,
+            setCameraPosAction = cardManagerActions.cameraPositionSetAction,
+            closeStatusUIAction = cardManagerActions.closeStatusUIAction,
+        };
+
+        await LineUpCards(lineupActions);/*lineSetAction,apperStatusUIAction,getStatusAndPrefabAction,
+                          cameraPositionSetAction,closeStatusUIAction*/
         deckPreserver = await SetFieldFromAssets.SetField<DeckPreserver>("Datas/DeckPreserver");
         Debug.Log(deckPreserver);
         var savedCardData = LoadDataFromJson();
@@ -177,10 +202,10 @@ public class SelectableCardManager : MonoBehaviour
             card.selectableCardImage.SetCardToPool(pos);
         }
     }
-    async UniTask LineUpCards(Action<int, int> lineSetAction,Action<MonsterStatusData,CancellationTokenSource> appearStatusUIAction,
+    async UniTask LineUpCards(LineupActions lineupActions)/*Action<int, int> lineSetAction,Action<MonsterStatusData,CancellationTokenSource> appearStatusUIAction,
         Func<SelectableCard,(MonsterStatusData,SelectableMonster)> getStatusAndPrefabAction,UnityAction setCameraPosAction,
-        UnityAction closeStatusUIAction)
-    {
+        UnityAction closeStatusUIAction*/
+        {
         var cardDatas = (await SetFieldFromAssets.SetFieldByLabel<CardData>("CardData")).ToList();
         allCardDatas = cardDatas.OrderBy(data => data.SortOrder).ToList();
         cardImagePrefab = await SetFieldFromAssets.SetField<GameObject>("Prefabs/SelectableCard");
@@ -193,9 +218,25 @@ public class SelectableCardManager : MonoBehaviour
         columnCount = 5;
         line = Mathf.CeilToInt((float)dataCount / columnCount);
         Debug.Log($"Line‚Í{line},ƒRƒ‰ƒ€‚Í{columnCount}");
-        lineSetAction.Invoke(line, columnCount);
+        lineupActions.lineSetAction.Invoke(line, columnCount);
         var instanciatedCount = 0;
         var index = 0;
+
+        UnityAction<bool> stopAction = (isDowned) => ScrollManager.Instance.isPointerDowned = isDowned;
+        var cardActions = new CardActions
+        { 
+            stopScrollAction = stopAction,
+            selectedCardChanged = OnSelectedCardChanged,
+            selectedCardtoDeck = OnCardSelectedToDeck,
+            selectedFromDeck = OnSelectedCardFromDeck,
+            removedFromDeck = OnRemovedFromDeck,
+            appearStatusUIAction = lineupActions.appearStatusUIAction,
+            getStatusAndPrefabAction = lineupActions.getStatusAndPrefabAction,
+            getSpellStatusAndPrefabAction = lineupActions.getSpellStatusAndPrefabAction,
+            setCameraPosAction = lineupActions.setCameraPosAction,
+            closeStatusUIAction = lineupActions.closeStatusUIAction,
+        };
+
         for (int l = 0; l < line; l++)
         {
             for (int c = 0; c < columnCount; c++)
@@ -212,10 +253,8 @@ public class SelectableCardManager : MonoBehaviour
                     cmp.cardData = allCardDatas[index];
                     cmp.lineupIndex = index;
                     selectableCards.Add(cmp);
-                    UnityAction<bool> stopAction = (isDowned) => ScrollManager.Instance.isPointerDowned = isDowned;
-                    cmp.Initialize(scrollRect, stopAction, OnSelectedCardChanged, OnCardSelectedToDeck, OnSelectedCardFromDeck,
-                        OnRemovedFromDeck,appearStatusUIAction,getStatusAndPrefabAction,setCameraPosAction,closeStatusUIAction,
-                        parentCanvas, parentImage);
+                    cmp.Initialize(scrollRect,cardActions,parentCanvas, parentImage);/* stopAction, OnSelectedCardChanged, OnCardSelectedToDeck, OnSelectedCardFromDeck,
+                        OnRemovedFromDeck,appearStatusUIAction,getStatusAndPrefabAction,setCameraPosAction,closeStatusUIAction*/
                     instanciatedCount++;
                     if (instanciatedCount == dataCount) break;
                     index++;
@@ -310,9 +349,6 @@ public class SelectableCardManager : MonoBehaviour
         cls?.Dispose();
         if (currentSelectedCard != null && !sameCard)
         {
-            //cls?.Cancel();
-            //cls?.Dispose();
-
             if (!currentSelectedCard.isSelectedDeck) currentSelectedCard.selectableCardImage.SetOriginal();
             currentSelectedCard._isSelected = false;
 
@@ -336,6 +372,7 @@ public class SelectableCardManager : MonoBehaviour
         selectedCard.selectableCardImage.FadeCancelAction();
         deckChooseCameraMover.selectedCardCls = cls;
         deckChooseCameraMover.currentSelectedPrefab = OnSelectedCard?.Invoke(selectedCard);
+        UnableLineRenderer?.Invoke(deckChooseCameraMover.currentSelectedPrefab);
         await deckChooseCameraMover.MoveToFrontOfObj();
         var currentPrefab = deckChooseCameraMover.currentSelectedPrefab;
         Func<bool> GetSetOriginalPos = (() => deckChooseCameraMover.isSettedOriginalPos);
@@ -343,6 +380,10 @@ public class SelectableCardManager : MonoBehaviour
         {
             selectableMonster.expectedCls = cls;
             selectableMonster.Depetrification(cls, GetSetOriginalPos);
+        }
+        else if(currentPrefab is ISelectableSpell selectableSpell)
+        {
+            
         }
     }
     void OnSelectedCardFromDeck(SelectableCard selectedCard)
@@ -388,7 +429,6 @@ public class SelectableCardManager : MonoBehaviour
         }
         if(deckCardDatas.Contains(null))
         {
-            //var doubleCls = CancellationTokenSource.CreateLinkedTokenSource(cls.Token, battleButtonCls.Token);
             deckWarningText.AppearWarningText(cls);
             return false;
         }

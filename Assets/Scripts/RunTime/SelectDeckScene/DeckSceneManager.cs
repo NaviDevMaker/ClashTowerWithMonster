@@ -13,26 +13,67 @@ public class DeckSceneManager : MonoBehaviour
     [SerializeField] ScrollManager scrollManager;
     [SerializeField] StatusUIAppear statusUIAppear;
     [SerializeField] BattleButtonUI battleButtonUI;
-    
+
+
+   
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     async void Start()
     {
-        Action<int,int> action = selectablePrefabManager.SetLine;
+        Action<int,int> setLineAction = selectablePrefabManager.SetLine;
         Action<MonsterStatusData, CancellationTokenSource> apppearStatusAction = statusUIAppear.ApperUI;
         UnityAction battleButtonToOriginal = battleButtonUI.SetOriginal;
         UnityAction positionSetEvent = deckChooseCameraMover.SetOriginalPos;
         UnityAction closeStatusUIEvent = statusUIAppear.CloseStatusUI;
-
-        await cardManager.Initialize(GetSelectedCardPrefab, action,apppearStatusAction, 
-            GetMonsterStatusDataAndPrefab,battleButtonToOriginal,positionSetEvent,closeStatusUIEvent);
-        selectablePrefabManager.Initialize(GetMonsterStatusDataAndPrefab);
+        UnityAction<PrefabBase> unableLineRenderer = selectablePrefabManager.UnableLineRenderer;
         UnityAction fadeInEvent = cardManager.CardFadeIn;
         UnityAction fadeOutBattleButtonEvent = battleButtonUI.FadeOutAndMove;
-        scrollManager.Initialize(positionSetEvent,fadeInEvent,closeStatusUIEvent
-            ,fadeOutBattleButtonEvent,battleButtonToOriginal);
         Func<CancellationTokenSource> getCurrentCls = cardManager.GetClickedCancellationTokenSource;
         Func<bool> saveDeck = cardManager.GetChoosenDeckDatas;
-        battleButtonUI.Initialize(saveDeck,getCurrentCls);
+
+        var cardManagerActions = new CardManagerActions
+        {
+            onSelectedCardAction = GetSelectedCardPrefab,
+            lineSetAction = setLineAction,
+            apperStatusUIAction = apppearStatusAction,
+            getStatusAndPrefabAction = GetMonsterStatusDataAndPrefab,
+            getSpellStatusAndPrefabAction = GetSpellStatusDataAndPrefab,
+            setBattleButtonToOriginal = battleButtonToOriginal,
+            cameraPositionSetAction = positionSetEvent,
+            closeStatusUIAction = closeStatusUIEvent,
+            unableLineRenderer = unableLineRenderer
+        };
+
+        var prefabManagerActions = new PrefabManagerActions
+        { 
+            getMosnterDataAndPrefab = GetMonsterStatusDataAndPrefab,
+            getSpellDataAndPrefab = GetSpellStatusDataAndPrefab
+        };
+
+
+        var scrollManagerActions = new ScrollManagerActions
+        { 
+            setCameraPosToOriginal = positionSetEvent,
+            fadeInAction = fadeInEvent,
+            closeStatusUIAction = closeStatusUIEvent,
+            fadeOutBattleButton = fadeOutBattleButtonEvent,
+            transparentBattleButton = battleButtonToOriginal
+        };
+
+        var battleButtonUIActions = new BattleButtonUIActions
+        { 
+            saveDeckData = saveDeck,
+            getCurrentCardCls = getCurrentCls,
+        };
+
+        await cardManager.Initialize(cardManagerActions);/*GetSelectedCardPrefab, setLineAction,apppearStatusAction, 
+            GetMonsterStatusDataAndPrefab,battleButtonToOriginal,positionSetEvent,closeStatusUIEvent*/
+        selectablePrefabManager.Initialize(prefabManagerActions);/*GetMonsterStatusDataAndPrefab,GetSpellStatusDataAndPrefab*/
+       
+        scrollManager.Initialize(scrollManagerActions);/*positionSetEvent,fadeInEvent,closeStatusUIEvent
+          ,fadeOutBattleButtonEvent,battleButtonToOriginal*/
+
+        battleButtonUI.Initialize(battleButtonUIActions);/*saveDeck,getCurrentCls*/
     }
     PrefabBase GetSelectedCardPrefab(SelectableCard selectableCard)
     {
@@ -62,4 +103,54 @@ public class DeckSceneManager : MonoBehaviour
         }
         return (null,null);
     }
+
+    public (SpellStatus,SelectableSpell) GetSpellStatusDataAndPrefab(SelectableCard selectableCard)
+    {
+        var targetIndex = selectableCard.cardData.SortOrder;
+        var startIndex = selectablePrefabManager.monsters.Count;
+        var endIndex = selectablePrefabManager.prefabs.Count;
+        for (int i = startIndex; i < endIndex;i++)
+        {
+            if(i == targetIndex)
+            {
+                var index = i - startIndex;
+                var spell = selectablePrefabManager.spells[index];
+                var data = spell._spellStatus;
+                return (data,spell);
+            }
+        }
+        return (null, null);
+    }
+}
+
+public class CardManagerActions
+{
+    public Func<SelectableCard, PrefabBase> onSelectedCardAction;
+    public Action<int, int> lineSetAction;
+    public Action<MonsterStatusData, CancellationTokenSource> apperStatusUIAction;
+    public Func<SelectableCard, (MonsterStatusData, SelectableMonster)> getStatusAndPrefabAction;
+    public Func<SelectableCard, (SpellStatus, SelectableSpell)> getSpellStatusAndPrefabAction;
+    public UnityAction setBattleButtonToOriginal;
+    public UnityAction cameraPositionSetAction;
+    public UnityAction closeStatusUIAction;
+    public UnityAction<PrefabBase> unableLineRenderer;
+}
+
+public class PrefabManagerActions
+{
+   public Func<SelectableCard, (MonsterStatusData, SelectableMonster prefab)> getMosnterDataAndPrefab;
+   public Func<SelectableCard, (SpellStatus, SelectableSpell prefab)> getSpellDataAndPrefab;
+}
+public class ScrollManagerActions
+{
+    public UnityAction setCameraPosToOriginal;
+    public UnityAction fadeInAction;
+    public UnityAction closeStatusUIAction;
+    public UnityAction fadeOutBattleButton;
+    public UnityAction transparentBattleButton;
+}
+public class BattleButtonUIActions
+{
+    public Func<bool> saveDeckData;
+    public Func<CancellationTokenSource> getCurrentCardCls;
 }

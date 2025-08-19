@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 public class AttackMotion
 {
-    public void AnimationEventSetup(SelectableMonster selectableMonster)
+    public void AnimationEventSetup(ISelectableMonster selectableMonster)
     {
         var animator = selectableMonster.animator;
         var runTimeAnimator = animator.runtimeAnimatorController;

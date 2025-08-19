@@ -13,9 +13,11 @@ public interface ISelectableMonster
     SkinnedMeshRenderer _bodyMesh { get;}
     MonsterStatusData _statusData { get;}
     bool _isFlying { get; }
-
+    Material stoneMaterial { get; set; }
+    MonsterAnimatorPar monsterAnimatorPar { get; set; }
     CancellationTokenSource expectedCls { get; set; }
-
+    Animator animator { get; set; }
+    UnityAction<SelectableMonster, CancellationTokenSource> attackMotionPlay { get; set;}   
     void Depetrification(CancellationTokenSource cls, Func<bool> isSettedOriginalPos);
     void Repetrification();
 }
@@ -29,7 +31,7 @@ public class SelectableMonster : PrefabBase, ISelectableMonster
     List<UniTask> depetrificationTasks = new List<UniTask>();
     public Material stoneMaterial { get; set; } = null;
     public MonsterAnimatorPar monsterAnimatorPar { get; set; }
-    public Animator animator { get; private set; }
+    public Animator animator { get; set; }
 
     [SerializeField] bool isFlying;
     [SerializeField] SkinnedMeshRenderer bodyMesh;
@@ -42,12 +44,13 @@ public class SelectableMonster : PrefabBase, ISelectableMonster
     public SkinnedMeshRenderer _bodyMesh => bodyMesh;
     public bool _isFlying => isFlying;
     public MonsterStatusData _statusData => monsterStatusData;
-    public UnityAction<SelectableMonster, CancellationTokenSource> attackMotionPlay;
+    public UnityAction<SelectableMonster, CancellationTokenSource> attackMotionPlay { get; set; }
     public override void Initialize()
     {
         base.Initialize();
         var col = GetComponent<BoxCollider>();
-        colliderSize = col.bounds.size;
+        var colliderSize = col.bounds.size;
+        offsetZ = colliderSize.z;
         animator = GetComponent<Animator>();
         //ChangeClipForAnimationEvent();
         animator.Play("Idle");

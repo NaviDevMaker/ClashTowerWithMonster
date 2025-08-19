@@ -16,6 +16,8 @@ namespace Game.Spells.Poison
             scaleAmount = 10f;
             base.SetRange();
         }
+
+        protected override void SetDuration() => spellDuration = _SpellStatus.SpellDuration;
         protected override async UniTaskVoid Spell()
         {
             var scaleDuration = 0.5f;

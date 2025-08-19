@@ -21,6 +21,11 @@ public class StatusUIAppear: MonoBehaviour
         [SerializeField] Sprite monsterTargetSprite;
         [SerializeField] Sprite monsterMoveSprite;
         [SerializeField] Sprite projectileMoveSpeedSprite;
+        [SerializeField] Sprite spellDamageAmountSprite;
+        [SerializeField] Sprite spellHealAmountSprite;
+        [SerializeField] Sprite otherTypeSprite;
+        [SerializeField] Sprite spellInvokeTypeSprite;
+        [SerializeField] Sprite spellDurationSprite;
 
         public Dictionary<IconType, Sprite> iconMap => new Dictionary<IconType, Sprite>
         {
@@ -34,6 +39,11 @@ public class StatusUIAppear: MonoBehaviour
             {IconType.monsterMove,monsterMoveSprite},
             {IconType.chaseRange,chaseRangeSprite},
             {IconType.projectileMoveSpeed,projectileMoveSpeedSprite},
+            {IconType.spellDamageAmount,spellDamageAmountSprite},
+            {IconType.spellHealAmount,spellHealAmountSprite},
+            {IconType.otherType,otherTypeSprite},
+            {IconType.spellInvokeType,spellInvokeTypeSprite},
+            {IconType.spellDuration,spellDurationSprite},
         };
 
         public Dictionary<IconType, Text> textMap { get; set; } = new Dictionary<IconType, Text>();
@@ -69,41 +79,7 @@ public class StatusUIAppear: MonoBehaviour
             fadeTasks.TrimExcess();
         }
         //ここのclsはscrollClsとcard側のuseを押されたときのclsの二つ
-        var statusDic = new Dictionary<IconType, string>
-        {
-            {IconType.attackAmount, monsterStatusData.AttackAmount.ToString()},
-            {IconType.Hp,monsterStatusData.Hp.ToString()},
-            {IconType.summonWaitTime,monsterStatusData.SummonWaitTime.ToString()},
-            {IconType.attackRange,monsterStatusData.AttackRange.ToString()},
-            {IconType.perMoveStep,(monsterStatusData.MoveSpeed * monsterStatusData.MoveStep).ToString()},
-            {IconType.attackDistance,null},
-            {IconType.monsterTarget,null},
-            {IconType.monsterMove, monsterStatusData.MonsterMoveType.ToString()},
-        };
-
-        if(monsterStatusData.MonsterAttackType == MonsterAttackType.ToEveryThing)
-        {
-            statusDic.Add(IconType.chaseRange, monsterStatusData.ChaseRange.ToString());
-        }
-        if (monsterStatusData is ProjectileAttackMonsterStatus projectile)
-        {
-            statusDic.Add(IconType.projectileMoveSpeed, projectile.ProjectileMoveSpeed.ToString());
-        }
-
-        statusDic[IconType.attackDistance] = monsterStatusData.AttackType switch
-        {
-            AttackType.Simple => "Melee",
-            AttackType.Long => "Ranged",
-            _ => default,
-        };
-
-        statusDic[IconType.monsterTarget] = (monsterStatusData.MonsterAttackType,monsterStatusData.MonsterMoveType) switch
-        {
-            (MonsterAttackType.ToEveryThing,MonsterMoveType.Walk) => "Ground Only",
-            (MonsterAttackType.ToEveryThing,MonsterMoveType.Fly) => "Ground & Air",
-            (MonsterAttackType.OnlyBuilding,MonsterMoveType.Walk) or (MonsterAttackType.OnlyBuilding,MonsterMoveType.Fly) => "Building Only",
-            _=> default,
-        };
+        var statusDic = GetMonsterStatusContent(monsterStatusData);
 
         var currentTargetLusterImages = new List<Image>();
         foreach (var keyValuePair in statusDic)
@@ -261,6 +237,64 @@ public class StatusUIAppear: MonoBehaviour
             imageMover(lusterImage,originalPos);
         }
     }
+
+    Dictionary<IconType,string> GetMonsterStatusContent(MonsterStatusData monsterStatusData)
+    {
+        var statusDic = new Dictionary<IconType, string>
+        {
+            {IconType.attackAmount, monsterStatusData.AttackAmount.ToString()},
+            {IconType.Hp,monsterStatusData.Hp.ToString()},
+            {IconType.summonWaitTime,monsterStatusData.SummonWaitTime.ToString()},
+            {IconType.attackRange,monsterStatusData.AttackRange.ToString()},
+            {IconType.perMoveStep,(monsterStatusData.MoveSpeed * monsterStatusData.MoveStep).ToString()},
+            {IconType.attackDistance,null},
+            {IconType.monsterTarget,null},
+            {IconType.monsterMove, monsterStatusData.MonsterMoveType.ToString()},
+        };
+
+        if (monsterStatusData.MonsterAttackType == MonsterAttackType.ToEveryThing)
+        {
+            statusDic.Add(IconType.chaseRange, monsterStatusData.ChaseRange.ToString());
+        }
+        if (monsterStatusData is ProjectileAttackMonsterStatus projectile)
+        {
+            statusDic.Add(IconType.projectileMoveSpeed, projectile.ProjectileMoveSpeed.ToString());
+        }
+
+        statusDic[IconType.attackDistance] = monsterStatusData.AttackType switch
+        {
+            AttackType.Simple => "Melee",
+            AttackType.Long => "Ranged",
+            _ => default,
+        };
+
+        statusDic[IconType.monsterTarget] = (monsterStatusData.MonsterAttackType, monsterStatusData.MonsterMoveType) switch
+        {
+            (MonsterAttackType.ToEveryThing, MonsterMoveType.Walk) => "Ground Only",
+            (MonsterAttackType.ToEveryThing, MonsterMoveType.Fly) => "Ground & Air",
+            (MonsterAttackType.OnlyBuilding, MonsterMoveType.Walk) or (MonsterAttackType.OnlyBuilding, MonsterMoveType.Fly) => "Building Only",
+            _ => default,
+        };
+
+        return statusDic;
+    }
+
+    Dictionary<IconType, string> GetSpellStatusContent(SpellStatus spellStatus)
+    {
+        var statusDic = new Dictionary<IconType, string>();
+
+        var spellIconType = spellStatus.SpellType switch
+        {
+            SpellType.
+        }
+
+        statusDic[IconType.spellDuration] = spellStatus.InvokeType switch
+        {
+            SpellInvokeType.Continuous => spellStatus.SpellDuration.ToString(),
+            SpellInvokeType.
+        };
+
+    }
 }
 public enum IconType
 {
@@ -273,7 +307,12 @@ public enum IconType
     monsterTarget,//建物（今のところはタワー）だけかユニットと建物の両方か
     monsterMove,
     chaseRange,
-    projectileMoveSpeed
+    projectileMoveSpeed,
+    spellDamageAmount,
+    spellHealAmount,
+    otherType,
+    spellInvokeType,
+    spellDuration
 }
 
 

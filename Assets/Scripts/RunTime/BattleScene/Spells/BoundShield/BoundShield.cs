@@ -20,7 +20,7 @@ namespace Game.Spells.BoundShield
         protected override void SetDuration()
         {
             boumndShieldEffect = GetComponent<VisualEffect>();
-            spellDuration = 10f;
+            spellDuration = _SpellStatus.SpellDuration;
         }
 
         protected override void SetRange()

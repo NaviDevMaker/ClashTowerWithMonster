@@ -22,7 +22,7 @@ namespace Game.Spells.ToxicCurse
             particle = GetComponent<ParticleSystem>();
             particles = GetComponentsInChildren<ParticleSystem>().ToList();
         }
-        protected override void SetDuration() => spellDuration = 8f;
+        protected override void SetDuration() => spellDuration = _SpellStatus.SpellDuration;
         protected override async UniTaskVoid Spell()
         {
             Debug.Log(spellDuration);

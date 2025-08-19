@@ -90,7 +90,7 @@ namespace Game.Spells.BombBarrel
         }
         protected override void SetDuration()
         {
-            spellDuration = 3f;
+            spellDuration = _SpellStatus.SpellDuration;
         }
         protected override void DestroyAll()
         {

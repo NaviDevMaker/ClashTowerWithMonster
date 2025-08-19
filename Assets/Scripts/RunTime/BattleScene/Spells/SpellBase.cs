@@ -17,7 +17,7 @@ namespace Game.Spells
     public class SpellBase : MonoBehaviour, IPushable,ISpells, ISummonbable,ISide
     {
         [SerializeField] int tentativeID;//これ将来使わないから消してね
-        protected float spellDuration = 0f;
+        public float spellDuration { get; protected set; } = 0f;
         public float rangeX { get; protected set; }
         public float rangeZ { get; protected set; }
 
@@ -66,48 +66,52 @@ namespace Game.Spells
 
             if (isSummoned && !isSpellInvoked)
             {
-                DrawSpellRange().Forget();
-                LitLineRendererMaterial();
-                Spell().Forget();
-                UIManager.Instance.StartSpellTimer(spellDuration, this);
-                isSpellInvoked = true;
+                SpellInvoke();
             }
+        }
+        public void SpellInvoke()
+        {
+            DrawSpellRange().Forget();
+            LitLineRendererMaterial();
+            Spell().Forget();
+            UIManager.Instance.StartSpellTimer(spellDuration, this);
+            isSpellInvoked = true;
         }
         protected virtual void SetRange()
         {
+            //Debug.Log("半径をセットします");
             IColliderRangeProvider colliderRangeProvider = null;
 
             if (TryGetComponent<BoxCollider>(out var boxCollider))
             {
+                Debug.Log("ボックスコライダーからセットします");
                 colliderRangeProvider = new BoxColliderrangeProvider { boxCollider = boxCollider };
                 rangeX = colliderRangeProvider.GetRangeX();
                 rangeZ = colliderRangeProvider.GetRangeZ();
                 prioritizedRange = colliderRangeProvider.GetPriorizedRange();
                 timerOffsetY = colliderRangeProvider.GetTimerOffsetY();
+                Debug.Log($"{rangeX}{rangeZ}{prioritizedRange}");
             }
             else if (TryGetComponent<SphereCollider>(out var sphereCollider))
             {
+                Debug.Log("スフィアコライダーからセットします");
                 colliderRangeProvider = new SphereColliderRangeProvider { sphereCollider = sphereCollider };
                 rangeX = colliderRangeProvider.GetRangeX() * scaleAmount;
                 rangeZ = colliderRangeProvider.GetRangeZ() * scaleAmount;
                 prioritizedRange = colliderRangeProvider.GetPriorizedRange() * scaleAmount;
                 timerOffsetY = colliderRangeProvider.GetTimerOffsetY() * scaleAmount;
+                Debug.Log($"{rangeX}{rangeZ}{prioritizedRange}");
             }
             else return;
         }
-        protected virtual void SetDuration()
-        {
-            var particle = transform.GetChild(0).GetComponent<ParticleSystem>();
-            this.particle = particle;
-            var main = this.particle.main;
-            spellDuration = main.duration;
-        }
+        protected virtual void SetDuration() { }
         protected virtual async UniTaskVoid Spell()
         {
             await UniTask.CompletedTask;
         }
         protected virtual  void Initialize()
         {
+            Debug.Log($"{gameObject.name}がセットアップします");
             SetUpLineRenderer();
             spellEffectHelper = new SpellEffectHelper(this);
             moveType = MoveType.Spell;

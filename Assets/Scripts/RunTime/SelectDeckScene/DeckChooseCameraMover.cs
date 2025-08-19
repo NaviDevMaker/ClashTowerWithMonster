@@ -45,9 +45,6 @@ public class DeckChooseCameraMover : MonoBehaviour
             var direction = center - transform.position;
             direction.x = 0f;
             var rot = Quaternion.LookRotation(direction);
-            //var eulerAngles = Quaternion.LookRotation(direction).eulerAngles;
-            //var xOnly = new Vector3(eulerAngles.x, 180f, 0f);
-            //var lookTargetSet = new Vector3TweenSetup(xOnly, duration);
             var task3 = gameObject.transform.DORotateQuaternion(rot,duration).ToUniTask(cancellationToken: selectedCardCls.Token);
             await task3;
         }
@@ -77,9 +74,8 @@ public class DeckChooseCameraMover : MonoBehaviour
     }
     Vector3 GetTargetPos()
     {
-        var size = currentSelectedPrefab.colliderSize;
-        var z = size.z;
-        var adjust = 2.0f;    
+        var z = currentSelectedPrefab.offsetZ;
+        var adjust = currentSelectedPrefab is ISelectableMonster ? 2.0f : currentSelectedPrefab is ISelectableSpell ? 1.1f : 0f;    
         var offsetY = 0.5f;
         var targetPos = currentSelectedPrefab.transform.position;
         if (currentSelectedPrefab is ISelectableMonster monster)

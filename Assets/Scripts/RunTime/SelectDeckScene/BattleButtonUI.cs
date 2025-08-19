@@ -2,9 +2,7 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
-using UnityEngine.Video;
 public class BattleButtonUI : MonoBehaviour
 {
 
@@ -38,7 +36,7 @@ public class BattleButtonUI : MonoBehaviour
     TweenProcess tweenProcess;
     Func<CancellationTokenSource> getCardCls;
     bool isFadingOut = false;
-    public void Initialize(Func<bool> saveDeckData,Func<CancellationTokenSource> getCurrentCardCls)
+    public void Initialize(BattleButtonUIActions battleButtonUIActions)/*Func<bool> saveDeckData,Func<CancellationTokenSource> getCurrentCardCls*/
     {
         battleButton = GetComponent<Button>();
         image = GetComponent<Image>();
@@ -53,7 +51,7 @@ public class BattleButtonUI : MonoBehaviour
             buttonCls.Cancel();
             buttonCls.Dispose();
             buttonCls = new CancellationTokenSource();
-            if(saveDeckData.Invoke())
+            if(battleButtonUIActions.saveDeckData.Invoke())
             {
                 Debug.Log("成功です、バトル画面に移動します");
                 return;
@@ -63,7 +61,7 @@ public class BattleButtonUI : MonoBehaviour
                 Debug.LogWarning("警告文を出します");
             }
         });
-        getCardCls = getCurrentCardCls;
+        getCardCls = battleButtonUIActions.getCurrentCardCls;
         FadeOutAndMove();
     }
     //スクロールが終わった時
