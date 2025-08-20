@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Unity.VisualScripting;
 using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -82,48 +83,53 @@ namespace Game.Spells.Freeze
             base.SetRange();
         }
 
-        protected override void SetDuration() => spellDuration = 4.0f;
+        protected override void SetDuration() => spellDuration = _SpellStatus.SpellDuration;
 
         protected override async UniTaskVoid Spell()
         {
-            ParticlePlay(particle);
-            snowVFX.Play();
-            var endvalue = 1.0f;
-            GroundMaterialFadeSetter(freezeInfo.freezeRenderer.material, endvalue).Forget();
-            var units = spellEffectHelper.GetUnitInRange();
-            var filteredList = units.Where(unit =>
+            try
             {
-                var inRange = spellEffectHelper.CompareUnitInRange(unit);
-                var isNotTower = !(unit is TowerControlller);
-                return inRange && isNotTower;
-            }).ToList();
+                ParticlePlay(particle);
+                snowVFX.Play();
+                var endvalue = 1.0f;
+                GroundMaterialFadeSetter(freezeInfo.freezeRenderer.material, endvalue).Forget();
+                var units = spellEffectHelper.GetUnitInRange();
+                var filteredList = units.Where(unit =>
+                {
+                    var inRange = spellEffectHelper.CompareUnitInRange(unit);
+                    var isNotTower = !(unit is TowerControlller);
+                    return inRange && isNotTower;
+                }).ToList();
 
-            if (filteredList.Count == 0) return;
+                if (filteredList.Count == 0) return;
 
-            StartGroundFreezeAndMelt(freezeInfo.freezeRenderer.material);
-            filteredList.ForEach(unit =>
-            {
-                CheckCancellPreviousToken(unit);
-                var newCls = new CancellationTokenSource();
-                unit.statusCondition.Freeze.isEffectedCount++;
-                unit.statusCondition.Freeze.isActive = true;
-                unit.statusCondition.visualTokens[conditionType] = newCls;
-                FreezeAction(unit, newCls);
-            });
+                StartGroundFreezeAndMelt(freezeInfo.freezeRenderer.material);
+                filteredList.ForEach(unit =>
+                {
+                    CheckCancellPreviousToken(unit);
+                    var newCls = new CancellationTokenSource();
+                    unit.statusCondition.Freeze.isEffectedCount++;
+                    unit.statusCondition.Freeze.isActive = true;
+                    unit.statusCondition.visualTokens[conditionType] = newCls;
+                    FreezeAction(unit, newCls);
+                });
 
-            await UniTask.Delay(TimeSpan.FromSeconds(spellDuration));
-            filteredList.ForEach(unit =>
-            {
-                if (unit == null || unit.isDead) return;
-                unit.statusCondition.Freeze.isEffectedCount--;
-                var count = unit.statusCondition.Freeze.isEffectedCount;
-                if (count == 0) unit.statusCondition.Freeze.isActive = false;
-            });
-            endvalue = 0f;
-            snowVFX.Stop();
-            var main = particle.main;
-            main.loop = false;
-            await GroundMaterialFadeSetter(freezeInfo.freezeRenderer.material, endvalue);
+                await UniTask.Delay(TimeSpan.FromSeconds(spellDuration), cancellationToken: this.GetCancellationTokenOnDestroy());
+                filteredList.ForEach(unit =>
+                {
+                    if (unit == null || unit.isDead) return;
+                    unit.statusCondition.Freeze.isEffectedCount--;
+                    var count = unit.statusCondition.Freeze.isEffectedCount;
+                    if (count == 0) unit.statusCondition.Freeze.isActive = false;
+                });
+                endvalue = 0f;
+                snowVFX.Stop();
+                var main = particle.main;
+                main.loop = false;
+                await GroundMaterialFadeSetter(freezeInfo.freezeRenderer.material, endvalue);
+
+            }
+            catch (OperationCanceledException) { return; }
             DestroyAll();
         }
 
@@ -141,7 +147,7 @@ namespace Game.Spells.Freeze
                 target.statusCondition.visualChunks.Remove(conditionType);
             }
         }
-            void ParticlePlay(ParticleSystem particle)
+        void ParticlePlay(ParticleSystem particle)
         {
             var main = particle.main;
             main.loop = true;
@@ -149,12 +155,19 @@ namespace Game.Spells.Freeze
         }
         protected override async void DestroyAll()
         {
+            if (gameObject == null) return;
             Func<bool> vfxWait = (() => snowVFX.HasAnySystemAwake());
             var particleTask = RelatedToParticleProcessHelper.WaitUntilParticleDisappear(particle);
-            await UniTask.WhenAll(
-                  UniTask.WaitUntil(vfxWait),
-                  particleTask
-            );
+
+            try
+            {
+                await UniTask.WhenAll(
+                 UniTask.WaitUntil(vfxWait, cancellationToken: this.GetCancellationTokenOnDestroy()),
+                 particleTask
+                );
+            }
+            catch (OperationCanceledException) { return; }
+            if (this == null) return;
             Destroy(gameObject);
         }
         void FreezeAction(UnitBase target, CancellationTokenSource cls)
@@ -203,6 +216,7 @@ namespace Game.Spells.Freeze
                var eulerAngle = target.transform.rotation.eulerAngles;
                chunks.ForEach(chunk =>
                {
+                   chunk.layer = LayerMask.NameToLayer("Monster");
                    chunk.transform.SetParent(parentObj.transform,true);
                    var renderer = chunk.GetComponent<MeshRenderer>();
                    renderers.Add(renderer);
@@ -287,23 +301,27 @@ namespace Game.Spells.Freeze
         }
         async void StartGroundFreezeAndMelt(Material groundMaterial)
         {
-            if (groundMaterial.HasProperty("_FreezeRateMax"))
+            try
             {
-                var max = freezeInfo.freezerateMax;
-                groundMaterial.SetFloat("_FreezeRateMax", max);
+                if (groundMaterial.HasProperty("_FreezeRateMax"))
+                {
+                    var max = freezeInfo.freezerateMax;
+                    groundMaterial.SetFloat("_FreezeRateMax", max);
+                }
+                var currentValue = groundMaterial.GetFloat("_FreezeRate");
+                var usualStartValue = freezeInfo.groundFreezeStartvalue;
+                var startValue = currentValue != usualStartValue ? currentValue : usualStartValue;
+                var endValue = 0.2f;
+                var freezeAndMeltDuration = freezeInfo.alphaDuration;
+                var freeze = FreezerateSetter(groundMaterial, startValue, endValue, freezeAndMeltDuration);
+                var interval = freezeInfo.interval;
+                await freeze();
+                await UniTask.Delay(TimeSpan.FromSeconds(interval),cancellationToken:this.GetCancellationTokenOnDestroy());
+                var meltInterval = freezeInfo.alphaDuration;
+                var melt = FreezerateSetter(groundMaterial, endValue, usualStartValue, freezeAndMeltDuration);
+                await melt();
             }
-            var currentValue = groundMaterial.GetFloat("_FreezeRate");
-            var usualStartValue = freezeInfo.groundFreezeStartvalue;
-            var startValue = currentValue != usualStartValue ? currentValue : usualStartValue;
-            var endValue = 0.2f;
-            var freezeAndMeltDuration = freezeInfo.alphaDuration;
-            var freeze = FreezerateSetter(groundMaterial, startValue, endValue, freezeAndMeltDuration);
-            var interval = freezeInfo.interval;
-            await freeze();
-            await UniTask.Delay(TimeSpan.FromSeconds(interval));
-            var meltInterval = freezeInfo.alphaDuration;
-            var melt = FreezerateSetter(groundMaterial, endValue, usualStartValue, freezeAndMeltDuration);
-            await melt();
+            catch(OperationCanceledException) { return; }
         }
         void SetOriginalMaterial(UnitBase target, List<Renderer> renderers,CancellationTokenSource expectedCls)
         {
@@ -353,34 +371,44 @@ namespace Game.Spells.Freeze
                         var value = Mathf.Clamp01(Mathf.Lerp(start, end, lerp));
                         freezeMaterial.SetFloat("_FreezeRate", value);
 
-                        if (cls != null) await UniTask.Yield(cancellationToken: cls.Token);
-                        else await UniTask.Yield();
+                        if (cls != null)
+                        {
+                            var doubleCls = default(CancellationTokenSource);
+                            if(cls != null) doubleCls = CancellationTokenSource.CreateLinkedTokenSource(cls.Token,this.GetCancellationTokenOnDestroy());
+                            else doubleCls = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
+                            await UniTask.Yield(cancellationToken: doubleCls.Token);
+                        }
+                        else await UniTask.Yield(cancellationToken: this.GetCancellationTokenOnDestroy());
                     }
                 }
-                catch (OperationCanceledException) { return; }
+                catch (OperationCanceledException) {throw; }
                 freezeMaterial.SetFloat("_FreezeRate", end);
             });
             return action;
         }
         async UniTask GroundMaterialFadeSetter(Material freezeMaterial, float endValue)
         {
-            if (!freezeMaterial.HasProperty("_Alpha"))
+            try
             {
-                Debug.LogWarning("指定のプロパティが見つかりませんでした");
-                return;
-            }
-            var duration = freezeInfo.alphaDuration;
-            var time = 0f;
-            var currentValue = freezeMaterial.GetFloat("_Alpha");
+                if (!freezeMaterial.HasProperty("_Alpha"))
+                {
+                    Debug.LogWarning("指定のプロパティが見つかりませんでした");
+                    return;
+                }
+                var duration = freezeInfo.alphaDuration;
+                var time = 0f;
+                var currentValue = freezeMaterial.GetFloat("_Alpha");
 
-            while (time < duration)
-            {
-                time += Time.deltaTime;
-                var lerp = time / duration;
-                var value = Mathf.Clamp01(Mathf.Lerp(currentValue, endValue, lerp));
-                freezeMaterial.SetFloat("_Alpha", value);
-                await UniTask.Yield();
+                while (time < duration)
+                {
+                    time += Time.deltaTime;
+                    var lerp = time / duration;
+                    var value = Mathf.Clamp01(Mathf.Lerp(currentValue, endValue, lerp));
+                    freezeMaterial.SetFloat("_Alpha", value);
+                    await UniTask.Yield(cancellationToken: this.GetCancellationTokenOnDestroy());
+                }
             }
+            catch (OperationCanceledException) {throw; }
             freezeMaterial.SetFloat("_Alpha", endValue);
         }
     }

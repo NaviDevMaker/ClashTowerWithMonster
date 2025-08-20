@@ -6,7 +6,7 @@ using Game.Spells;
 
 
 
-public class TimerSetter:MonoBehaviour
+public class TimerSetter:SingletonMonobehavier<TimerSetter>
 {
 
     GameObject summonTimer;
@@ -21,8 +21,9 @@ public class TimerSetter:MonoBehaviour
         public Image secondHandImage;
     }
 
-    private async void Awake()
+    protected override async void Awake()
     {
+        base.Awake();
         summonTimer = await SetFieldFromAssets.SetField<GameObject>("UI/SummonTimer");
         spellTimer = await SetFieldFromAssets.SetField<GameObject>("UI/SpellTimer");
         skillTimer = await SetFieldFromAssets.SetField<GameObject>("UI/SkillTimer");

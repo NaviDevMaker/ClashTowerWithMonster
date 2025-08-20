@@ -1,7 +1,9 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -20,7 +22,7 @@ namespace Game.Spells.Confusion
             addForceToUnit = new AddForceToUnit<SpellBase>(this,pushAmount,perPushDuration,pushEffectUnit);
             base.Initialize();
         }
-        protected override void SetDuration() => spellDuration = 3f;
+        protected override void SetDuration() => spellDuration = _SpellStatus.SpellDuration;
 
 
         protected override void SetRange()
@@ -30,6 +32,7 @@ namespace Game.Spells.Confusion
         }
         protected override async UniTaskVoid Spell()
         {
+            await UniTask.Delay(TimeSpan.FromSeconds(spellDuration));
             addForceToUnit.KeepDistance(moveType);
             var units =  spellEffectHelper.GetUnitInRange();
             var filteredList = units.Where(unit =>
@@ -74,7 +77,7 @@ namespace Game.Spells.Confusion
                 var count = unit.statusCondition.Confusion.isEffectedCount;
                 if (count == 0) unit.statusCondition.Confusion.isActive = false;
             });
-            //DestroyAll();
+            DestroyAll();
         }
         protected override async void DestroyAll()
         {
@@ -86,6 +89,7 @@ namespace Game.Spells.Confusion
                waitTasks.Add(task);
             });
             await UniTask.WhenAll(waitTasks);
+            if (this == null) return;  
             Destroy(this.gameObject);
         }
     }

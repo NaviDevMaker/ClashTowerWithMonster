@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 7c80cd3f0bd795b4a83c5b977aa6dcff
   m_currentHash:
     serializedVersion: 2
-    Hash: 5a8c87343c37d957b8be62187dffda3a
+    Hash: 201c1bda9ae362c3b20b5dc39ee1e507
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_CatalogRequestsTimeout: 0
@@ -62,6 +62,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 51c662ce69d52d845bf49a23049a4fc4, type: 2}
   - {fileID: 11400000, guid: 32f8763fbeeb9da478db91fb13b580b4, type: 2}
   - {fileID: 11400000, guid: 1051feadaa0a13e46ac67a3659941b84, type: 2}
+  - {fileID: 11400000, guid: 793ac6fc66d2b0a48a128f07c77ed58e, type: 2}
   - {fileID: 11400000, guid: 9b013cbaff513fa4d9ff9a3d5acdad5f, type: 2}
   - {fileID: 11400000, guid: dd5d305795f2e0e42acb9a889421559d, type: 2}
   m_BuildSettings:
@@ -105,6 +106,7 @@ MonoBehaviour:
     - default
     - CardData
     - DeckChooseMonster
+    - DeckChooseSpell
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 5f2b2f1839537544d8b5f18cd91063d0, type: 2}

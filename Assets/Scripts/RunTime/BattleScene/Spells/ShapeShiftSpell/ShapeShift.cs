@@ -5,6 +5,7 @@ using Game.Spells;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 public class ShapeShift : SpellBase
 {
@@ -29,57 +30,64 @@ public class ShapeShift : SpellBase
     {
         Debug.Log("•Ïg‚³‚¹‚Ü‚·");
         particle.Play();
-        await UniTask.Delay(TimeSpan.FromSeconds(spellDuration));
-        var units = spellEffectHelper.GetUnitInRange();
-        var filteredList = units.Where(unit =>
+        try
         {
-            var inRange = spellEffectHelper.CompareUnitInRange(unit);
-            var isNotTower = !(unit is TowerControlller);
-            var isNotPlayer = !(unit is IPlayer);
-            return inRange && isNotTower && isNotPlayer;
-        }).ToList();
-
-        if (filteredList.Count == 0) return;
-        var pList = new List<ParticleSystem>();
-        for (int i = 0; i < filteredList.Count; i++)
-        {
-            var unit = filteredList[i];
-            var pObj = PoolObjectPreserver.TransformerEffectGetter();
-            if (pObj == null)
+            await UniTask.Delay(TimeSpan.FromSeconds(spellDuration), cancellationToken: this.GetCancellationTokenOnDestroy());
+            var units = spellEffectHelper.GetUnitInRange();
+            var filteredList = units.Where(unit =>
             {
-                pObj = Instantiate(particleObj);
-                PoolObjectPreserver.transformerEffectList.Add(pObj);
+                var inRange = spellEffectHelper.CompareUnitInRange(unit);
+                var isNotTower = !(unit is TowerControlller);
+                var isNotPlayer = !(unit is IPlayer);
+                return inRange && isNotTower && isNotPlayer;
+            }).ToList();
+
+            if (filteredList.Count == 0) return;
+            var pList = new List<ParticleSystem>();
+            for (int i = 0; i < filteredList.Count; i++)
+            {
+                var unit = filteredList[i];
+                var pObj = PoolObjectPreserver.TransformerEffectGetter();
+                if (pObj == null)
+                {
+                    pObj = Instantiate(particleObj);
+                    PoolObjectPreserver.transformerEffectList.Add(pObj);
+                }
+                var pos = unit.gameObject.transform.position;
+                pObj.transform.position = pos;
+
+                var p = pObj.GetComponent<ParticleSystem>();
+                pList.Add(p);
+                SummonNewMonster(unit, pos, p);
+                unit.gameObject.SetActive(false);
+                unit.isDead = true;
             }
-            var pos = unit.gameObject.transform.position;
-            pObj.transform.position = pos;
-           
-            var p = pObj.GetComponent<ParticleSystem>();
-            pList.Add(p);
-            SummonNewMonster(unit,pos,p);
-            unit.gameObject.SetActive(false);
-            unit.isDead = true;
+
+            var tasks = new List<UniTask>();
+            var task = RelatedToParticleProcessHelper.WaitUntilParticleDisappear(particle);
+            tasks.Add(task);
+            pList.ForEach(p =>
+            {
+                var listTask = RelatedToParticleProcessHelper.WaitUntilParticleDisappear(p);
+                tasks.Add(listTask);
+            });
+            await UniTask.WhenAll(tasks);
+            pList.ForEach(p =>
+            {
+                p.transform.localScale = originalScale;
+                p.gameObject.SetActive(false);
+            });
         }
-
-        var tasks = new List<UniTask>();
-        var task = RelatedToParticleProcessHelper.WaitUntilParticleDisappear(particle);
-        tasks.Add(task);
-        pList.ForEach(p =>
-        {
-            var listTask = RelatedToParticleProcessHelper.WaitUntilParticleDisappear(p);
-            tasks.Add(listTask);
-        });
-        await UniTask.WhenAll(tasks);
-        pList.ForEach(p =>
-        {
-            p.transform.localScale = originalScale;
-            p.gameObject.SetActive(false);
-        });
-
+        catch (OperationCanceledException) { return; }
         DestroyAll();
     }
-    protected override void SetDuration() => spellDuration = 0.3f;
+    protected override void SetDuration() => spellDuration = _SpellStatus.SpellDuration;
 
-    protected override void DestroyAll() => Destroy(this.gameObject);
+    protected override void DestroyAll()
+    {
+        if (this == null) return;
+       Destroy(this.gameObject);
+    }
     void SummonNewMonster(UnitBase transformedUnit,Vector3 pos,ParticleSystem particle)
     {
         var list = selectableMonstersList.SelectableMonsters;

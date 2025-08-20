@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using NUnit.Framework.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
@@ -79,28 +80,40 @@ public static class ScatteringHelper
 
         //var min = -5.0f;
         //var max = 5.0f;
-        var fadeOutTime = 4.0f;
-        var tasks = new List<UniTask>();
-        chunks.ForEach(chunk =>
-        {
-            var rb = chunk.GetComponent<Rigidbody>();
-            var material = chunk.GetComponent<MeshRenderer>().material;
-            if (material.name.StartsWith(rawMaterialName))
-            {
-                if (material.HasProperty("_Surface")) FadeProcessHelper.ChangeToTranparent(material);
-            }
-            rb.isKinematic = false;
-            var minY = Terrain.activeTerrain.SampleHeight(obj.transform.position);
-            var maxY = minY + max;
-            var forceVector = new Vector3(UnityEngine.Random.Range(min, max), UnityEngine.Random.Range(minY, maxY), UnityEngine.Random.Range(min, max));           
-            rb.AddForce(forceVector, ForceMode.Impulse);
-            rb.AddTorque(forceVector, ForceMode.Impulse);
-            var task = FadeProcessHelper.FadeOutColor(fadeOutTime, material, obj.GetCancellationTokenOnDestroy());
-            tasks.Add(task);
-        });
 
-        await UniTask.WhenAll(tasks);
-        chunks.ForEach(chunk => UnityEngine.Object.Destroy(chunk));
+        try
+        {
+            var fadeOutTime = 4.0f;
+            var tasks = new List<UniTask>();
+            chunks.ForEach(chunk =>
+            {
+                var rb = chunk.GetComponent<Rigidbody>();
+                var material = chunk.GetComponent<MeshRenderer>().material;
+                if (material.name.StartsWith(rawMaterialName))
+                {
+                    if (material.HasProperty("_Surface")) FadeProcessHelper.ChangeToTranparent(material);
+                }
+                rb.isKinematic = false;
+                var minY = Terrain.activeTerrain.SampleHeight(obj.transform.position);
+                var maxY = minY + max;
+                var forceVector = new Vector3(UnityEngine.Random.Range(min, max), UnityEngine.Random.Range(minY, maxY), UnityEngine.Random.Range(min, max));
+                rb.AddForce(forceVector, ForceMode.Impulse);
+                rb.AddTorque(forceVector, ForceMode.Impulse);
+                var task = FadeProcessHelper.FadeOutColor(fadeOutTime, material, obj.GetCancellationTokenOnDestroy());
+                tasks.Add(task);
+            });
+
+            await UniTask.WhenAll(tasks);
+        }
+        catch (OperationCanceledException) { return; }
+        finally
+        {
+            chunks.ForEach(chunk =>
+            {
+                if (chunk != null) UnityEngine.Object.Destroy(chunk);
+            });
+        }
+
     }
 }
 

@@ -47,8 +47,8 @@ public class ScrollManager : MonoBehaviour
             else scrollRect.vertical = false;
         }
     }
-    public void Initialize(UnityAction setCameraPosToOriginal,UnityAction fadeInAction,
-        UnityAction closeStatusUIAction,UnityAction fadeOutBattleButton,UnityAction transparentBattleButton)
+    public void Initialize(ScrollManagerActions scrollManagerActions)/*UnityAction setCameraPosToOriginal,UnityAction fadeInAction,
+        UnityAction closeStatusUIAction,UnityAction fadeOutBattleButton,UnityAction transparentBattleButton*/
     {
         AddOnBeginDragEvent();
 
@@ -59,10 +59,11 @@ public class ScrollManager : MonoBehaviour
             scrollCls?.Cancel();
             scrollCls?.Dispose();
             scrollCls = new CancellationTokenSource();
-            setCameraPosToOriginal?.Invoke();
-            fadeInAction?.Invoke();
-            closeStatusUIAction?.Invoke();
-            transparentBattleButton?.Invoke();
+            scrollManagerActions.setCameraPosToOriginal?.Invoke();
+            scrollManagerActions.fadeInAction?.Invoke();
+            scrollManagerActions.closeStatusUIAction?.Invoke();
+            scrollManagerActions.transparentBattleButton?.Invoke();
+            scrollManagerActions.enableLineRenderer?.Invoke();
         });
 
         var endDragEntry = new EventTrigger.Entry();
@@ -73,7 +74,7 @@ public class ScrollManager : MonoBehaviour
         });
         eventTrigger.triggers.Add(beginDragEntry);
         eventTrigger.triggers.Add(endDragEntry);
-        this.fadeOutBattleButton = fadeOutBattleButton;
+        this.fadeOutBattleButton = scrollManagerActions.fadeOutBattleButton;
     }
     void StartSliding()
     {

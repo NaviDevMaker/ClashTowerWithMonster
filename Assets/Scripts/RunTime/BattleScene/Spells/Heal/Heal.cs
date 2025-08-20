@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using Game.Spells;
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using Unity.XR.OpenVR;
@@ -26,7 +27,7 @@ namespace Game.Spells.Heal
 
         protected override void SetDuration()
         {
-            spellDuration = 6f;
+            spellDuration = _SpellStatus.SpellDuration;
         }
         protected override async UniTaskVoid Spell()
         {
@@ -43,7 +44,7 @@ namespace Game.Spells.Heal
                     spellEffectHelper.EffectToUnit();
                     intervalCount = 0f;
                 }
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken: this.GetCancellationTokenOnDestroy());
             }
 
             foreach (Transform child in transform)
@@ -61,20 +62,28 @@ namespace Game.Spells.Heal
 
         protected override async void DestroyAll()
         {
-            var tasks = new List<UniTask>();
-            particleList.ForEach(p => tasks.Add(AwaitUntilNoExistingParticle(p)));
-            await UniTask.WhenAll(tasks);
+            try
+            {
+                var tasks = new List<UniTask>();
+                particleList.ForEach(p => tasks.Add(AwaitUntilNoExistingParticle(p)));
+                await UniTask.WhenAll(tasks);
+            }
+            catch (OperationCanceledException) { return; }
+            if (this == null) return;
             Destroy(particle.gameObject);
         }
 
         async UniTask AwaitUntilNoExistingParticle(ParticleSystem paerticle)
         {
-            while (particle.IsAlive())
+            try
             {
-                await UniTask.Yield();
+                 while (particle.IsAlive())
+                 {
+                    await UniTask.Yield(cancellationToken: this.GetCancellationTokenOnDestroy());
+                 }
             }
+            catch (OperationCanceledException) {throw; }        
         }
-
     }
 }
 

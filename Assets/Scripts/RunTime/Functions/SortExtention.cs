@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
@@ -17,8 +18,7 @@ public static class SortExtention
                 .Where(cmp => cmp != null && originObj.gameObject != cmp.gameObject).ToArray();
            return filterdArray;
         } 
-
-        return default;             
+        return Array.Empty<T>();             
     }
 
     public static Collider[] GetSpecificColliderInRange<T>(UnitBase originObj,float radius)

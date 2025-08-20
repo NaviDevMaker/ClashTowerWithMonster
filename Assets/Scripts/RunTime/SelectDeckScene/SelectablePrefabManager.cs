@@ -18,6 +18,8 @@ public class LineUpFields
 public class SelectablePrefabManager : MonoBehaviour
 {
     public List<SelectableMonster> monsters { get; set; } = new List<SelectableMonster>();
+    public List<SelectableSpell> spells { get; set; } = new List<SelectableSpell>();
+    public List<PrefabBase> prefabs { get; set; } = new List<PrefabBase>();
     Material stoneMaterial;
     MonsterAnimatorPar monsterAnimatorPar;
 
@@ -27,19 +29,22 @@ public class SelectablePrefabManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     Dictionary<AttackMotionType, UnityAction<SelectableMonster, CancellationTokenSource>> attackMotions = new Dictionary<AttackMotionType, UnityAction<SelectableMonster, CancellationTokenSource>>();
-    public async void Initialize(Func<SelectableCard,(MonsterStatusData, SelectableMonster)> getMosnterDataAndPrefab) 
+    public async void Initialize(PrefabManagerActions prefabManagerActions) /*Func<SelectableCard,(MonsterStatusData, SelectableMonster)> getMosnterDataAndPrefab,
+                                 Func<SelectableCard, (SpellStatus, SelectableSpell prefab)> getSpellDataAndPrefab*/
     {
-        //attackMotions[AttackMotionType.DestractionMachine] = motions.DestractionMachineAttack;
         await SetAssetsFromAdress();
-        SetMonster(getMosnterDataAndPrefab);
+        SetSelectablePrafabs(prefabManagerActions);
     }
 
-    async void SetMonster(Func<SelectableCard, (MonsterStatusData, SelectableMonster prefab)> getMosnterDataAndPrefab)
+    async void SetSelectablePrafabs(PrefabManagerActions prefabManagerActions)/*Func<SelectableCard, (MonsterStatusData, SelectableMonster prefab)> getMosnterDataAndPrefab,
+                                    Func<SelectableCard,(SpellStatus,SelectableSpell prefab)> getSpellDataAndPrefab*/
     {
         List<GameObject> monsterObjs = new List<GameObject>();
+        List<GameObject> spellObjs = new List<GameObject>();    
         try
         {
             monsterObjs = (await SetFieldFromAssets.SetFieldByLabel<GameObject>("DeckChooseMonster")).ToList();
+            spellObjs = (await SetFieldFromAssets.SetFieldByLabel<GameObject>("DeckChooseSpell")).ToList();
         }
         catch (OperatorException)
         {
@@ -48,6 +53,8 @@ public class SelectablePrefabManager : MonoBehaviour
         }
 
         var mosntersFromAddress = new List<SelectableMonster>();
+        var spellFromAddress = new List<SelectableSpell>();
+
         foreach (GameObject monster in monsterObjs)
         {
             var monsterObj = Instantiate(monster);
@@ -57,23 +64,48 @@ public class SelectablePrefabManager : MonoBehaviour
         }
         monsters = mosntersFromAddress.OrderBy(monster => monster.sortOrder).ToList();
 
+        foreach (GameObject spell in spellObjs)
+        {
+            var spellObj = Instantiate(spell);  
+            var selectableSpell = spellObj.GetComponent<SelectableSpell>();
+            spellFromAddress.Add(selectableSpell);
+        }
+
+        spells = spellFromAddress.OrderBy(spell => spell.sortOrder).ToList();
+        prefabs.AddRange(monsters);
+        prefabs.AddRange(spells);
         var cardDatas = SelectableCardManager.Instance.allCardDatas;
         for (var i = 0; i < cardDatas.Count;i++)
         {
             var cardType = cardDatas[i].CardType;
-            var monster = monsters[i];
-            monster.cardType = cardType;
+            var prefab = prefabs[i];
+            prefab.cardType = cardType;
         }
-        MonsterLineUp();
+        PrefabLineUp();
         var deck = SelectableCardManager.Instance.GetDeck();
         deck.ForEach(card =>
         {
             if (card == null) return;
-            var prefab = getMosnterDataAndPrefab(card).prefab;
+            var prefab = card.cardData.CardType switch
+            {
+                CardType.Monster => (PrefabBase)prefabManagerActions.getMosnterDataAndPrefab(card).prefab,
+                CardType.Spell => (PrefabBase)prefabManagerActions.getSpellDataAndPrefab(card).prefab,
+                _=> default
+            };
+
             var cls = card.removedButtonCls;
             prefab.SetSelectedEffect(cls);
+            if(prefab is ISelectableSpell selectableSpell)
+            {
+                UnityAction<LineRenderer> unableAction = (line) =>
+                {
+                    line.enabled = false;
+                };
+                selectableSpell.OnSelectedDeckFirst = unableAction;
+            }
         });
     }
+
     async UniTask SetAssetsFromAdress()
     {
         try
@@ -87,7 +119,7 @@ public class SelectablePrefabManager : MonoBehaviour
             return;
         }
     }
-    void MonsterLineUp()
+    void PrefabLineUp()
     {
         var motions = new AttackMotion();
         attackMotions[AttackMotionType.Simple] = motions.SimpleAttackMotion;
@@ -106,20 +138,30 @@ public class SelectablePrefabManager : MonoBehaviour
             {
                 Debug.Log($"{index}aaaaa");
                 count++;
-                var selectableMonster = monsters[index];
-                var pos = new Vector3(criterioX + spaceX * c,0f,criterioZ - spaceZ * l);
+                var selectablePrefab = prefabs[index];
+                var adjustedSpaceZ = (selectablePrefab is ISelectableMonster) ? spaceZ :
+                    (selectablePrefab is ISelectableSpell) ? spaceZ + 2.5f : spaceZ;
+                var pos = new Vector3(criterioX + spaceX * c,0f,criterioZ - adjustedSpaceZ * l);
                 pos.y = Terrain.activeTerrain.SampleHeight(pos);
-                selectableMonster.transform.position = pos;
-                selectableMonster.stoneMaterial = stoneMaterial;
-                selectableMonster.monsterAnimatorPar = monsterAnimatorPar;
-                selectableMonster.Initialize();
-                var attackMotionType = selectableMonster._statusData.AnimaSpeedInfo.AttackMotionType;
-                if (attackMotionType == AttackMotionType.Simple)
+                selectablePrefab.transform.position = pos;
+                if(selectablePrefab is ISelectableMonster selectableMonster)
                 {
-                    motions.AnimationEventSetup(selectableMonster);
+                    selectableMonster.stoneMaterial = stoneMaterial;
+                    selectableMonster.monsterAnimatorPar = monsterAnimatorPar;
+                    selectablePrefab.Initialize();
+                    var attackMotionType = selectableMonster._statusData.AnimaSpeedInfo.AttackMotionType;
+                    if (attackMotionType == AttackMotionType.Simple)
+                    {
+                        motions.AnimationEventSetup(selectableMonster);
+                    }
+                    selectableMonster.attackMotionPlay = attackMotions[attackMotionType];
                 }
-                selectableMonster.attackMotionPlay = attackMotions[attackMotionType];
-                if (count == monsters.Count) break;
+                else if(selectablePrefab is ISelectableSpell selectableSpell)
+                {
+                    selectablePrefab.Initialize();
+                }
+               
+                if (count == prefabs.Count) break;
                 index++;
             }
         }
@@ -129,4 +171,26 @@ public class SelectablePrefabManager : MonoBehaviour
         this.columCount = columCount;
         this.line = line;
     }
+    public void UnableLineRenderer(PrefabBase currentSelectedSpell)
+    {
+        if (!(currentSelectedSpell is ISelectableSpell)) return;
+        spells.ForEach(spell =>
+        {
+            if (spell == currentSelectedSpell) return;
+            spell.lineRenderer.enabled = false;
+        });
+    }
+    public void EnableLineRenderer()
+    {
+        var deck = SelectableCardManager.Instance.GetDeck();
+        var sortOrders = deck.Where(card => card != null)
+            .Select(card => card.sortOrder).ToList();
+        spells.ForEach(spell =>
+        {
+            var sortOrder = spell.sortOrder;
+            var inDeck = sortOrders.Contains(sortOrder);
+            if(spell.lineRenderer != null) spell.lineRenderer.enabled = !inDeck;
+        });
+    }
+
 }

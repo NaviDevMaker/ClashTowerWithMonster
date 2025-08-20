@@ -1,5 +1,7 @@
 using Cysharp.Threading.Tasks;
 using Game.Spells;
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -20,7 +22,7 @@ namespace Game.Spells.BoundShield
         protected override void SetDuration()
         {
             boumndShieldEffect = GetComponent<VisualEffect>();
-            spellDuration = 10f;
+            spellDuration = _SpellStatus.SpellDuration;
         }
 
         protected override void SetRange()
@@ -32,21 +34,26 @@ namespace Game.Spells.BoundShield
         {
             var time = 0f;
             boumndShieldEffect.Play();
-            while (time < spellDuration)
+            try
             {
-                time += Time.deltaTime;
-                addForceToUnit.KeepDistance(moveType);
-                await UniTask.Yield();
+                while (time < spellDuration)
+                {
+                    time += Time.deltaTime;
+                    addForceToUnit.KeepDistance(moveType);
+                    await UniTask.Yield(cancellationToken: this.GetCancellationTokenOnDestroy());
+                }
+
+
+                boumndShieldEffect.Stop();
+                while (boumndShieldEffect.HasAnySystemAwake())
+                {
+                    await UniTask.Yield(cancellationToken: this.GetCancellationTokenOnDestroy());
+                }
+
             }
+            catch (OperationCanceledException) { return; }
 
-
-            boumndShieldEffect.Stop();
-            while (boumndShieldEffect.HasAnySystemAwake())
-            {
-                await UniTask.Yield();
-            }
-
-            Destroy(gameObject);
+           if(this == null) Destroy(gameObject);
         }
     }
 

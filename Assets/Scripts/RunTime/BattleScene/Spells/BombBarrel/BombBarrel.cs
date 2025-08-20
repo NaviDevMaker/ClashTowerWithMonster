@@ -21,11 +21,15 @@ namespace Game.Spells.BombBarrel
         }
         protected override async UniTaskVoid Spell()
         {
-            UIManager.Instance.StartSpellTimer(spellDuration, this);//これあとで消してね
-            await UniTask.Delay(TimeSpan.FromSeconds(spellDuration));
-            addForceToUnit.KeepDistance(moveType);
-            spellEffectHelper.EffectToUnit();
-            await ExplosionBarrel();
+            //UIManager.Instance.StartSpellTimer(spellDuration, this);//これあとで消してね
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(spellDuration), cancellationToken: this.GetCancellationTokenOnDestroy());
+                addForceToUnit.KeepDistance(moveType);
+                spellEffectHelper.EffectToUnit();
+                await ExplosionBarrel();
+            }
+            catch (OperationCanceledException) { return; }
             DestroyAll();
         }
         async UniTask ExplosionBarrel()
@@ -56,48 +60,25 @@ namespace Game.Spells.BombBarrel
                 child.gameObject.SetActive(false);
             }
 
+            chunks.ForEach(chunk => chunk.transform.SetParent(transform));//これdeck選択画面ように追加したからバグったらこれのせい説濃厚
             await BarrelScattering();
         }
 
         async UniTask BarrelScattering()
         {
-            //Max値を含ませたいからfloat    
-
-            //var min = -5.0f;
-            //var max = 5.0f;
-            //var fadeOutTime = 4.0f;
-            //var tasks = new List<UniTask>();
-            //chunks.ForEach(chunk =>
-            //{
-            //    var rb = chunk.GetComponent<Rigidbody>();
-            //    var material = chunk.GetComponent<MeshRenderer>().material;
-            //    if(material.name.StartsWith("Barrel"))
-            //    {
-            //        if (material.HasProperty("_Surface")) FadeOutHelper.ChangeToTranparent(material);
-            //    }
-            //    rb.isKinematic = false;
-            //    var forceVector = new Vector3(UnityEngine.Random.Range(min, max), UnityEngine.Random.Range(0, max), UnityEngine.Random.Range(min, max));
-            //    rb.AddForce(forceVector,ForceMode.Impulse);
-            //    rb.AddTorque(forceVector, ForceMode.Impulse);
-            //    var task = FadeOutHelper.FadeOutColor(fadeOutTime,this.GetCancellationTokenOnDestroy(),material);
-            //    tasks.Add(task);   
-            //});
             var name = "Barrel";
             var min = -5.0f;
             var max = 5.0f;
-            //await UniTask.WhenAll(tasks);
             await this.Scattering<BombBarrel>(chunks, name, min, max);
         }
         protected override void SetDuration()
         {
-            spellDuration = 3f;
+            spellDuration = _SpellStatus.SpellDuration;
         }
         protected override void DestroyAll()
         {
+            if (this == null) return;
             Destroy(gameObject);
         }
     }
-
-
-
 }

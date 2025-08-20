@@ -16,3 +16,5 @@ MonoBehaviour:
   pushAmount: 0.25
   perPushDurationAndStunTime: 0.5
   spellType: 16
+  invokeType: 0
+  spellDuration: 0.3

@@ -353,12 +353,12 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
     public CancellationTokenSource statusButtonCls = new CancellationTokenSource();
     CancellationTokenSource useButtonCls = new CancellationTokenSource();
     public CancellationTokenSource removedButtonCls { get; private set;} = new CancellationTokenSource();
-    public void Initialize(ScrollRect scrollRect,UnityAction<bool> stopScrollAction,
+    public void Initialize(ScrollRect scrollRect,CardActions cardActions,Canvas parentCanvas,Image parentImage)/*UnityAction<bool> stopScrollAction,
         UnityAction<SelectableCard> selectedCardChanged,UnityAction<SelectableCard> selectedCardtoDeck,
         UnityAction<SelectableCard> selectedFromDeck,UnityAction<SelectableCard> removedFromDeck,
         Action<MonsterStatusData,CancellationTokenSource> appearStatusUIAction,
         Func<SelectableCard,(MonsterStatusData data,SelectableMonster prefab)> getStatusAndPrefabAction, 
-        UnityAction setCameraPosAction,Canvas parentCanvas,Image parentImage)
+        UnityAction setCameraPosAction,UnityAction closeStatusUIAction*/
     {
         this.scrollRect = scrollRect;
         this.SetCardImageFromData(cardData);
@@ -378,38 +378,61 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
             parentCanvas,
             parentImage
         );
-        OnPointerDownStatus = stopScrollAction;
-        OnSelectedCard = selectedCardChanged;
-        OnSelectedCardFromDeck = selectedFromDeck;
+        OnPointerDownStatus = cardActions.stopScrollAction;
+        OnSelectedCard = cardActions.selectedCardChanged;
+        OnSelectedCardFromDeck = cardActions.selectedFromDeck;
 
         selectableCardImage.SetCurrentPos();
         useButton.onClick.AddListener(() =>
         {
+            cardActions.closeStatusUIAction.Invoke();
             useButtonCls?.Cancel();
             useButtonCls?.Dispose();
             useButtonCls = new CancellationTokenSource();
-            setCameraPosAction.Invoke();
-            var monsterPrefab = getStatusAndPrefabAction(this).prefab;
-            monsterPrefab.SetSelectedEffect(removedButtonCls);
-            selectedCardtoDeck.Invoke(this);
+            cardActions.setCameraPosAction.Invoke();
+            var prefab = cardData.CardType switch
+            {
+                CardType.Monster => cardActions.getStatusAndPrefabAction(this).prefab,
+                CardType.Spell => cardActions.getSpellStatusAndPrefabAction(this).prefab,
+                _ => default(PrefabBase)
+            };
+            prefab.SetSelectedEffect(removedButtonCls);
+            cardActions.selectedCardtoDeck.Invoke(this);
+            cardActions.enableLineRenderer.Invoke();
             DeckSelectedStateChange(true);
         });
 
         statusButton.onClick.AddListener(() =>
         {
             statusButtonCls = new CancellationTokenSource();
-            var statusData = getStatusAndPrefabAction(this).data;
-            var monsterPrefab = getStatusAndPrefabAction(this).prefab;
-            if(statusData == null)
-            {
-                Debug.LogWarning("The data don't exist!!");
-                return;
-            }
+
             var scrollCls = ScrollManager.Instance.scrollCls;
-            var doubleCls = CancellationTokenSource.CreateLinkedTokenSource(scrollCls.Token, statusButtonCls.Token);
-            var motionCls = CancellationTokenSource.CreateLinkedTokenSource(scrollCls.Token, useButtonCls.Token);
-            appearStatusUIAction.Invoke(statusData, doubleCls);
-            monsterPrefab.attackMotionPlay(monsterPrefab,motionCls);
+            var doubleCls = CancellationTokenSource.CreateLinkedTokenSource(scrollCls.Token, useButtonCls.Token);//statusButtonCls
+            if (cardData.CardType == CardType.Monster)
+            {
+                var statusData = cardActions.getStatusAndPrefabAction(this).data;
+                var monsterPrefab = cardActions.getStatusAndPrefabAction(this).prefab;
+                if (statusData == null)
+                {
+                    Debug.LogWarning("The data don't exist!!");
+                    return;
+                }
+                var motionCls = CancellationTokenSource.CreateLinkedTokenSource(scrollCls.Token, useButtonCls.Token);
+                cardActions.appearStatusUIAction.Invoke(statusData, doubleCls);
+                monsterPrefab.attackMotionPlay(monsterPrefab, motionCls);
+            }
+            else if(cardData.CardType == CardType.Spell)
+            {
+                var statusData = cardActions.getSpellStatusAndPrefabAction(this).data;
+                var spellPrefab = cardActions.getSpellStatusAndPrefabAction(this).prefab;
+                if (statusData == null)
+                {
+                    Debug.LogWarning("The data don't exist!!");
+                    return;
+                }
+                cardActions.appearStatusUIAction.Invoke(statusData, doubleCls);
+                spellPrefab.SpellInvoke(doubleCls);
+            }        
         });
 
         removeButton.onClick.AddListener(() =>
@@ -417,10 +440,15 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
             removedButtonCls?.Cancel();
             removedButtonCls?.Dispose();
             removedButtonCls = new CancellationTokenSource();
-            removedFromDeck.Invoke(this);
+            cardActions.removedFromDeck.Invoke(this);
             IsSelected = false;
             DeckSelectedStateChange(false);
-            var prefab = getStatusAndPrefabAction(this).prefab;
+            var prefab = cardData.CardType switch
+            {
+                CardType.Monster => cardActions.getStatusAndPrefabAction(this).prefab,
+                CardType.Spell => cardActions.getSpellStatusAndPrefabAction(this).prefab,
+                _=> default(PrefabBase)
+            };
             prefab.ScalerToZero();
         });
         sortOrder = cardData.SortOrder;
@@ -464,4 +492,20 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
             OnSelectedCardFromDeck?.Invoke(this);
         }
     }
+
+}
+
+public class CardActions
+{
+   public UnityAction<bool> stopScrollAction;
+   public UnityAction<SelectableCard> selectedCardChanged;
+   public UnityAction<SelectableCard> selectedCardtoDeck;
+   public UnityAction<SelectableCard> selectedFromDeck;
+   public UnityAction<SelectableCard> removedFromDeck;
+   public Action<ScriptableObject, CancellationTokenSource> appearStatusUIAction;
+   public Func<SelectableCard, (MonsterStatusData data, SelectableMonster prefab)> getStatusAndPrefabAction;
+   public Func<SelectableCard, (SpellStatus data, SelectableSpell prefab)> getSpellStatusAndPrefabAction;
+   public UnityAction setCameraPosAction;
+   public UnityAction closeStatusUIAction;
+   public UnityAction enableLineRenderer;
 }

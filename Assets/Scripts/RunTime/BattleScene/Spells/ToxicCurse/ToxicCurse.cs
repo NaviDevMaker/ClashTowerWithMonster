@@ -4,6 +4,7 @@ using Game.Spells;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game.Spells.ToxicCurse
@@ -22,37 +23,40 @@ namespace Game.Spells.ToxicCurse
             particle = GetComponent<ParticleSystem>();
             particles = GetComponentsInChildren<ParticleSystem>().ToList();
         }
-        protected override void SetDuration() => spellDuration = 8f;
+        protected override void SetDuration() => spellDuration = _SpellStatus.SpellDuration;
         protected override async UniTaskVoid Spell()
         {
-            Debug.Log(spellDuration);
-            if (particle != null) particle.Play();
-            var time = 0f;
-            var reminningTime = 0f;
-            while (time < spellDuration)
+            try
             {
-                Debug.Log("‚ ‚ ‚ ‚ ‚ ‚ ");
-                time += Time.deltaTime;
-                reminningTime = Mathf.Max(0, spellDuration - time);
-                var nowInRangeUnit = new List<UnitBase>();
-                var list = spellEffectHelper.GetUnitInRange();
-                var removedTowerList = list.Where(t =>
+                Debug.Log(spellDuration);
+                if (particle != null) particle.Play();
+                var time = 0f;
+                var reminningTime = 0f;
+                while (time < spellDuration)
                 {
-                    var tower = t is TowerControlller;
-                    if (tower) return false;
-                    return true;
-                });
-                foreach (var unit in removedTowerList)
-                {
-                    if (CompareUnitInRange(unit, reminningTime)) nowInRangeUnit.Add(unit);
-                }
+                    Debug.Log("‚ ‚ ‚ ‚ ‚ ‚ ");
+                    time += Time.deltaTime;
+                    reminningTime = Mathf.Max(0, spellDuration - time);
+                    var nowInRangeUnit = new List<UnitBase>();
+                    var list = spellEffectHelper.GetUnitInRange();
+                    var removedTowerList = list.Where(t =>
+                    {
+                        var tower = t is TowerControlller;
+                        if (tower) return false;
+                        return true;
+                    });
+                    foreach (var unit in removedTowerList)
+                    {
+                        if (CompareUnitInRange(unit, reminningTime)) nowInRangeUnit.Add(unit);
+                    }
 
-                CheckOutOfRangeUnit(nowInRangeUnit);
-                await UniTask.Yield();
+                    CheckOutOfRangeUnit(nowInRangeUnit);
+                    await UniTask.Yield(cancellationToken: this.GetCancellationTokenOnDestroy());
+                }
             }
+            catch (OperationCanceledException) { return; }
             DestroyAll();
         }
-
 
         protected override async void DestroyAll()
         {
@@ -63,7 +67,8 @@ namespace Game.Spells.ToxicCurse
                 tasks.Add(task);
             });
             await UniTask.WhenAll(tasks);
-            Destroy(gameObject);
+            if (this == null) return;
+             Destroy(gameObject);
         }
         protected override void SetRange()
         {

@@ -10,7 +10,7 @@ public class PrefabBase : MonoBehaviour
 {
     public int sortOrder;//‚±‚ê‚Ì”’l‚ğcardData‚Ì‹K’è‚Ì‚â‚Â‚É‡‚í‚¹‚é
     public CardType cardType { get; set;}
-    public Vector3 colliderSize { get; protected set; }
+    public float offsetZ { get; protected set; }
     GameObject selectedDeckParticle;
     public enum PrefabScale
     { 
@@ -60,8 +60,8 @@ public class PrefabBase : MonoBehaviour
             var scale = prefabScale switch
             {
                 PrefabScale.small => originalScale,
-                PrefabScale.middle or PrefabScale.spell => originalScale * 2.0f,
-                PrefabScale.large => originalScale * 3.0f,
+                PrefabScale.middle => originalScale * 2.0f,
+                PrefabScale.large or PrefabScale.spell => originalScale * 3.0f,
                 _=> default
             };
 
