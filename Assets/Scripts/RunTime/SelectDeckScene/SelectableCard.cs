@@ -390,9 +390,15 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
             useButtonCls?.Dispose();
             useButtonCls = new CancellationTokenSource();
             cardActions.setCameraPosAction.Invoke();
-            var monsterPrefab = cardActions.getStatusAndPrefabAction(this).prefab;
-            monsterPrefab.SetSelectedEffect(removedButtonCls);
+            var prefab = cardData.CardType switch
+            {
+                CardType.Monster => cardActions.getStatusAndPrefabAction(this).prefab,
+                CardType.Spell => cardActions.getSpellStatusAndPrefabAction(this).prefab,
+                _ => default(PrefabBase)
+            };
+            prefab.SetSelectedEffect(removedButtonCls);
             cardActions.selectedCardtoDeck.Invoke(this);
+            cardActions.enableLineRenderer.Invoke();
             DeckSelectedStateChange(true);
         });
 
@@ -424,6 +430,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
                     Debug.LogWarning("The data don't exist!!");
                     return;
                 }
+                cardActions.appearStatusUIAction.Invoke(statusData, doubleCls);
                 spellPrefab.SpellInvoke(doubleCls);
             }        
         });
@@ -436,7 +443,12 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
             cardActions.removedFromDeck.Invoke(this);
             IsSelected = false;
             DeckSelectedStateChange(false);
-            var prefab =cardActions.getStatusAndPrefabAction(this).prefab;
+            var prefab = cardData.CardType switch
+            {
+                CardType.Monster => cardActions.getStatusAndPrefabAction(this).prefab,
+                CardType.Spell => cardActions.getSpellStatusAndPrefabAction(this).prefab,
+                _=> default(PrefabBase)
+            };
             prefab.ScalerToZero();
         });
         sortOrder = cardData.SortOrder;
@@ -490,9 +502,10 @@ public class CardActions
    public UnityAction<SelectableCard> selectedCardtoDeck;
    public UnityAction<SelectableCard> selectedFromDeck;
    public UnityAction<SelectableCard> removedFromDeck;
-   public Action<MonsterStatusData, CancellationTokenSource> appearStatusUIAction;
+   public Action<ScriptableObject, CancellationTokenSource> appearStatusUIAction;
    public Func<SelectableCard, (MonsterStatusData data, SelectableMonster prefab)> getStatusAndPrefabAction;
    public Func<SelectableCard, (SpellStatus data, SelectableSpell prefab)> getSpellStatusAndPrefabAction;
    public UnityAction setCameraPosAction;
    public UnityAction closeStatusUIAction;
+   public UnityAction enableLineRenderer;
 }

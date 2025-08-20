@@ -3,6 +3,7 @@ using DG.Tweening;
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using static UnityEngine.ParticleSystem;
+using System;
 
 
 namespace Game.Spells.Meteo
@@ -71,44 +72,53 @@ namespace Game.Spells.Meteo
 
         public async UniTask MoveToTarget()
         {
-            parentParticle.Play();
-            var moveSpeed = 15f;
-            var height = TargetPositionGetter.GetTargetHeight(targetUnit);
-            var offset = targetUnit.transform.forward * 0.5f;
-            var targetPos = targetUnit.transform.position + Vector3.up * height + offset;
-            while ((targetPos - transform.position).magnitude > Mathf.Epsilon + 0.1f
-                && (!targetUnit.isDead && targetUnit != null))
+            try
             {
-                targetPos = targetUnit.transform.position + Vector3.up * height + offset;
-                var move = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * moveSpeed);
-                transform.position = move;
-                await UniTask.Yield();
-            }
-
-            if (targetUnit.isDead && targetUnit == null)
-            {
-                targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos);
-                while ((targetPos - transform.position).magnitude > Mathf.Epsilon + 0.1f)
+                parentParticle.Play();
+                var moveSpeed = 15f;
+                var height = TargetPositionGetter.GetTargetHeight(targetUnit);
+                var offset = targetUnit.transform.forward * 0.5f;
+                var targetPos = targetUnit.transform.position + Vector3.up * height + offset;
+                while ((targetPos - transform.position).magnitude > Mathf.Epsilon + 0.1f
+                    && (!targetUnit.isDead && targetUnit != null))
                 {
+                    targetPos = targetUnit.transform.position + Vector3.up * height + offset;
                     var move = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * moveSpeed);
                     transform.position = move;
-                    await UniTask.Yield();
+                    await UniTask.Yield(cancellationToken: attacker.GetCancellationTokenOnDestroy());
                 }
-            }
-            transform.position = targetPos;
-            if (targetUnit != null && !targetUnit.isDead)
-            {
-                addForceToUnit.CompareEachUnit(targetUnit);
-                if (targetUnit.TryGetComponent<IUnitDamagable>(out var unitDamagable))
+
+                if (targetUnit.isDead && targetUnit == null)
                 {
-                    var attackAmount = attacker._SpellStatus.EffectAmont;
-                    unitDamagable.Damage(attackAmount);
+                    targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos);
+                    while ((targetPos - transform.position).magnitude > Mathf.Epsilon + 0.1f)
+                    {
+                        var move = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * moveSpeed);
+                        transform.position = move;
+                        await UniTask.Yield(cancellationToken: attacker.GetCancellationTokenOnDestroy());
+                    }
                 }
+                transform.position = targetPos;
+                if (targetUnit != null && !targetUnit.isDead)
+                {
+                    addForceToUnit.CompareEachUnit(targetUnit);
+                    if (targetUnit.TryGetComponent<IUnitDamagable>(out var unitDamagable))
+                    {
+                        var attackAmount = attacker._SpellStatus.EffectAmont;
+                        unitDamagable.Damage(attackAmount);
+                    }
+                }
+                EffectManager.Instance.expsionEffect.GenerateExplosionEffect(targetPos);
+                gameObject.SetActive(false);
+                //attacker = null;
+                await ExplositionMeteo();
             }
-            EffectManager.Instance.expsionEffect.GenerateExplosionEffect(targetPos);
-            gameObject.SetActive(false);
-            //attacker = null;
-            await ExplositionMeteo();
+            catch (OperationCanceledException)
+            {
+                gameObject.SetActive(false);
+                IsEndSpellProcess = true;
+                return; 
+            }
         }
 
         async UniTask ExplositionMeteo()
@@ -171,8 +181,6 @@ namespace Game.Spells.Meteo
                     attacker._SpellStatus.PerPushDurationAndStunTime, attacker.pushEffectUnit);
                 isSettedProparty = true;
             }
-
-
         }
     }
 }

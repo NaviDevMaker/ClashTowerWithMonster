@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b795bbf4821e7444e9c7d04dde6f1235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sortOrder: 14
+  sortOrder: 15
   prefabScale: 3
   spellStatus: {fileID: 11400000, guid: fc9ef5c220e1b3f4f86c661e80cabb44, type: 2}
   spellBase: {fileID: 2894430976060482367, guid: f57142de1d6567d408c86d5fcbc63739, type: 3}

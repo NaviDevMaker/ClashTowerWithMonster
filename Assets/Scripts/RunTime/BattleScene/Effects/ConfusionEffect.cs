@@ -61,24 +61,28 @@ public class ConfusionEffect : IEffectSetter
     }
     public async UniTask GenerateConfusionHitEffect(UnitBase target)
     {
-        var y = target.BodyMesh.bounds.size.y;
-        var pos = target.transform.position;
-        pos.y += y;
-        var rot = confusionHitEffect.transform.rotation;
-        var unitScale = target.UnitScale;
-      
-        var particleObj = UnityEngine.Object.Instantiate(confusionHitEffect,pos, rot);
-        var magnitude = target.transform.lossyScale.magnitude;
-        var originalScale = particleObj.transform.localScale /  magnitude;
-        var criterionScale = 2f;
-        var scale = GetScale(unitScale, originalScale, criterionScale);
-        if (particleObj == null) return;
-        particleObj.transform.localScale = scale;
-        var cmp = particleObj.GetComponent<ParticleSystem>();
-        var duration = 0.5f;
-        cmp.Play();
-        await UniTask.Delay(TimeSpan.FromSeconds(duration));
-        UnityEngine.Object.Destroy(particleObj);
+        try
+        {
+            var y = target.BodyMesh.bounds.size.y;
+            var pos = target.transform.position;
+            pos.y += y;
+            var rot = confusionHitEffect.transform.rotation;
+            var unitScale = target.UnitScale;
+
+            var particleObj = UnityEngine.Object.Instantiate(confusionHitEffect, pos, rot);
+            var magnitude = target.transform.lossyScale.magnitude;
+            var originalScale = particleObj.transform.localScale / magnitude;
+            var criterionScale = 2f;
+            var scale = GetScale(unitScale, originalScale, criterionScale);
+            if (particleObj == null) return;
+            particleObj.transform.localScale = scale;
+            var cmp = particleObj.GetComponent<ParticleSystem>();
+            var duration = 0.5f;
+            cmp.Play();
+            await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: target.GetCancellationTokenOnDestroy());
+            UnityEngine.Object.Destroy(particleObj);
+        }
+        catch (OperationCanceledException) { return; }
     }
 
     void  ParticleModuleSet(UnitScale unitScale,ParticleSystem particle,float criterionAmount)

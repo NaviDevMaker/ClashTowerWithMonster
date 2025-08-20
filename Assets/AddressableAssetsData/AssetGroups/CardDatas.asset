@@ -81,6 +81,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - CardData
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 66c4dfe9bbf7a8b47a750bc2200c8659
+    m_Address: Assets/Datas/CardDatas/Test 19.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CardData
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 686afd660bac29b429734559ee5ba092
     m_Address: Assets/Datas/CardDatas/Test 14.asset
     m_ReadOnly: 0

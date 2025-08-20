@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 880aaa0396a369b4b9ba23e2c9bb78bd, type: 3}
-  m_Name: Test 9
+  m_Name: Test 19
   m_EditorClassIdentifier: 
   icon: {fileID: 21300004, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
-  energyImage: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  energyImage: {fileID: -1975463890, guid: eefba76eb4d339649bbdd33fdf47bf6f, type: 3}
   energy: 4
-  cardName: 1
-  cardPrefab: {fileID: 2307424773082608152, guid: 78e67fcd51025e542b75c667f13b88d2, type: 3}
+  cardName: 7
+  cardPrefab: {fileID: 3271812579567768285, guid: 929edda95240e63418a344e9a389bb44, type: 3}
   cardType: 1
-  sortOrder: 9
+  sortOrder: 19

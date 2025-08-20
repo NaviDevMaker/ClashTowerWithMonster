@@ -4,10 +4,12 @@ using System;
 using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 
 public interface ISelectableSpell
 { 
     SpellStatus _spellStatus { get;}
+    UnityAction<LineRenderer> OnSelectedDeckFirst { get; set; }
     void SpellInvoke(CancellationTokenSource cls);
     void SpellRangeDraw();
 }
@@ -19,6 +21,7 @@ public class SelectableSpell : PrefabBase, ISelectableSpell
     SpellBase spellPrefab;
     public SpellStatus _spellStatus  => spellStatus;
     public LineRenderer lineRenderer { get;private set;}
+    public UnityAction<LineRenderer> OnSelectedDeckFirst { get; set; } = null;
     class SpellInfo
     {
         public Vector3 pos { get; set; }
@@ -50,6 +53,7 @@ public class SelectableSpell : PrefabBase, ISelectableSpell
         SetUpLineRenderer();
         SpellRangeDraw();
         LitLineRenderer();
+        if (OnSelectedDeckFirst != null) OnSelectedDeckFirst.Invoke(lineRenderer);
     }
     public async void SpellInvoke(CancellationTokenSource spellCls)
     {
@@ -58,18 +62,20 @@ public class SelectableSpell : PrefabBase, ISelectableSpell
         var pos = spellInfo.pos;    
         var rot = spellInfo.rot;
         //カード押されたとき、スクロールされたとき、
-        var spell = Instantiate(spellPrefab,pos,rot);
-        spell.gameObject.SetActive(true);
-        var duration = spell.spellDuration;
-        spell.SpellInvoke();
+        var spell = Instantiate(spellPrefab, pos, rot);
         try
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(duration),cancellationToken:spellCls.Token);
-        }
+            spell.gameObject.SetActive(true);
+            await UniTask.DelayFrame(100,cancellationToken:spellCls.Token);
+            var duration = spell.spellDuration + 5.0f;
+            spell.SpellInvoke();
+
+            await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: spellCls.Token);
+        }            
         catch (OperationCanceledException) { }
         finally
         {
-            Destroy(spell.gameObject);
+           if(spell != null) Destroy(spell.gameObject);
         }
     }
     public void SpellRangeDraw()

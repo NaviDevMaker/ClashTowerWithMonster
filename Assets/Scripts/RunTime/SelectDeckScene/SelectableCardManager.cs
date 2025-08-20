@@ -58,11 +58,12 @@ public class SelectableCardManager : MonoBehaviour
     class LineupActions
     {
        public Action<int, int> lineSetAction;
-       public Action<MonsterStatusData, CancellationTokenSource> appearStatusUIAction;
+       public Action<ScriptableObject, CancellationTokenSource> appearStatusUIAction;
        public Func<SelectableCard, (MonsterStatusData, SelectableMonster)> getStatusAndPrefabAction;
        public Func<SelectableCard, (SpellStatus, SelectableSpell)> getSpellStatusAndPrefabAction;
        public UnityAction setCameraPosAction;
        public UnityAction closeStatusUIAction;
+       public UnityAction enableLineRenderer;
     }
 
     private void Awake()
@@ -107,6 +108,7 @@ public class SelectableCardManager : MonoBehaviour
             getSpellStatusAndPrefabAction = cardManagerActions.getSpellStatusAndPrefabAction,
             setCameraPosAction = cardManagerActions.cameraPositionSetAction,
             closeStatusUIAction = cardManagerActions.closeStatusUIAction,
+            enableLineRenderer = cardManagerActions.enableLineRenderer,
         };
 
         await LineUpCards(lineupActions);/*lineSetAction,apperStatusUIAction,getStatusAndPrefabAction,
@@ -224,7 +226,7 @@ public class SelectableCardManager : MonoBehaviour
 
         UnityAction<bool> stopAction = (isDowned) => ScrollManager.Instance.isPointerDowned = isDowned;
         var cardActions = new CardActions
-        { 
+        {
             stopScrollAction = stopAction,
             selectedCardChanged = OnSelectedCardChanged,
             selectedCardtoDeck = OnCardSelectedToDeck,
@@ -235,6 +237,7 @@ public class SelectableCardManager : MonoBehaviour
             getSpellStatusAndPrefabAction = lineupActions.getSpellStatusAndPrefabAction,
             setCameraPosAction = lineupActions.setCameraPosAction,
             closeStatusUIAction = lineupActions.closeStatusUIAction,
+            enableLineRenderer = lineupActions.enableLineRenderer,
         };
 
         for (int l = 0; l < line; l++)

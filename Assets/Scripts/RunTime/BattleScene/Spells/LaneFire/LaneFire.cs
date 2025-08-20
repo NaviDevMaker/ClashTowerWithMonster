@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -19,25 +20,31 @@ namespace Game.Spells.LaneFire
 
         protected override async UniTaskVoid Spell()
         {
-            var particle = transform.GetChild(0).GetComponent<ParticleSystem>();
-            this.particle = particle;
-            var main = this.particle.main;
-            var destroyTime = main.duration;
+            try
+            {
+                var particle = transform.GetChild(0).GetComponent<ParticleSystem>();
+                this.particle = particle;
+                var main = this.particle.main;
+                var destroyTime = main.duration;
 
-            await UniTask.Delay(TimeSpan.FromSeconds(spellDuration));
-            Debug.Log("ファイア発動！！！！！！！！！");
-            addForceToUnit.KeepDistance(moveType);
-            spellEffectHelper.EffectToUnit();
-            particle.Play();
-            await UniTask.Delay(TimeSpan.FromSeconds(destroyTime));
+                await UniTask.Delay(TimeSpan.FromSeconds(spellDuration), cancellationToken: this.GetCancellationTokenOnDestroy());
+                Debug.Log("ファイア発動！！！！！！！！！");
+                addForceToUnit.KeepDistance(moveType);
+                spellEffectHelper.EffectToUnit();
+                particle.Play();
+                await UniTask.Delay(TimeSpan.FromSeconds(destroyTime), cancellationToken: this.GetCancellationTokenOnDestroy());
+            }
+            catch (OperationCanceledException) { return; }
             //particle.Stop();
             DestroyAll();
         }
 
         protected override async void DestroyAll()
         {
+            if (particle == null) return;
             var task = RelatedToParticleProcessHelper.WaitUntilParticleDisappear(particle);
             await task;
+            if (this == null) return;
             Destroy(gameObject);
         }
     }

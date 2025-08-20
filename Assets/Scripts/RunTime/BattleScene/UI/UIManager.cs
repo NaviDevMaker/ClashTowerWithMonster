@@ -1,14 +1,23 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class UIManager : MonoBehaviour
+public class UIManager : SingletonMonobehavier<UIManager>
 {
-    public static UIManager Instance { get; private set;}
+    //public static UIManager Instance { get; private set;}
 
-    [SerializeField] TimerSetter timerSetter;
-    [SerializeField] SummonedMonsterDisplayUI summoneMonsterDisplayUI; 
-    private void Awake() => Instance = this;
-
+    TimerSetter timerSetter;
+    [SerializeField] SummonedMonsterDisplayUI summoneMonsterDisplayUI;//将来はいらないけどバトルシーンでテストするときに必要
+    //private void Awake() => Instance = this;
+    private void Start()
+    {
+        timerSetter = TimerSetter.Instance;
+        SceneManager.activeSceneChanged += (oldScene,newScene) =>
+        {
+            var battleScene = NetWorkSceneManager.Instance.sceneNames.BattleScene;
+            if(newScene.name == battleScene) summoneMonsterDisplayUI = GameObject.FindFirstObjectByType<SummonedMonsterDisplayUI>();
+        };
+    }
     public async UniTask StartSummonTimer(float summonTime, UnitBase targetUnit) => await timerSetter.StartSummonTimer(summonTime, targetUnit);
     public void StartSpellTimer(float spellTime, ISpells spell) => timerSetter.StartSpellTimer(spellTime, spell);
     public void StartSkillTimer(float skillTime, ISkills skill) => StartSkillTimer(skillTime, skill);

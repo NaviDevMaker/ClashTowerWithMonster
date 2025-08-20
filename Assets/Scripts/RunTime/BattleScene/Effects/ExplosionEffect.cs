@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using Unity.VisualScripting;
 
 public class ExplosionEffect:IEffectSetter
 {
@@ -24,7 +25,7 @@ public class ExplosionEffect:IEffectSetter
             tasks.Add(task);
         });
         await UniTask.WhenAll(tasks);
-        UnityEngine.Object.Destroy(particleObj);
+        if(!particleObj.IsDestroyed()) UnityEngine.Object.Destroy(particleObj);
     }
     public async void SetEffect()
     {

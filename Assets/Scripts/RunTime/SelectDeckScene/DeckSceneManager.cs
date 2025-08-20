@@ -21,11 +21,12 @@ public class DeckSceneManager : MonoBehaviour
     async void Start()
     {
         Action<int,int> setLineAction = selectablePrefabManager.SetLine;
-        Action<MonsterStatusData, CancellationTokenSource> apppearStatusAction = statusUIAppear.ApperUI;
+        Action<ScriptableObject, CancellationTokenSource> apppearStatusAction = statusUIAppear.ApperUI;
         UnityAction battleButtonToOriginal = battleButtonUI.SetOriginal;
         UnityAction positionSetEvent = deckChooseCameraMover.SetOriginalPos;
         UnityAction closeStatusUIEvent = statusUIAppear.CloseStatusUI;
         UnityAction<PrefabBase> unableLineRenderer = selectablePrefabManager.UnableLineRenderer;
+        UnityAction enableLineRenderer = selectablePrefabManager.EnableLineRenderer;
         UnityAction fadeInEvent = cardManager.CardFadeIn;
         UnityAction fadeOutBattleButtonEvent = battleButtonUI.FadeOutAndMove;
         Func<CancellationTokenSource> getCurrentCls = cardManager.GetClickedCancellationTokenSource;
@@ -41,7 +42,8 @@ public class DeckSceneManager : MonoBehaviour
             setBattleButtonToOriginal = battleButtonToOriginal,
             cameraPositionSetAction = positionSetEvent,
             closeStatusUIAction = closeStatusUIEvent,
-            unableLineRenderer = unableLineRenderer
+            unableLineRenderer = unableLineRenderer,
+            enableLineRenderer = enableLineRenderer
         };
 
         var prefabManagerActions = new PrefabManagerActions
@@ -54,6 +56,7 @@ public class DeckSceneManager : MonoBehaviour
         var scrollManagerActions = new ScrollManagerActions
         { 
             setCameraPosToOriginal = positionSetEvent,
+            enableLineRenderer = enableLineRenderer,
             fadeInAction = fadeInEvent,
             closeStatusUIAction = closeStatusUIEvent,
             fadeOutBattleButton = fadeOutBattleButtonEvent,
@@ -78,7 +81,7 @@ public class DeckSceneManager : MonoBehaviour
     PrefabBase GetSelectedCardPrefab(SelectableCard selectableCard)
     {
         var targetIndex = selectableCard.cardData.SortOrder;
-        var prefabs = selectablePrefabManager.monsters;
+        var prefabs = selectablePrefabManager.prefabs;
         for (int i = 0; i < prefabs.Count; i++)
         {
             if(i == targetIndex)
@@ -108,16 +111,12 @@ public class DeckSceneManager : MonoBehaviour
     {
         var targetIndex = selectableCard.cardData.SortOrder;
         var startIndex = selectablePrefabManager.monsters.Count;
-        var endIndex = selectablePrefabManager.prefabs.Count;
-        for (int i = startIndex; i < endIndex;i++)
+        var spellIndex = targetIndex - startIndex;
+        if(spellIndex >= 0 && spellIndex < selectablePrefabManager.spells.Count)
         {
-            if(i == targetIndex)
-            {
-                var index = i - startIndex;
-                var spell = selectablePrefabManager.spells[index];
-                var data = spell._spellStatus;
-                return (data,spell);
-            }
+            var spell = selectablePrefabManager.spells[spellIndex];
+            var data = spell._spellStatus;
+            return (data, spell);
         }
         return (null, null);
     }
@@ -127,13 +126,14 @@ public class CardManagerActions
 {
     public Func<SelectableCard, PrefabBase> onSelectedCardAction;
     public Action<int, int> lineSetAction;
-    public Action<MonsterStatusData, CancellationTokenSource> apperStatusUIAction;
+    public Action<ScriptableObject, CancellationTokenSource> apperStatusUIAction;
     public Func<SelectableCard, (MonsterStatusData, SelectableMonster)> getStatusAndPrefabAction;
     public Func<SelectableCard, (SpellStatus, SelectableSpell)> getSpellStatusAndPrefabAction;
     public UnityAction setBattleButtonToOriginal;
     public UnityAction cameraPositionSetAction;
     public UnityAction closeStatusUIAction;
     public UnityAction<PrefabBase> unableLineRenderer;
+    public UnityAction enableLineRenderer;
 }
 
 public class PrefabManagerActions
@@ -144,6 +144,7 @@ public class PrefabManagerActions
 public class ScrollManagerActions
 {
     public UnityAction setCameraPosToOriginal;
+    public UnityAction enableLineRenderer;
     public UnityAction fadeInAction;
     public UnityAction closeStatusUIAction;
     public UnityAction fadeOutBattleButton;

@@ -63,6 +63,7 @@ public class ScrollManager : MonoBehaviour
             scrollManagerActions.fadeInAction?.Invoke();
             scrollManagerActions.closeStatusUIAction?.Invoke();
             scrollManagerActions.transparentBattleButton?.Invoke();
+            scrollManagerActions.enableLineRenderer?.Invoke();
         });
 
         var endDragEntry = new EventTrigger.Entry();

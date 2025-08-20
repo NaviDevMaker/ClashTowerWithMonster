@@ -60,8 +60,8 @@ public class PrefabBase : MonoBehaviour
             var scale = prefabScale switch
             {
                 PrefabScale.small => originalScale,
-                PrefabScale.middle or PrefabScale.spell => originalScale * 2.0f,
-                PrefabScale.large => originalScale * 3.0f,
+                PrefabScale.middle => originalScale * 2.0f,
+                PrefabScale.large or PrefabScale.spell => originalScale * 3.0f,
                 _=> default
             };
 

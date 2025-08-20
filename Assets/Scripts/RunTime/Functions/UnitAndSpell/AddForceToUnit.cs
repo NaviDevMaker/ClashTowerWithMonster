@@ -5,6 +5,7 @@ using UnityEngine;
 using DG.Tweening;
 using Game.Spells;
 using static UnitBase;
+using System.Linq;
 
 
 public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
@@ -142,7 +143,7 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
     List<UnitBase> GetUnitInRange_Spell()
     {
         var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(me.gameObject, me.prioritizedRange);
-        if (sortedArray.Length == 0) return new List<UnitBase>();
+        if (sortedArray.Length == 0) return Enumerable.Empty<UnitBase>().ToList();
         List<UnitBase> filteredList = new List<UnitBase>();
     
         var effectiveSide = pushEffectUnit switch

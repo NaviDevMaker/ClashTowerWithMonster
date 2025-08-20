@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -76,7 +77,7 @@ namespace Game.Spells.Confusion
                 var count = unit.statusCondition.Confusion.isEffectedCount;
                 if (count == 0) unit.statusCondition.Confusion.isActive = false;
             });
-            //DestroyAll();
+            DestroyAll();
         }
         protected override async void DestroyAll()
         {
@@ -88,6 +89,7 @@ namespace Game.Spells.Confusion
                waitTasks.Add(task);
             });
             await UniTask.WhenAll(waitTasks);
+            if (this == null) return;  
             Destroy(this.gameObject);
         }
     }

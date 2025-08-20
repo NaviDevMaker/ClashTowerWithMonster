@@ -409,7 +409,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3326f51d730a344499bd301c0d5c7a83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardData: {fileID: 11400000, guid: 3337566265d3c2a48a639686ce7ff686, type: 2}
+  cardData: {fileID: 11400000, guid: 43257c5f96cb226438f0dfbcf4fc625a, type: 2}
   isSettedNextCard: 0
 --- !u!114 &79018060
 MonoBehaviour:
@@ -958,7 +958,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3326f51d730a344499bd301c0d5c7a83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardData: {fileID: 11400000, guid: 3337566265d3c2a48a639686ce7ff686, type: 2}
+  cardData: {fileID: 11400000, guid: 43257c5f96cb226438f0dfbcf4fc625a, type: 2}
   isSettedNextCard: 0
 --- !u!1 &171265406
 GameObject:
@@ -1599,7 +1599,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6e2b164df625b940a5810a63500c81b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timerSetter: {fileID: 1360762237}
   summoneMonsterDisplayUI: {fileID: 1302657905}
 --- !u!4 &300478223
 Transform:
@@ -2302,7 +2301,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3326f51d730a344499bd301c0d5c7a83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardData: {fileID: 11400000, guid: 3337566265d3c2a48a639686ce7ff686, type: 2}
+  cardData: {fileID: 11400000, guid: 43257c5f96cb226438f0dfbcf4fc625a, type: 2}
   isSettedNextCard: 0
 --- !u!114 &423364356
 MonoBehaviour:
@@ -3411,7 +3410,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3326f51d730a344499bd301c0d5c7a83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardData: {fileID: 11400000, guid: 3337566265d3c2a48a639686ce7ff686, type: 2}
+  cardData: {fileID: 11400000, guid: 43257c5f96cb226438f0dfbcf4fc625a, type: 2}
   isSettedNextCard: 0
 --- !u!114 &836551107
 MonoBehaviour:
@@ -5658,7 +5657,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3326f51d730a344499bd301c0d5c7a83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardData: {fileID: 11400000, guid: 3337566265d3c2a48a639686ce7ff686, type: 2}
+  cardData: {fileID: 11400000, guid: 43257c5f96cb226438f0dfbcf4fc625a, type: 2}
   isSettedNextCard: 0
 --- !u!1 &1400791431
 GameObject:
@@ -5794,7 +5793,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3326f51d730a344499bd301c0d5c7a83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardData: {fileID: 11400000, guid: 3337566265d3c2a48a639686ce7ff686, type: 2}
+  cardData: {fileID: 11400000, guid: 43257c5f96cb226438f0dfbcf4fc625a, type: 2}
   isSettedNextCard: 0
 --- !u!1 &1426162090
 GameObject:
@@ -6020,7 +6019,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3326f51d730a344499bd301c0d5c7a83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardData: {fileID: 11400000, guid: 3337566265d3c2a48a639686ce7ff686, type: 2}
+  cardData: {fileID: 11400000, guid: 43257c5f96cb226438f0dfbcf4fc625a, type: 2}
   isSettedNextCard: 0
 --- !u!114 &1507706414
 MonoBehaviour:
@@ -8493,7 +8492,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3326f51d730a344499bd301c0d5c7a83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardData: {fileID: 11400000, guid: 3337566265d3c2a48a639686ce7ff686, type: 2}
+  cardData: {fileID: 11400000, guid: 43257c5f96cb226438f0dfbcf4fc625a, type: 2}
   isSettedNextCard: 0
 --- !u!1 &2067625110
 GameObject:

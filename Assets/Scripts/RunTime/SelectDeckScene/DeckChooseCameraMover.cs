@@ -41,6 +41,11 @@ public class DeckChooseCameraMover : MonoBehaviour
                 var bounds = monster._bodyMesh.bounds;
                 center = bounds.center;
             }
+            else if(currentSelectedPrefab is ISelectableSpell)
+            {
+                center = currentSelectedPrefab.transform.position;
+                center.y += 1.0f;
+            }
             Debug.Log(center);
             var direction = center - transform.position;
             direction.x = 0f;
@@ -75,13 +80,19 @@ public class DeckChooseCameraMover : MonoBehaviour
     Vector3 GetTargetPos()
     {
         var z = currentSelectedPrefab.offsetZ;
-        var adjust = currentSelectedPrefab is ISelectableMonster ? 2.0f : currentSelectedPrefab is ISelectableSpell ? 1.1f : 0f;    
-        var offsetY = 0.5f;
+        var adjust = default(float);    
         var targetPos = currentSelectedPrefab.transform.position;
         if (currentSelectedPrefab is ISelectableMonster monster)
         {
-            targetPos.y = !monster._isFlying ? Terrain.activeTerrain.SampleHeight(targetPos) + offsetY : targetPos.y + offsetY;
+            var offsetY = 0.5f;
+            targetPos.y = !monster._isFlying ? Terrain.activeTerrain.SampleHeight(targetPos) + offsetY : targetPos.y;
             adjust = !monster._isFlying ? 2.0f : 3.0f;
+        }
+        else if(currentSelectedPrefab is ISelectableSpell)
+        {
+            var offsetY = 6.5f;
+            targetPos.y += offsetY;
+            adjust = 2.0f;
         }
         var offset = currentSelectedPrefab.gameObject.transform.forward * z * adjust;
         targetPos += offset;

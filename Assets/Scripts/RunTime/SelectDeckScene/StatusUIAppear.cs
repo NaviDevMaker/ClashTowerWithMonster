@@ -21,10 +21,10 @@ public class StatusUIAppear: MonoBehaviour
         [SerializeField] Sprite monsterTargetSprite;
         [SerializeField] Sprite monsterMoveSprite;
         [SerializeField] Sprite projectileMoveSpeedSprite;
+        [SerializeField] Sprite continuousTimeSpellSprite;
+        [SerializeField] Sprite castTimeSprite;
         [SerializeField] Sprite spellDamageAmountSprite;
         [SerializeField] Sprite spellHealAmountSprite;
-        [SerializeField] Sprite otherTypeSprite;
-        [SerializeField] Sprite spellInvokeTypeSprite;
         [SerializeField] Sprite spellDurationSprite;
 
         public Dictionary<IconType, Sprite> iconMap => new Dictionary<IconType, Sprite>
@@ -39,11 +39,10 @@ public class StatusUIAppear: MonoBehaviour
             {IconType.monsterMove,monsterMoveSprite},
             {IconType.chaseRange,chaseRangeSprite},
             {IconType.projectileMoveSpeed,projectileMoveSpeedSprite},
+            {IconType.continuousTimeSpell,continuousTimeSpellSprite},
+            {IconType.castTimeSpell,castTimeSprite},
             {IconType.spellDamageAmount,spellDamageAmountSprite},
             {IconType.spellHealAmount,spellHealAmountSprite},
-            {IconType.otherType,otherTypeSprite},
-            {IconType.spellInvokeType,spellInvokeTypeSprite},
-            {IconType.spellDuration,spellDurationSprite},
         };
 
         public Dictionary<IconType, Text> textMap { get; set; } = new Dictionary<IconType, Text>();
@@ -62,7 +61,7 @@ public class StatusUIAppear: MonoBehaviour
     CancellationTokenSource transparentCls = new CancellationTokenSource();
     List<UniTask> fadeTasks = new List<UniTask>();
     private void Start() => Setup();
-    public async void ApperUI(MonsterStatusData monsterStatusData,CancellationTokenSource cls)
+    public async void ApperUI(ScriptableObject statusData,CancellationTokenSource cls)
     {
         GetComponentsInChildren<Graphic>().ToList().ForEach(g =>
         {
@@ -79,7 +78,9 @@ public class StatusUIAppear: MonoBehaviour
             fadeTasks.TrimExcess();
         }
         //‚±‚±‚Ìcls‚ÍscrollCls‚Æcard‘¤‚Ìuse‚ð‰Ÿ‚³‚ê‚½‚Æ‚«‚Ìcls‚Ì“ñ‚Â
-        var statusDic = GetMonsterStatusContent(monsterStatusData);
+        var statusDic =  statusData is MonsterStatusData monsterStatusData ? GetMonsterStatusContent(monsterStatusData)
+            : statusData is SpellStatus spellStatus ? GetSpellStatusContent(spellStatus) : null;
+        if (statusDic == null) return;
 
         var currentTargetLusterImages = new List<Image>();
         foreach (var keyValuePair in statusDic)
@@ -272,7 +273,8 @@ public class StatusUIAppear: MonoBehaviour
         {
             (MonsterAttackType.ToEveryThing, MonsterMoveType.Walk) => "Ground Only",
             (MonsterAttackType.ToEveryThing, MonsterMoveType.Fly) => "Ground & Air",
-            (MonsterAttackType.OnlyBuilding, MonsterMoveType.Walk) or (MonsterAttackType.OnlyBuilding, MonsterMoveType.Fly) => "Building Only",
+            (MonsterAttackType.OnlyBuilding, MonsterMoveType.Walk) 
+            or (MonsterAttackType.OnlyBuilding, MonsterMoveType.Fly) => "Building Only",
             _ => default,
         };
 
@@ -285,15 +287,35 @@ public class StatusUIAppear: MonoBehaviour
 
         var spellIconType = spellStatus.SpellType switch
         {
-            SpellType.
-        }
-
-        statusDic[IconType.spellDuration] = spellStatus.InvokeType switch
-        {
-            SpellInvokeType.Continuous => spellStatus.SpellDuration.ToString(),
-            SpellInvokeType.
+            SpellType.Damage or SpellType.DamageToEveryThing => IconType.spellDamageAmount,
+            SpellType.Heal => IconType.spellHealAmount,
+            _ => default
         };
 
+        var spellInvokeIconType = spellStatus.InvokeType switch
+        {
+            SpellInvokeType.Continuous => IconType.continuousTimeSpell,
+            SpellInvokeType.CastTime => IconType.castTimeSpell,
+            _ => default
+        };
+
+        var targetSpellType = SpellInvokeType.CastTime | SpellInvokeType.Continuous;
+        if((spellStatus.InvokeType & targetSpellType) != 0)
+        {
+            var duration = spellStatus.SpellDuration.ToString();
+            var type = spellStatus.InvokeType.ToString();
+            var content = $"{type}:{duration}";
+            statusDic[spellInvokeIconType] = content;
+        }
+        
+        var targetType = SpellType.Damage | SpellType.DamageToEveryThing | SpellType.Heal;
+        if ((spellStatus.SpellType & targetType) != 0 )
+        {
+            var amount = spellStatus.EffectAmont.ToString();
+            statusDic[spellIconType] = amount;
+        }
+
+        return statusDic;
     }
 }
 public enum IconType
@@ -308,11 +330,10 @@ public enum IconType
     monsterMove,
     chaseRange,
     projectileMoveSpeed,
+    continuousTimeSpell,
+    castTimeSpell,
     spellDamageAmount,
     spellHealAmount,
-    otherType,
-    spellInvokeType,
-    spellDuration
 }
 
 

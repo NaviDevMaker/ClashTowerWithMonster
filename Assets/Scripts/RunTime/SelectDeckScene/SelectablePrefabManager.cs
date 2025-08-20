@@ -95,6 +95,14 @@ public class SelectablePrefabManager : MonoBehaviour
 
             var cls = card.removedButtonCls;
             prefab.SetSelectedEffect(cls);
+            if(prefab is ISelectableSpell selectableSpell)
+            {
+                UnityAction<LineRenderer> unableAction = (line) =>
+                {
+                    line.enabled = false;
+                };
+                selectableSpell.OnSelectedDeckFirst = unableAction;
+            }
         });
     }
 
@@ -165,10 +173,24 @@ public class SelectablePrefabManager : MonoBehaviour
     }
     public void UnableLineRenderer(PrefabBase currentSelectedSpell)
     {
+        if (!(currentSelectedSpell is ISelectableSpell)) return;
         spells.ForEach(spell =>
         {
             if (spell == currentSelectedSpell) return;
             spell.lineRenderer.enabled = false;
         });
     }
+    public void EnableLineRenderer()
+    {
+        var deck = SelectableCardManager.Instance.GetDeck();
+        var sortOrders = deck.Where(card => card != null)
+            .Select(card => card.sortOrder).ToList();
+        spells.ForEach(spell =>
+        {
+            var sortOrder = spell.sortOrder;
+            var inDeck = sortOrders.Contains(sortOrder);
+            if(spell.lineRenderer != null) spell.lineRenderer.enabled = !inDeck;
+        });
+    }
+
 }

@@ -40,9 +40,7 @@ namespace Game.Spells
 
         public int ownerID { get; set; } = -1;
         public UnitScale UnitScale => throw new NotImplementedException();
-
         public Transform  spellTra => transform;
-
         LineRenderer lineRenderer;
 
         private void Awake()
@@ -134,11 +132,14 @@ namespace Game.Spells
                 PoolObjectPreserver.lineRenderers.Add(line);
                 lineRenderer = line;
             }
+            Debug.Log($"ラインレンダラーのセットします{lineRenderer}");
+
             lineRenderer.SetUpLineRenderer();
             lineRenderer.sortingOrder = 1;
         }
         async UniTask DrawSpellRange()
         {
+            Debug.Log(lineRenderer);
             if (lineRenderer != null)
             {
                 lineRenderer.gameObject.SetActive(true);
@@ -149,10 +150,10 @@ namespace Game.Spells
             try
             {
                 await UniTask.Delay(TimeSpan.FromSeconds(spellDuration), cancellationToken: this.GetCancellationTokenOnDestroy());
+                await lineRenderer.ShurinkRangeLine(transform.position, rangeX, rangeZ);
             }
             catch (OperationCanceledException) { return; }
-            await lineRenderer.ShurinkRangeLine(transform.position,rangeX,rangeZ);
-            lineRenderer.gameObject.SetActive(false);
+            finally {lineRenderer.gameObject.SetActive(false); }
         }
 
         void LitLineRendererMaterial()
