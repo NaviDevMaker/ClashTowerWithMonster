@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System;
+using System.Threading;
 using UnityEngine;
 
 public class ParesisEffect:IEffectSetter
@@ -10,9 +11,19 @@ public class ParesisEffect:IEffectSetter
     }
     GameObject paresisEffect;
 
-    public async void GenerateParesisEffect(UnitBase target,int attackCount)
+    public async void GenerateParesisEffect(UnitBase target,float interval)
     {
-        if (attackCount != 0) return;
+        var visualTokens = target.statusCondition.visualTokens;
+        if (visualTokens.TryGetValue(StatusConditionType.Paresis,out var cls))
+        {
+            if (cls != null)
+            {
+                cls.Cancel();
+                cls.Dispose();
+            }
+        }
+        var newCls = new CancellationTokenSource();
+        visualTokens[StatusConditionType.Paresis] = newCls;
         var renderer = target.BodyMesh;
         //if(target is IMonster || target is IPlayer) renderer = target.MySkinnedMeshes[0];
         //else if(target.GetType() == typeof(TowerControlller)) renderer = target.MyMeshes[0];
@@ -28,17 +39,21 @@ public class ParesisEffect:IEffectSetter
 
         try
         {
-            await UniTask.WaitUntil(() => !target.statusCondition.Paresis.isActive, cancellationToken: target.GetCancellationTokenOnDestroy());
+            var visualCls = visualTokens[StatusConditionType.Paresis];
+            var doubleCls = CancellationTokenSource.CreateLinkedTokenSource(visualCls.Token, target.GetCancellationTokenOnDestroy());
+            await UniTask.Delay(TimeSpan.FromSeconds(interval),cancellationToken: doubleCls.Token);
         }
         catch (OperationCanceledException)
         {
-            Debug.Log("ターゲットが死んだのでキャンセルされました");
+            Debug.Log("ターゲットが死んだor効果が切れたor新たに掛けられたためキャンセルします");
         }
-
-        if(particle != null)
+        finally
         {
-            particle.Stop();
-            UnityEngine.Object.Destroy(particleObj);
+            if (particle != null)
+            {
+                particle.Stop();
+                UnityEngine.Object.Destroy(particleObj);
+            }
         }   
     }
     public async void SetEffect()

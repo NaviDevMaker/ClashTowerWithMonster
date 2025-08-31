@@ -44,7 +44,8 @@ namespace Game.Spells.ToxicCurse
                         var tower = t is TowerControlller;
                         if (tower) return false;
                         return true;
-                    });
+                    }).ToList();
+                    Debug.Log(removedTowerList.Count);
                     foreach (var unit in removedTowerList)
                     {
                         if (CompareUnitInRange(unit, reminningTime)) nowInRangeUnit.Add(unit);
@@ -92,7 +93,7 @@ namespace Game.Spells.ToxicCurse
             float minDistance = effectiveRadius_me + effectiveRadius_other;
             var distance = vector.magnitude;
 
-            if (distance >= minDistance) return false;
+            if (distance > minDistance) return false;
 
             //if (other.statusCondition.DemonCurse.isActive)
             //{

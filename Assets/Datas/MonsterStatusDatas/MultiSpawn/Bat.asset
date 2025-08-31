@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e21908263628327479e5e3791827b551, type: 3}
+  m_Name: Bat
+  m_EditorClassIdentifier: 
+  attackAmount: 10
+  hp: 100
+  pushAmount: 10
+  animInfo:
+    attackStateAnimSpeed: 1
+    deathStateAnimSpeed: 1
+    attackMotionType: 0
+  attackInterval: 0.5
+  chaseRange: 5
+  summonWaitTime: 0.3
+  attackRange: 1.5
+  moveSpeed: 2
+  moveStep: 1
+  attackType: 0
+  monsterAttackType: 0
+  monsterMoveType: 1
+  flyingOffsetY: 3

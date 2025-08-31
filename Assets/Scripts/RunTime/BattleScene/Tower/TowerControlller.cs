@@ -40,6 +40,7 @@ public class TowerControlller :UnitBase,IBuilding,ILongDistanceAttacker<TowerCon
         //Initialize(ownerID);
         //Debug.Log(Side);
         state = State.Search;
+        SetMaterialRendererFace();
     }
 
     protected override void Update()
@@ -132,19 +133,6 @@ public class TowerControlller :UnitBase,IBuilding,ILongDistanceAttacker<TowerCon
         var castedShotGuns = this.movers.OfType<GunMover>().ToList();
         archer.shotGuns = castedShotGuns;
     }
-
-    //void GunSetUp(GunMover gunMover)
-    //{
-    //    gunMover.Initialize(this);
-    //    gunMover.transform.SetParent(archer.arrowHand);
-    //    gunMover.transform.localPosition = archer.originalArrowPos;
-    //    gunMover.transform.localRotation = archer.originalArrowRot;
-    //    gunMover.gameObject.SetActive(false);
-    //    gunMover.OnEndProcess = SetToTowerUnitHandPos;
-    //    gunMover.moveSpeed = TowerStatus.GunSpeed;
-    //    shotGuns.Add(gunMover);
-    //}
-
     public void SetToStartPos(LongDistanceAttack<TowerControlller> gun)
     {
        // Debug.Log("定位置に戻ります");
@@ -152,10 +140,8 @@ public class TowerControlller :UnitBase,IBuilding,ILongDistanceAttacker<TowerCon
         gun.transform.SetParent(archer.arrowHand);
         gun.gameObject.transform.localPosition = archer.originalArrowPos;
         gun.transform.localRotation = archer.originalArrowRot;
-        //gun.transform.SetParent(gunParent.transform);
         gun.IsReachedTargetPos = false;
         gun.target = null;
-        //Debug.Log(gun.transform.position);
     }
     void OnDrawGizmos()
     {
@@ -216,6 +202,35 @@ public class TowerControlller :UnitBase,IBuilding,ILongDistanceAttacker<TowerCon
     public override void DestroyAll()
     {
         base.DestroyAll();
-        Destroy(archer.gameObject);
+        if(archer != null) Destroy(archer.gameObject);
+    }
+
+    void SetMaterialRendererFace()
+    {
+        var _meshMaterials = meshMaterials[0];
+        var frontIndex = new int[] {0,1,2,3,6};
+        var backIndex = new int[] { 4,5 };
+        for (int i = 0; i < _meshMaterials.Length; i++)
+        {
+            var m = _meshMaterials[i];
+            Debug.Log($"{m.name}変更します");
+            if(frontIndex.Contains(i))
+            {
+                m.SetInt("_Cull", 2); // 両面表示
+            }
+            else if(backIndex.Contains(i))
+            {
+                m.SetInt("_Cull", 1); // 両面表示
+            }
+
+            //これないとダメっぽい
+            m.SetInt("_ZWrite", 1);
+            m.SetInt("_ZTest", 4);
+            m.SetInt("_SrcBlend", 1);
+            m.SetInt("_DstBlend", 0);
+            m.renderQueue = 2000;
+        }
+
+        meshMaterials[0] = _meshMaterials;
     }
 }

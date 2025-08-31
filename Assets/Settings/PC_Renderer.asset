@@ -28,7 +28,7 @@ MonoBehaviour:
     _CustomTextureLayerMask:
       serializedVersion: 2
       m_Bits: 0
-    _Thickness: 2.5
+    _Thickness: 1
     _ResolutionAdjust: 0
     _UseDepthFade: 0
     _FadeStart: 20

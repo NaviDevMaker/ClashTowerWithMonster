@@ -65,7 +65,7 @@ public class AutoStateCreater : EditorWindow
 
                         var className = name;
                         var folderName = lastFolderNames[i];
-                        var folderPath = $"Assets/Scripts/Monsters/{folderName}";
+                        var folderPath = $"Assets/Scripts/RunTime/Monsters/{folderName}";
                         nameSpaceName = $"Game.Monsters.{lastNameSpaceNames[i]}";
                         if (!System.IO.Directory.Exists(folderPath))
                         {
@@ -90,7 +90,7 @@ public class AutoStateCreater : EditorWindow
 
                         var className = name;
                         var folderName = lastFolderNames[i];
-                        var folderPath = $"Assets/Scripts/Player/{folderName}";
+                        var folderPath = $"Assets/Scripts/RunTime/BattleScene/Player/{folderName}";
                         nameSpaceName = $"Game.Players.{lastNameSpaceNames[i]}";
                         if (!System.IO.Directory.Exists(folderPath))
                         {
@@ -207,7 +207,8 @@ namespace {namespaceName}
             base.OnEnter();
 
             //This paremetars are examples,so please change it to your preference!!
-            if(attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<{classTypeName}>(controller, this, clipLength, 10, 1.0f);      
+            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<{classTypeName} >(controller, this, clipLength,10,
+                controller.MonsterStatus.AttackInterval);
         }}
         public override void OnUpdate()
         {{

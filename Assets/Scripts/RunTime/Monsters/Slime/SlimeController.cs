@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -17,6 +18,20 @@ namespace Game.Monsters.Slime
             base.Start();
         }
 
+        protected override void Update()
+        {
+            base.Update();
+            if(isSummonedInDeckChooseScene)
+            {
+                HPBarProcess();
+                if (hPBar != null)
+                {
+                    var eulerAngle = transform.rotation.eulerAngles;
+                    hPBar.transform.rotation = Quaternion.Euler(eulerAngle.x, 0f, eulerAngle.z);
+                }
+            }
+        }
+
         public override void Initialize(int owner = -1)
         {
             moveType = MoveType.Walk;
@@ -25,6 +40,12 @@ namespace Game.Monsters.Slime
             ChaseState = new ChaseState(this);
             AttackState = new AttackState(this);
             DeathState = new DeathState(this);
+        }
+
+        public async void HalfOfHp()
+        {
+            await UniTask.DelayFrame(100);
+            currentHP = Mathf.RoundToInt((float)currentHP / 2);
         }
     }
 }

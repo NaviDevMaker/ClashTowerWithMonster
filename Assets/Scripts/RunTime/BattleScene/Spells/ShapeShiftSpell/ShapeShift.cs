@@ -32,7 +32,7 @@ public class ShapeShift : SpellBase
         particle.Play();
         try
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(spellDuration), cancellationToken: this.GetCancellationTokenOnDestroy());
+            await UniTask.Delay(TimeSpan.FromSeconds(spellDuration),cancellationToken: this.GetCancellationTokenOnDestroy());//
             var units = spellEffectHelper.GetUnitInRange();
             var filteredList = units.Where(unit =>
             {
@@ -42,6 +42,7 @@ public class ShapeShift : SpellBase
                 return inRange && isNotTower && isNotPlayer;
             }).ToList();
 
+            Debug.Log($"ユニットのカウント{units.Count},フィルタリング後のカウント{filteredList.Count}");
             if (filteredList.Count == 0) return;
             var pList = new List<ParticleSystem>();
             for (int i = 0; i < filteredList.Count; i++)
@@ -94,14 +95,17 @@ public class ShapeShift : SpellBase
         var r = UnityEngine.Random.Range(0, list.Count);
         var newMonster = list[r];
         var Id = transformedUnit.ownerID;
-        var monster = Instantiate(newMonster,pos,Quaternion.identity);
-        monster.ownerID = Id;
-        var unitSize = monster.BodyMesh.bounds.size;
+        var isSummonedDeckChooseScene = transformedUnit is IMonster transformedMonster ? transformedMonster.isSummonedInDeckChooseScene : false;
+        var unit = Instantiate(newMonster,pos,Quaternion.identity);
+        unit.ownerID = Id;
+        if (unit is IMonster monster) monster.isSummonedInDeckChooseScene = isSummonedDeckChooseScene;
+        UnitManager.AddToList(unit);
+        var unitSize = unit.BodyMesh.bounds.size;
         var newScale = new Vector3(originalScale.x *unitSize.x,originalScale.y * unitSize.y,
             originalScale.z * unitSize.z);
         particle.transform.localScale = newScale;
         particle.Play();
-        if (monster.TryGetComponent<ISummonbable>(out var summonbable))
+        if (unit.TryGetComponent<ISummonbable>(out var summonbable))
         {
             summonbable.isSummoned = true;
         }

@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using Game.Monsters.Slime;
 using Game.Spells;
 using System;
 using System.Threading;
@@ -22,6 +23,7 @@ public class SelectableSpell : PrefabBase, ISelectableSpell
     public SpellStatus _spellStatus  => spellStatus;
     public LineRenderer lineRenderer { get;private set;}
     public UnityAction<LineRenderer> OnSelectedDeckFirst { get; set; } = null;
+
     class SpellInfo
     {
         public Vector3 pos { get; set; }
@@ -57,25 +59,33 @@ public class SelectableSpell : PrefabBase, ISelectableSpell
     }
     public async void SpellInvoke(CancellationTokenSource spellCls)
     {
+        var timerObj = default(GameObject);
+        UnityAction<GameObject> setTimerObj = (timer) => timerObj = timer;
         //ここのclsはscrollClsとuseButtonのcls
         lineRenderer.enabled = false;
         var pos = spellInfo.pos;    
         var rot = spellInfo.rot;
+        var spellType = spellStatus.SpellType;
         //カード押されたとき、スクロールされたとき、
+        var slimes = SelectablePrefabManager.Instance.GetSlimeObjects(pos,spellType);
+        UnitManager.AddToList(slimes);
         var spell = Instantiate(spellPrefab, pos, rot);
+        spell.ownerID = 0;//必ず味方にするから０にする、本番(バトルの時)ではMyIDだからここで０にしないといけない
         try
         {
             spell.gameObject.SetActive(true);
             await UniTask.DelayFrame(100,cancellationToken:spellCls.Token);
+
             var duration = spell.spellDuration + 5.0f;
-            spell.SpellInvoke();
+            spell.SpellInvoke(setTimerObj);
 
             await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: spellCls.Token);
         }            
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException) {}
         finally
         {
            if(spell != null) Destroy(spell.gameObject);
+           if (timerObj != null) Destroy(timerObj);
         }
     }
     public void SpellRangeDraw()
@@ -118,4 +128,6 @@ public class SelectableSpell : PrefabBase, ISelectableSpell
         };
         lineRenderer.LitLineRendererMaterial(waitAction);
     }
+
+
 }

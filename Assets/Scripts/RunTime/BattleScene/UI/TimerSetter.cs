@@ -3,6 +3,8 @@ using Cysharp.Threading.Tasks;
 using UnityEngine.UI;
 using DG.Tweening;
 using Game.Spells;
+using System;
+using UnityEngine.Events;
 
 
 
@@ -68,26 +70,32 @@ public class TimerSetter:SingletonMonobehavier<TimerSetter>
         UnityEngine.Object.Destroy(timerObj);
     }
 
-    public async void StartSpellTimer(float spellTime,ISpells spell)
+    public async void StartSpellTimer(float spellTime,ISpells spell,UnityAction<GameObject> setTimerObj = null)
     {
         if(spellTimer == null) spellTimer = await SetFieldFromAssets.SetField<GameObject>("UI/SpellTimer");
         var pos = spell.spellTra.position;
         pos.y += spell.timerOffsetY;
         var timerObj = Instantiate(this.spellTimer, pos, Quaternion.identity);
-        var size = Vector3.one * timerPerScale;
-        timerObj.transform.localScale = size;
-        var timerImages = GetTimerImages(timerObj);
+        setTimerObj?.Invoke(timerObj);
+        try
+        {
+            var size = Vector3.one * timerPerScale;
+            timerObj.transform.localScale = size;
+            var timerImages = GetTimerImages(timerObj);
 
-        timerImages.outSideImage.fillAmount = 0f;
-        timerImages.inSideImage.fillAmount = 0f;
-        await CountTime(timerObj, timerImages, spellTime);
+            timerImages.outSideImage.fillAmount = 0f;
+            timerImages.inSideImage.fillAmount = 0f;
+            await CountTime(timerObj, timerImages, spellTime);
 
-        timerImages.outSideImage.fillAmount = 1.0f;
-        timerImages.inSideImage.fillAmount = 1.0f;
+            timerImages.outSideImage.fillAmount = 1.0f;
+            timerImages.inSideImage.fillAmount = 1.0f;
 
-        var sequence = GetUIAnimations(timerObj, timerImages);
-        await sequence.AsyncWaitForCompletion();
-        UnityEngine.Object.Destroy(timerObj);
+            var sequence = GetUIAnimations(timerObj, timerImages);
+            await sequence.ToUniTask(cancellationToken: timerObj.GetCancellationTokenOnDestroy());
+        }
+        catch (NullReferenceException) { return; }
+        catch (OperationCanceledException) { return; }
+        if(timerObj != null) UnityEngine.Object.Destroy(timerObj);
     }
     public async void StartSkillTimer(float skillTime,ISkills skill)
     {

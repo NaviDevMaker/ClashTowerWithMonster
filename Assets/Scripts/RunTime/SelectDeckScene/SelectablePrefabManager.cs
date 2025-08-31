@@ -1,4 +1,6 @@
 using Cysharp.Threading.Tasks;
+using Game.Monsters;
+using Game.Monsters.Slime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +19,7 @@ public class LineUpFields
 }
 public class SelectablePrefabManager : MonoBehaviour
 {
+    public static SelectablePrefabManager Instance;
     public List<SelectableMonster> monsters { get; set; } = new List<SelectableMonster>();
     public List<SelectableSpell> spells { get; set; } = new List<SelectableSpell>();
     public List<PrefabBase> prefabs { get; set; } = new List<PrefabBase>();
@@ -26,14 +29,18 @@ public class SelectablePrefabManager : MonoBehaviour
     [SerializeField] LineUpFields lineUpFields; 
     int line = 0;
     int columCount = 0;
+
+    GameObject slimePrefab;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     Dictionary<AttackMotionType, UnityAction<SelectableMonster, CancellationTokenSource>> attackMotions = new Dictionary<AttackMotionType, UnityAction<SelectableMonster, CancellationTokenSource>>();
+    private void Awake() => Instance = this;
     public async void Initialize(PrefabManagerActions prefabManagerActions) /*Func<SelectableCard,(MonsterStatusData, SelectableMonster)> getMosnterDataAndPrefab,
                                  Func<SelectableCard, (SpellStatus, SelectableSpell prefab)> getSpellDataAndPrefab*/
     {
         await SetAssetsFromAdress();
         SetSelectablePrafabs(prefabManagerActions);
+        slimePrefab = await SetFieldFromAssets.SetField<GameObject>("Prefabs/Monsters/Slime");
     }
 
     async void SetSelectablePrafabs(PrefabManagerActions prefabManagerActions)/*Func<SelectableCard, (MonsterStatusData, SelectableMonster prefab)> getMosnterDataAndPrefab,
@@ -192,5 +199,35 @@ public class SelectablePrefabManager : MonoBehaviour
             if(spell.lineRenderer != null) spell.lineRenderer.enabled = !inDeck;
         });
     }
+    public SlimeController[] GetSlimeObjects(Vector3 pos,SpellType spellType)
+    {
+        var spawnCount = 4;
+        var offset = 3.0f;
+        var poses = new Vector3[]
+        {
+           pos + Vector3.right * offset,
+           pos + Vector3.left * offset,
+           pos + Vector3.forward * offset   ,
+           pos + Vector3.back * offset
+        };
 
+        var slimes = poses
+            .Take(spawnCount)
+            .Select(p =>
+            {
+                var obj = Instantiate(slimePrefab, p, Quaternion.identity);
+                var slime = obj.GetComponent<SlimeController>();
+                slime.isSummonedInDeckChooseScene = true;
+                slime.isSummoned = true;
+                slime.ownerID = spellType switch
+                {
+                    SpellType.Damage or SpellType.DamageToEveryThing or SpellType.OtherToEnemyside => 1,
+                    SpellType.Heal or SpellType.OtherToPlayerside or SpellType.OtherToEverything => 0,
+                    _ => default
+                };
+                if (spellType == SpellType.Heal) slime.HalfOfHp();
+                return slime;
+            }).ToArray();
+        return slimes;
+    }
 }

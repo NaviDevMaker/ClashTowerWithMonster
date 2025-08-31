@@ -1,9 +1,30 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-public interface IMonster { }
+public interface IMonster 
+{ 
+    bool isSummonedInDeckChooseScene { get; set; }
+    MonsterStatusData _MonsterStatus { get; }
+
+    FlyingMonsterStatusData _FlyingMonsterStatus { get; }
+    
+    ProjectileAttackMonsterStatus _ProjectileAttackMonsterStatus { get; }
+
+    RangeAttackMonsterStatusData _RangeAttackMonsterStatus { get; }
+
+    ContinuousAttackMonsterStatus _ContinuousAttackMonsterStatus { get;}
+    UnitType _UnitType { get; }
+
+    Renderer _BodyMesh { get; }
+}
+
+public interface IRangeAttack
+{ 
+    GameObject wepon { get; }
+    void SetHitJudgementObject();
+}
+
 namespace Game.Monsters
 {
-
     public class MonsterControllerBase<T> : UnitBase, IMonster,ISummonbable where T : MonsterControllerBase<T>
     {
         [SerializeField] MonsterAnimatorPar monsterAnimPar;
@@ -18,15 +39,20 @@ namespace Game.Monsters
         public DeathStateBase<T> DeathState { get; protected set; }
         protected StateMachineBase<T> currentState { get; private set;}
         public StateMachineBase<T> previusState { get; private set; }
-       
 
         protected AddForceToUnit<MonsterControllerBase<T>> addForceToUnit;
+        public bool isSummonedInDeckChooseScene { get; set; } = false;
+        public MonsterStatusData _MonsterStatus => MonsterStatus;
+        public FlyingMonsterStatusData _FlyingMonsterStatus => FyingMonsterStatus;
+        public ProjectileAttackMonsterStatus _ProjectileAttackMonsterStatus => ProjectileAttackMonsterStatus;
+        public RangeAttackMonsterStatusData _RangeAttackMonsterStatus => RangeAttackMonsterStatusData;
+        public ContinuousAttackMonsterStatus _ContinuousAttackMonsterStatus => throw new System.NotImplementedException();
+        public UnitType _UnitType => UnitType.monster;
+        public Renderer _BodyMesh => BodyMesh;
 
-        
         protected override void Start()
         {
-
-            isSummoned = true;
+            isSummoned = true;//これテスト用だからもしコメントアウトされてなかったら消してね
             Debug.Log("ｊｃｄさｃｄｓｈｋｃｓｄｊｄｓｃｓｄｋｓｄｎ");
             base.Start();
             addForceToUnit = new AddForceToUnit<MonsterControllerBase<T>>(this, StatusData.PushAmount);
@@ -34,29 +60,35 @@ namespace Game.Monsters
             ChangeState(IdleState);
             originalAnimatorSpeed = animator.speed;
         }
-
         protected override void Update()
         {
-            base.Update();
-            Debug.Log($"{statusCondition.Freeze.isActive},{statusCondition.Freeze.isEffectedCount}");
-            this.CheckFreeze_Unit(animator);
-            if (isSummoned)
+            if (!isSummonedInDeckChooseScene)
             {
-                currentState?.OnUpdate();
+                base.Update();
+                Debug.Log($"{statusCondition.Freeze.isActive},{statusCondition.Freeze.isEffectedCount}");
+                this.CheckFreeze_Unit(animator);
+                if (isSummoned)
+                {
+                    currentState?.OnUpdate();
+                }
+                if (isDead && currentState != DeathState)
+                {
+                    ChangeToDeathState();
+                }
+                Debug.Log(currentState);
             }
-            if (isDead && currentState != DeathState)
+            else
             {
-                ChangeToDeathState();
-            }
-            Debug.Log(currentState);
-          
+                if (isDead && currentState != DeathState)
+                {
+                    ChangeToDeathState();
+                }
+            }          
         }
-
         private void FixedUpdate()
         {
             if(isSummoned && IdleState.isEndSummon && !isDead) addForceToUnit.KeepDistance(moveType);
         }
-
       
         public virtual void ChangeState(StateMachineBase<T> nextState)
         {
@@ -103,8 +135,7 @@ namespace Game.Monsters
             }
             return 0;
         }
-
-        void ChangeToDeathState()
+        protected void ChangeToDeathState()
         {
             Debug.Log("死亡ステイトに変更します");
             ChangeState(DeathState);

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: NormalTower
   m_EditorClassIdentifier: 
   attackAmount: 10
-  hp: 3000
+  hp: 300
   pushAmount: 10
   gunSpeed: 20
   shotDuration: 0.8

@@ -22,11 +22,7 @@ public class DeathEffect:IEffectSetter
            var unitBase = unit as UnitBase;
            meshRenderer =  unitBase.BodyMesh;
         }
-        //else if(unit.GetType() == typeof(TowerControlller))
-        //{
-        //    var unitBase = unit as UnitBase;     
-        //    meshRenderer = unitBase.MyMeshes[body];
-        //}
+        
         else if(unit.GetType() == typeof(ArcherController))
         {
             var archerController = unit as ArcherController;
@@ -37,7 +33,7 @@ public class DeathEffect:IEffectSetter
         {
             var meshSize = meshRenderer.bounds.size;
             particleScale = new Vector3(particleScale.x * meshSize.x,
-                particleScale.y * meshSize.y,particleScale.z * meshSize.z);
+            particleScale.y * meshSize.y,particleScale.z * meshSize.z);
         }
         var particleObj = UnityEngine.Object.Instantiate(deathParticle, unitPos, Quaternion.identity);
         //particleObj.transform.SetParent(unit.transform);
@@ -54,7 +50,7 @@ public class DeathEffect:IEffectSetter
         {
             var adjust = animationLength / duration;
 
-            if(!float.IsNaN(adjust) || !float.IsInfinity(adjust))
+            if(!float.IsNaN(adjust) && !float.IsInfinity(adjust))
             {
                 duration = duration * adjust + delay;
             }

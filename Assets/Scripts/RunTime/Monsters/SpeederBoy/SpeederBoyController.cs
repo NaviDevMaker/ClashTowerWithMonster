@@ -20,6 +20,7 @@ namespace Game.Monsters.SpeederBoy
         protected override void Update()
         {
             base.Update();
+            if (isSummonedInDeckChooseScene) return;
             CheckBuffInverval();
             BuffState.CheckIsUnitInRange();
         }

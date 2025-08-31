@@ -4,14 +4,15 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : SingletonMonobehavier<GameManager>
 {
-    PlayerSetter playerSetter;// [SerializeField]
-    SwordPlayerController player;//[SerializeField]
+    [SerializeField] PlayerSetter playerSetter;// ‚±‚ê«—ˆ‚Íprivate‚Ë
+   @[SerializeField] SwordPlayerController player;//‚±‚ê«—ˆ‚Íprivate‚Ë
     DeckPreserver deckPreserver;
     private async void Start()
     {
         deckPreserver = await SetFieldFromAssets.SetField<DeckPreserver>("Datas/DeckPreserver");
-        //playerSetter.Setup<SwordPlayerController>(player);
+        playerSetter.Setup<SwordPlayerController>(player);
         SceneManager.activeSceneChanged += SetupField;
+        SceneManager.activeSceneChanged += PoolObjectPreserver.ListClear;
     }
 
     void SetupField(Scene previousScene,Scene newScene)
@@ -19,6 +20,7 @@ public class GameManager : SingletonMonobehavier<GameManager>
         switch (newScene.name)
         {
             case "BattleScene":
+                //Photon‚Å‚Í‘Šè‚ÌPlayerSetter‚Í•\¦‚³‚ê‚È‚¢‚©‚ç‚±‚ê‚Å‚¢‚¢
                 playerSetter = GameObject.FindFirstObjectByType<PlayerSetter>();
 
                 var players = GameObject.FindObjectsByType<SwordPlayerController>(sortMode:FindObjectsSortMode.None);

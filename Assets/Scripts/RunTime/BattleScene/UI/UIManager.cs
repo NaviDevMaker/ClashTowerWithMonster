@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 public class UIManager : SingletonMonobehavier<UIManager>
@@ -19,7 +20,7 @@ public class UIManager : SingletonMonobehavier<UIManager>
         };
     }
     public async UniTask StartSummonTimer(float summonTime, UnitBase targetUnit) => await timerSetter.StartSummonTimer(summonTime, targetUnit);
-    public void StartSpellTimer(float spellTime, ISpells spell) => timerSetter.StartSpellTimer(spellTime, spell);
+    public void StartSpellTimer(float spellTime, ISpells spell,UnityAction<GameObject> setTimerObj = null) => timerSetter.StartSpellTimer(spellTime, spell,setTimerObj);
     public void StartSkillTimer(float skillTime, ISkills skill) => StartSkillTimer(skillTime, skill);
 
     public void SummonedNameDisplay<T>(T unitObj) where T : MonoBehaviour,ISide => summoneMonsterDisplayUI.SummonedUIDisplay(unitObj);

@@ -27,7 +27,7 @@ namespace Game.Monsters
             moveSpeed = controller.BuffStatus(BuffType.Speed, (int)controller.MonsterStatus.MoveSpeed);
             myMonsterAttackType = controller.MonsterStatus.MonsterAttackType;
             cts = new CancellationTokenSource();
-            controller.animator.SetBool(controller.MonsterAnimPar.Chase, true);
+            controller.animator.SetBool(controller.MonsterAnimPar.Chase_Hash, true);
             nextState = controller.AttackState;
             SetTargetTower();
             EvaluateNewTargetAndChase();
@@ -71,7 +71,7 @@ namespace Game.Monsters
             reachTargetEnemy = false;
             targetEnemy = null;
             targetTower = null;
-            controller.animator.SetBool(controller.MonsterAnimPar.Chase, false);
+            controller.animator.SetBool(controller.MonsterAnimPar.Chase_Hash, false);
             //cts?.Dispose();
         }
         protected virtual void SetTargetTower()

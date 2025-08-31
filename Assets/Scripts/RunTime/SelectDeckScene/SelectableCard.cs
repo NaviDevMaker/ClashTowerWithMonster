@@ -385,6 +385,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
         selectableCardImage.SetCurrentPos();
         useButton.onClick.AddListener(() =>
         {
+            UnitManager.DestroyAll();
             cardActions.closeStatusUIAction.Invoke();
             useButtonCls?.Cancel();
             useButtonCls?.Dispose();
@@ -404,6 +405,7 @@ public class SelectableCard : MonoBehaviour,IPointerDownHandler,IPointerUpHandle
 
         statusButton.onClick.AddListener(() =>
         {
+            UnitManager.DestroyAll();
             statusButtonCls = new CancellationTokenSource();
 
             var scrollCls = ScrollManager.Instance.scrollCls;

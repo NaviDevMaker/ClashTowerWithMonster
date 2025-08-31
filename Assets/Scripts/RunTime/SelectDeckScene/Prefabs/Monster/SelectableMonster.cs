@@ -322,7 +322,7 @@ public class SelectableMonster : PrefabBase, ISelectableMonster
         }
         catch(OperationCanceledException)
         {
-            animator.SetBool(monsterAnimatorPar.Attack,false);
+            animator.SetBool(monsterAnimatorPar.Attack_Hash,false);
             animator.Play("Idle");
         } 
         finally

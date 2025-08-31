@@ -71,7 +71,7 @@ public class ControllerCreater : EditorWindow
                 var lastFolderName = lastFolderNames[i];
                 if(type == UnitType.Monster)
                 {
-                    var folderPath = $"Assets/Scripts/Monsters/{lastFolderName}";
+                    var folderPath = $"Assets/Scripts/RunTime/Monsters/{lastFolderName}";
                     var className = controllerNames[i];
                     var nameSpace = $"Game.Monsters.{lastFolderNames[i]}";
                     if(!System.IO.Directory.Exists(folderPath))

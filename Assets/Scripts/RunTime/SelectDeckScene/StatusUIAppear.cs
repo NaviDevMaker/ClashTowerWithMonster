@@ -11,6 +11,15 @@ public class StatusUIAppear: MonoBehaviour
     [System.Serializable]
     class IconImages
     {
+        [System.Serializable]
+        public class SpecificSpellIconImage
+        {
+            public Sprite confusionSprite;
+            public Sprite freezeSprite;
+            public Sprite shapeShiftSprite;
+        }
+
+        [SerializeField] SpecificSpellIconImage specificSpellIconImage;
         [SerializeField] Sprite attackAmountSprite;
         [SerializeField] Sprite hpSprite;
         [SerializeField] Sprite chaseRangeSprite;
@@ -18,7 +27,8 @@ public class StatusUIAppear: MonoBehaviour
         [SerializeField] Sprite attackRangeSprite;
         [SerializeField] Sprite perMoveStepSprite;
         [SerializeField] Sprite attackDistanceSprite;//近接か長距離（飛び道具で攻撃）
-        [SerializeField] Sprite monsterTargetSprite;
+        [SerializeField] Sprite TargetSprite;
+        [SerializeField] Sprite targetCountSprite;
         [SerializeField] Sprite monsterMoveSprite;
         [SerializeField] Sprite projectileMoveSpeedSprite;
         [SerializeField] Sprite continuousTimeSpellSprite;
@@ -35,10 +45,14 @@ public class StatusUIAppear: MonoBehaviour
             {IconType.attackRange,attackRangeSprite},
             {IconType.perMoveStep,perMoveStepSprite},
             {IconType.attackDistance,attackDistanceSprite},
-            {IconType.monsterTarget,monsterTargetSprite},
+            {IconType.Target,TargetSprite},
+            {IconType.targetCount,targetCountSprite},
             {IconType.monsterMove,monsterMoveSprite},
             {IconType.chaseRange,chaseRangeSprite},
             {IconType.projectileMoveSpeed,projectileMoveSpeedSprite},
+            {IconType.freeze,specificSpellIconImage.freezeSprite},
+            {IconType.confusion,specificSpellIconImage.confusionSprite},
+            {IconType.shapeShift,specificSpellIconImage.shapeShiftSprite},
             {IconType.continuousTimeSpell,continuousTimeSpellSprite},
             {IconType.castTimeSpell,castTimeSprite},
             {IconType.spellDamageAmount,spellDamageAmountSprite},
@@ -128,6 +142,7 @@ public class StatusUIAppear: MonoBehaviour
     }
     void Setup()
     {
+        Debug.Log(iconImages.iconMap.Count);
         var sortedImage = GetComponentsInChildren<Image>().ToList()
             .Where(image => image.gameObject.name != lusterObjName)
             .OrderBy(image => image.transform.GetSiblingIndex()).ToList();
@@ -195,12 +210,14 @@ public class StatusUIAppear: MonoBehaviour
     }
     void SlideLusterImage(List<Image> currentLusterImages,CancellationTokenSource cls)
     {
-        var direction = 1;
-        var moveSpeed = 200f;
-        var absAmount = 400f;
-        var delay = 1.5f;
+      
+        var moveSpeed = 400f;
+        var absIncreaseAmount = 600f;
+        var delay = 0.75f;
         Func<Image,Vector2,UniTask> imageMover = async (lusterImage,originalPos) =>
         {
+            var direction = 1;
+            var absAmount = 1000f;
             try
             {
                 var originalPosX = originalPos.x;
@@ -216,6 +233,7 @@ public class StatusUIAppear: MonoBehaviour
                     if (Mathf.Approximately(newPos.x,targetPos.x))
                     {
                         direction = -direction;
+                        absAmount += absIncreaseAmount * direction;
                         targetPos = new Vector2(originalPosX + absAmount * direction, currentPos.y);
                         Debug.Log(targetPos);
                         await UniTask.Delay(TimeSpan.FromSeconds(delay),cancellationToken:cls.Token);
@@ -249,11 +267,11 @@ public class StatusUIAppear: MonoBehaviour
             {IconType.attackRange,monsterStatusData.AttackRange.ToString()},
             {IconType.perMoveStep,(monsterStatusData.MoveSpeed * monsterStatusData.MoveStep).ToString()},
             {IconType.attackDistance,null},
-            {IconType.monsterTarget,null},
+            {IconType.Target,null},
             {IconType.monsterMove, monsterStatusData.MonsterMoveType.ToString()},
         };
 
-        if (monsterStatusData.MonsterAttackType == MonsterAttackType.ToEveryThing)
+        if (monsterStatusData.MonsterAttackType == MonsterAttackType.RelyOnMoveType)
         {
             statusDic.Add(IconType.chaseRange, monsterStatusData.ChaseRange.ToString());
         }
@@ -269,10 +287,12 @@ public class StatusUIAppear: MonoBehaviour
             _ => default,
         };
 
-        statusDic[IconType.monsterTarget] = (monsterStatusData.MonsterAttackType, monsterStatusData.MonsterMoveType) switch
+        statusDic[IconType.Target] = (monsterStatusData.MonsterAttackType, monsterStatusData.MonsterMoveType) switch
         {
-            (MonsterAttackType.ToEveryThing, MonsterMoveType.Walk) => "Ground Only",
-            (MonsterAttackType.ToEveryThing, MonsterMoveType.Fly) => "Ground & Air",
+            (MonsterAttackType.RelyOnMoveType, MonsterMoveType.Walk) => "Ground Only",
+            (MonsterAttackType.RelyOnMoveType, MonsterMoveType.Fly) => "Ground & Air",
+            (MonsterAttackType.ToEveryThing,MonsterMoveType.Walk)
+              or (MonsterAttackType.ToEveryThing, MonsterMoveType.Fly) => "Everything",
             (MonsterAttackType.OnlyBuilding, MonsterMoveType.Walk) 
             or (MonsterAttackType.OnlyBuilding, MonsterMoveType.Fly) => "Building Only",
             _ => default,
@@ -285,12 +305,33 @@ public class StatusUIAppear: MonoBehaviour
     {
         var statusDic = new Dictionary<IconType, string>();
 
+        var specificSpellIconType = spellStatus.SpecificSpellType switch
+        {
+            SpecificSpellType.Freeze => IconType.freeze,
+            SpecificSpellType.Confusion => IconType.confusion,
+            SpecificSpellType.ShapeShift => IconType.shapeShift,
+            _=> default,
+        };
+        
         var spellIconType = spellStatus.SpellType switch
         {
             SpellType.Damage or SpellType.DamageToEveryThing => IconType.spellDamageAmount,
             SpellType.Heal => IconType.spellHealAmount,
             _ => default
         };
+
+        var targetContent = spellStatus.SpellType switch
+        {
+            SpellType.Damage or SpellType.OtherToEnemyside => "Enemy",
+            SpellType.DamageToEveryThing or SpellType.OtherToEverything => "EveryThing",
+            SpellType.Heal or SpellType.OtherToPlayerside => "Ally",
+            _ => default
+
+        };
+
+        statusDic[IconType.Target] = targetContent;
+        var countContent = spellStatus.TargetCount.ToString();
+        statusDic[IconType.targetCount] = $"TargetCount :{countContent}";
 
         var spellInvokeIconType = spellStatus.InvokeType switch
         {
@@ -299,20 +340,33 @@ public class StatusUIAppear: MonoBehaviour
             _ => default
         };
 
+        var targetSpeficType = SpecificSpellType.ShapeShift | SpecificSpellType.Freeze | SpecificSpellType.Confusion;
+        var mySpecificType = spellStatus.SpecificSpellType;
+        if((spellStatus.SpecificSpellType & targetSpeficType) != 0)
+        {
+            var content = $"{mySpecificType.ToString()}";
+            statusDic[specificSpellIconType] = content;
+        }
+
         var targetSpellType = SpellInvokeType.CastTime | SpellInvokeType.Continuous;
-        if((spellStatus.InvokeType & targetSpellType) != 0)
+        var myInvokeType = spellStatus.InvokeType;
+        if((myInvokeType & targetSpellType) != 0)
         {
             var duration = spellStatus.SpellDuration.ToString();
-            var type = spellStatus.InvokeType.ToString();
+            var type = myInvokeType.ToString();
             var content = $"{type}:{duration}";
             statusDic[spellInvokeIconType] = content;
         }
         
-        var targetType = SpellType.Damage | SpellType.DamageToEveryThing | SpellType.Heal;
-        if ((spellStatus.SpellType & targetType) != 0 )
+        var effectiveTarget = SpellType.Damage | SpellType.DamageToEveryThing | SpellType.Heal;
+        if ((spellStatus.SpellType & effectiveTarget) != 0 )
         {
-            var amount = spellStatus.EffectAmont.ToString();
-            statusDic[spellIconType] = amount;
+            var amount = spellStatus.EffectAmont;
+            if (amount != 0)
+            {
+                var amountContent = amount.ToString();
+                statusDic[spellIconType] = amountContent;
+            }
         }
 
         return statusDic;
@@ -320,20 +374,25 @@ public class StatusUIAppear: MonoBehaviour
 }
 public enum IconType
 {
-    attackAmount,
+    attackAmount,//攻撃力
     Hp,
-    summonWaitTime,
+    summonWaitTime,//召喚されるまでの時間
     attackRange,
-    perMoveStep,
+    perMoveStep,//一歩ごとに進む距離
     attackDistance,//近接か長距離（飛び道具で攻撃）
-    monsterTarget,//建物（今のところはタワー）だけかユニットと建物の両方か
-    monsterMove,
-    chaseRange,
-    projectileMoveSpeed,
+    Target,//建物（今のところはタワー）だけかユニットと建物の両方か
+    targetCount,//スペルのターゲットについて、範囲内の該当ユニット全部か指定されたユニットの数か
+    monsterMove,//地面を進むか空を飛んでいるか
+    chaseRange,//追跡範囲、この範囲内に敵がいなかったらタワーに進む
+    projectileMoveSpeed,//飛び道具で攻撃するユニットの飛び道具の速度
     continuousTimeSpell,
     castTimeSpell,
     spellDamageAmount,
     spellHealAmount,
+    confusion,
+    freeze,
+    shapeShift,
+
 }
 
 

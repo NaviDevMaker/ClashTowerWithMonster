@@ -1,6 +1,9 @@
+using Cysharp.Threading.Tasks;
 using Game.Monsters;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
+using static UnityEngine.GraphicsBuffer;
 
 public static class StatusConditionMethods
 {
@@ -52,5 +55,26 @@ public static class StatusConditionMethods
            }
            //‚ ‚Æ‚©‚çPlayer‘¤’Ç‰Á‚µ‚ë‚È‰´
         }
+    }
+
+    public static async void ParesisTarget<T>(this T controller,UnitBase target) where T : UnitBase 
+    {  
+        if (target == null || target is TowerControlller) return;
+        var statusCondition = target.statusCondition;
+        try
+        {
+            if (statusCondition != null)
+            {
+                Debug.Log("–ƒáƒ‚³‚¹‚Ü‚·");
+                var interval = controller.statusCondition.Paresis.inverval;
+                statusCondition.Paresis.isActive = true;
+                EffectManager.Instance.statusConditionEffect.paresisEffect.GenerateParesisEffect(target,interval);
+                statusCondition.Paresis.isEffectedCount++;
+                await UniTask.Delay(TimeSpan.FromSeconds(interval), cancellationToken: target.GetCancellationTokenOnDestroy());
+                statusCondition.Paresis.isEffectedCount--;
+                if (statusCondition.Paresis.isEffectedCount == 0) statusCondition.Paresis.isActive = false;
+            }
+        }
+        catch (OperationCanceledException) { }     
     }
 }

@@ -4,6 +4,7 @@ using UnityEditor.Animations;
 using System.Collections.Generic;
 using System.Linq;
 using System.Data.Common;
+using System;
 
 public class ClipNameRenamer : EditorWindow
 {
@@ -16,7 +17,9 @@ public class ClipNameRenamer : EditorWindow
     List<AnimatorController> controllers = new List<AnimatorController>();
     Dictionary<AnimatorController, string[]> originalClipNames = new Dictionary<AnimatorController, string[]>();
 
+    const string RemoveSolo_Restore = "Remove Animator And Restore Original Clip Names";
     const string RemoveSolo = "Remove Animator";
+    const string RemoveAll_Restore = "Remove All Animators And Restore Original Clip Name";
     const string RemoveAll = "Remove All Animators";
     const string AddAnimator = "Add Animator";
     const string Rename = "Rename Clips by State Name";
@@ -51,7 +54,7 @@ public class ClipNameRenamer : EditorWindow
                     var hasNullElement = stringArray.All(name => name == null);
                     if (!hasNullElement)
                     {
-                        var confirm = DisplayConfirmDialog(RemoveSolo);
+                        var confirm = DisplayConfirmDialog(RemoveSolo_Restore);
                         if (confirm)
                         {
                             Renameback(current);
@@ -79,7 +82,7 @@ public class ClipNameRenamer : EditorWindow
                     var hasNullElement = stringArray.All(name => name == null);
                     if (!hasNullElement)
                     {
-                        var confirm = DisplayConfirmDialog(RemoveSolo);
+                        var confirm = DisplayConfirmDialog(RemoveSolo_Restore);
                         if (confirm)
                         {
                             Renameback(current);
@@ -109,7 +112,7 @@ public class ClipNameRenamer : EditorWindow
             controllers.Add(null);
         }
 
-        if (GUILayout.Button(RemoveSolo))
+        if (GUILayout.Button(RemoveSolo_Restore))
         {
             if (controllers.Count == 0) return;
 
@@ -117,10 +120,10 @@ public class ClipNameRenamer : EditorWindow
             var removeController = controllers[index];
             if (removeController != null)
             {
-                var confirm = DisplayConfirmDialog(RemoveSolo);
+                var name = removeController.name;
+                var confirm = DisplayConfirmDialog(RemoveSolo_Restore,name);
                 if (confirm)
                 {
-
                     if (removeController != null && originalClipNames.ContainsKey(removeController))
                     {
                         Renameback(removeController);
@@ -135,11 +138,35 @@ public class ClipNameRenamer : EditorWindow
             }
         }
 
-        if (GUILayout.Button(RemoveAll))
+        if(GUILayout.Button(RemoveSolo))
+        {
+            if (controllers.Count == 0) return;
+            int index = controllers.Count - 1;
+            var removeController = controllers[index];
+            if (removeController != null)
+            {
+                var name = removeController.name;
+                var confirm = DisplayConfirmDialog(RemoveSolo,name);
+                if (confirm)
+                {
+                    if (removeController != null && originalClipNames.ContainsKey(removeController))
+                    {
+                        originalClipNames.Remove(removeController);
+                    }
+                    controllers.RemoveAt(index);
+                }
+            }
+            else
+            {
+                controllers.RemoveAt(index);
+            }
+        }
+
+        if (GUILayout.Button(RemoveAll_Restore))
         {
             if (controllers.Count == 0) return;
 
-            var confirm = DisplayConfirmDialog(RemoveAll);
+            var confirm = DisplayConfirmDialog(RemoveAll_Restore);
             if (confirm)
             {
                 foreach (var c in controllers)
@@ -149,6 +176,18 @@ public class ClipNameRenamer : EditorWindow
                         Renameback(c);
                     }
                 }
+                controllers.Clear();
+                originalClipNames.Clear();
+            }
+        }
+
+        if (GUILayout.Button(RemoveAll))
+        {
+            if (controllers.Count == 0) return;
+
+            var confirm = DisplayConfirmDialog(RemoveAll);
+            if (confirm)
+            {
                 controllers.Clear();
                 originalClipNames.Clear();
             }
@@ -237,31 +276,42 @@ public class ClipNameRenamer : EditorWindow
         AssetDatabase.Refresh();
     }
 
-    bool DisplayConfirmDialog(string processName)
+    bool DisplayConfirmDialog(string processName,string controllerName = null)
     {
         switch (processName)
         {
-            case RemoveSolo:
+            case RemoveSolo_Restore:
                 return EditorUtility.DisplayDialog(
                     "Confirm",
-                    "Are you sure you want to rename the animation clip back to its original name?",
+                    $"Are you sure you want to rename the \"{controllerName}\" animation clips back to its original name?",
                     "Agree", "Cancel"
                 );
 
-            case RemoveAll:
+            case RemoveSolo:
+                return EditorUtility.DisplayDialog(
+                    "Confirm",
+                    $"Are you sure you want to remove \"{controllerName}'s field\" from the list? \"The original clip name information will be lost.\"",
+                    "Agree","Cancel"
+                );
+            case RemoveAll_Restore:
                 return EditorUtility.DisplayDialog(
                     "Confirm",
                     "Are you sure you want to rename all animation clips back to their original names?",
                     "Agree", "Cancel"
                 );
-
+            case RemoveAll:
+                return EditorUtility.DisplayDialog(
+                    "Confirm",
+                    "Are you sure you want to remove all from the list? \"The original clip name information will be lost.\"",
+                    "Agree", "Cancel"
+                );
             case Rename:
                 return EditorUtility.DisplayDialog(
                     "Confirm",
                     "Are you sure you want to rename all animation clips to match their state names?",
                     "Agree", "Cancel"
                 );
-
+            
             default:
                 return false;
         }

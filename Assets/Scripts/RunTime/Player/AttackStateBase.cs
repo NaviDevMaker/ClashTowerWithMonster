@@ -56,7 +56,7 @@ namespace Game.Players
         }
         public void Attack()
         {
-            controller.animator.SetTrigger(controller.AnimatorPar.Attack);
+            controller.animator.SetTrigger(controller.AnimatorPar.Attack_Hash);
         }
 
         void LookEnemyDirection()
