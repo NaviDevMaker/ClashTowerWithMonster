@@ -88,7 +88,7 @@ namespace Game.Spells.Meteo
                     await UniTask.Yield(cancellationToken: attacker.GetCancellationTokenOnDestroy());
                 }
 
-                if (targetUnit.isDead && targetUnit == null)
+                if (targetUnit.isDead || targetUnit == null)
                 {
                     targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos);
                     while ((targetPos - transform.position).magnitude > Mathf.Epsilon + 0.1f)
@@ -115,15 +115,12 @@ namespace Game.Spells.Meteo
             }
             catch (OperationCanceledException)
             {
-                gameObject.SetActive(false);
-                IsEndSpellProcess = true;
                 return; 
             }
         }
 
         async UniTask ExplositionMeteo()
         {
-
             var step = 24 * 3;
             var meteoMesh = GetComponent<MeshFilter>().mesh;
             var meteoMaterial = GetComponent<MeshRenderer>().material;
@@ -160,10 +157,8 @@ namespace Game.Spells.Meteo
                 var task = RelatedToParticleProcessHelper.WaitUntilParticleDisappear(particle);
                 tasks.Add(task);
             }
-
             return tasks;
         }
-
         void Initialize()
         {
             ownerID = attacker.ownerID;

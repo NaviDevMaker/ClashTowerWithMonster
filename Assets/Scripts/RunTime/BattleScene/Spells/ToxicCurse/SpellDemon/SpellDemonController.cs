@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Timeline;
 
 namespace Game.Monsters.SpellDemon
 {
@@ -13,7 +14,8 @@ namespace Game.Monsters.SpellDemon
         public List<Material> OtherMaterials { get => otherMaterials;}
         public List<SkinnedMeshRenderer> MySkinnedMeshes;
         Vector3 localPos;
-
+        Vector3 worldPos;
+        Quaternion worldRot;
         public bool EndSetProcess { get; set; } = false;
         protected override void Start()
         {
@@ -35,7 +37,18 @@ namespace Game.Monsters.SpellDemon
 
         private void LateUpdate()
         {
-           if(!isDead) transform.localPosition = localPos;
+            if (!isDead)
+            {
+                transform.localPosition = localPos;
+                worldPos = targetUnit.transform.TransformPoint(localPos);
+                worldRot = targetUnit.transform.rotation;
+            }
+            //すまん俺、ここ第二引数trueにしてもポジションだめやったからworldPos無理やりぶっこむことにした
+            else
+            {
+                transform.position = worldPos;
+                transform.rotation = worldRot;
+            }
         }
         public override void Initialize(int owner = -1)
         {       

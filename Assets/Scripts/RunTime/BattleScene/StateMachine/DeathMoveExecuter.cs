@@ -22,7 +22,7 @@ public class DeathMoveExecuter
         //if (monsterController.MySkinnedMeshes.Count != 0) monsterController.MySkinnedMeshes.ForEach(mesh => meshesQueue.Enqueue(mesh));
         //if (monsterController.MyMeshes.Count != 0) monsterController.MyMeshes.ForEach(mesh => meshesQueue.Enqueue(mesh));
 
-        monsterController.animator.SetTrigger(monsterController.MonsterAnimPar.Death);
+        monsterController.animator.SetTrigger(monsterController.MonsterAnimPar.Death_Hash);
         var stateName = monsterController.MonsterAnimPar.deathAnimClipName;
         await UniTask.WaitUntil(() => monsterController.animator.GetCurrentAnimatorStateInfo(0).IsName(stateName));
         var cts = new CancellationTokenSource();
@@ -52,7 +52,7 @@ public class DeathMoveExecuter
         //if (playerController.MySkinnedMeshes.Count != 0) playerController.MySkinnedMeshes.ForEach(mesh => meshesQueue.Enqueue(mesh));
         //if (playerController.MyMeshes.Count != 0) playerController.MyMeshes.ForEach(mesh => meshesQueue.Enqueue(mesh));
 
-        playerController.animator.SetTrigger(playerController.AnimatorPar.Death);
+        playerController.animator.SetTrigger(playerController.AnimatorPar.Death_Hash);
         var stateName = playerController.AnimatorPar.deathAnimClipName;
         await UniTask.WaitUntil(() => playerController.animator.GetCurrentAnimatorStateInfo(0).IsName(stateName));
         var cts = new CancellationTokenSource();
@@ -104,8 +104,8 @@ public class DeathMoveExecuter
         {
              var material = mesh.materials[i];
              //var material = new Material(originalMaterial);
-            if (material.name.StartsWith("Rock_Light"))
-            {
+            //if (material.name.StartsWith("Rock_Light"))
+            //{
                 Debug.Log(material.name.Trim());
                 if (material.HasProperty("_Surface"))
                 {
@@ -115,7 +115,7 @@ public class DeathMoveExecuter
                 {
                     Debug.LogWarning("it has no existing proparty!!");
                 }
-            }
+            //}
             Debug.Log(length);
             FadeProcessHelper.FadeOutColor(length, material, cts.Token).Forget();
         }

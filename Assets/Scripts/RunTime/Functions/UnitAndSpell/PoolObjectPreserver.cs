@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Game.Spells.Meteo;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 public static class PoolObjectPreserver
 {
     public static List<MeteoMover> meteoList = new List<MeteoMover>();
@@ -55,7 +56,19 @@ public static class PoolObjectPreserver
                 return obj;
             }
         }
-
         return null;
+    }
+
+    public static void ListClear(Scene oldScene,Scene newScene)
+    {
+        lineRenderers.Clear();
+        meteoList.Clear();
+        SummonedUIImagesObj.Clear();
+        transformerEffectList.Clear();
+
+        lineRenderers.TrimExcess();
+        meteoList.TrimExcess();
+        SummonedUIImagesObj.TrimExcess();
+        transformerEffectList.TrimExcess();
     }
 }

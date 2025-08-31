@@ -60,7 +60,7 @@ public class DeckSceneManager : MonoBehaviour
             fadeInAction = fadeInEvent,
             closeStatusUIAction = closeStatusUIEvent,
             fadeOutBattleButton = fadeOutBattleButtonEvent,
-            transparentBattleButton = battleButtonToOriginal
+            transparentBattleButton = battleButtonToOriginal,
         };
 
         var battleButtonUIActions = new BattleButtonUIActions
@@ -120,6 +120,12 @@ public class DeckSceneManager : MonoBehaviour
         }
         return (null, null);
     }
+
+    private void OnDestroy()
+    {
+        UnitManager.InstanciatedMonster.Clear();
+        UnitManager.InstanciatedMonster.TrimExcess();
+    }
 }
 
 public class CardManagerActions
@@ -155,3 +161,5 @@ public class BattleButtonUIActions
     public Func<bool> saveDeckData;
     public Func<CancellationTokenSource> getCurrentCardCls;
 }
+
+

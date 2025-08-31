@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: ShapeShiftSpell
   m_EditorClassIdentifier: 
   effectAmount: 0
-  pushAmount: 0
-  perPushDurationAndStunTime: 0
+  pushAmount: 0.25
+  perPushDurationAndStunTime: 0.2
   spellType: 8
+  invokeType: 0
+  spellDuration: 0
+  specificSpellType: 4
+  targetCount: 1

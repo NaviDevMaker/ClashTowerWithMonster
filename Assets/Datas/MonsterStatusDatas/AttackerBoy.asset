@@ -26,5 +26,5 @@ MonoBehaviour:
   moveSpeed: 1
   moveStep: 1
   attackType: 0
-  monsterAttackType: 1
+  monsterAttackType: 2
   monsterMoveType: 0

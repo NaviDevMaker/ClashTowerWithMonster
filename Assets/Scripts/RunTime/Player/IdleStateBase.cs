@@ -38,7 +38,7 @@ namespace Game.Players
         void AllResetBoolProparty()
         {
             controller.animator.SetBool(controller.AnimatorPar.Idle, true);
-            Debug.Log($"{controller.AnimatorPar.Move},{controller.AnimatorPar.Attack}");
+            Debug.Log($"{controller.AnimatorPar.Move},{controller.AnimatorPar.Attack_Hash}");
             if(controller.animator.GetBool(controller.AnimatorPar.Move)) controller.animator.SetBool(controller.AnimatorPar.Move, false);
         }
     }

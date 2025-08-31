@@ -40,8 +40,8 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
 
     public float originalAnimatorSpeed { get; protected set; } = 0f;
     public MoveType moveType { get; protected set; }
-    HPbar hPBar = null;
-    [SerializeField] int tentativeID;
+    protected HPbar hPBar = null;
+    [SerializeField] public int tentativeID;//Ç±ÇÍç≈èIî≈Ç≈ÇÕè¡ÇµÇƒÇÀ
     [SerializeField] UnitScale unitScale;
     [SerializeField] UnitType unitType;
     [SerializeField] List<SkinnedMeshRenderer> mySkinnedMeshes;
@@ -49,7 +49,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
     [SerializeField] Renderer bodyMesh;
     [SerializeField] StatusData statusData;
     public StatusCondition statusCondition { get; private set; }
-    public int currentHP { get; private set;} = 0;
+    public int currentHP { get; protected set;} = 0;
     int maxHP = 0;
 
     bool isDisplayedHpBar = false;
@@ -66,7 +66,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         }
     } 
 
-    public FlyingMonsterStatusData FlyingMonsterStatus
+    public FlyingMonsterStatusData FyingMonsterStatus
     {
         get
         {
@@ -83,8 +83,25 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
             if (unitType == UnitType.monster && MonsterStatus.AttackType == AttackType.Long) return StatusData as ProjectileAttackMonsterStatus;
             else return null;
         }
-   }
+    }
 
+    public RangeAttackMonsterStatusData RangeAttackMonsterStatusData
+    {
+        get
+        {
+            if (unitType == UnitType.monster && MonsterStatus.AttackType == AttackType.Range) return StatusData as RangeAttackMonsterStatusData;
+            else return null;
+        }
+    }
+
+    public ContinuousAttackMonsterStatus ContinuousAttackMonsterStatus
+    {
+        get
+        {
+            if (unitType == UnitType.monster && MonsterStatus.AttackType == AttackType.Continuous) return StatusData as ContinuousAttackMonsterStatus;
+            else return null;
+        }
+    }
 
     public TowerStatusData TowerStatus
     {
@@ -109,7 +126,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
 
     public UnitType UnitType { get => unitType;}
 
-   public  List<Material[]> meshMaterials { get; private set; } = new List<Material[]>();
+   public  List<Material[]> meshMaterials { get; protected set; } = new List<Material[]>();
     List<Color[]> originalMaterialColors = new List<Color[]>();
 
     public bool isKnockBacked_Unit { get; set; } = false;
@@ -117,6 +134,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
     public UnitScale UnitScale { get => unitScale;}
     public Renderer BodyMesh => bodyMesh;
 
+    //protected bool isSettedHPbar { get; private set; } = false;
     //bool test = false;
     //float time = 0f;
     public List<Renderer> AllMesh { get; private set; } = new List<Renderer>();
@@ -141,18 +159,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         //    Test();
         //    test = true;
         //}
-
-        if (!isDisplayedHpBar && currentHP != maxHP && hPBar!= null)
-        {
-            hPBar.gameObject.SetActive(true);
-            hPBar.ReduceHP(maxHP, currentHP);
-            isDisplayedHpBar=true;
-        }
-        else if(isDisplayedHpBar && currentHP == maxHP && hPBar != null)
-        {
-            hPBar.gameObject.SetActive(false);
-            isDisplayedHpBar = false;
-        }
+        HPBarProcess();
     }
 
     //public void Test()
@@ -207,8 +214,9 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
                 //cmp.ReduceHP(maxHP,currentHP);//å„Ç≈è¡ÇµÇƒÇÀ
                 //cmp.gameObject.SetActive(true);//Ç†Ç∆Ç≈è¡ÇµÇƒÇÀ
             }
-
         }
+
+        //isSettedHPbar = true;
     }
     public virtual void Damage(int damage) 
     {
@@ -336,7 +344,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
     protected async void LitBody()
     {
         var color = Color.red;
-        var duration = 0.05f;
+        var duration = unitType == UnitType.tower? 0.15f : 0.05f;
         foreach (var materials in meshMaterials)
         {
             foreach(var material in materials)
@@ -356,6 +364,20 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
                 newColor.a = currentAlpha;
                 meshMaterials[i][j].color = newColor;
             }
+        }
+    }
+    protected void HPBarProcess()
+    {
+        if (!isDisplayedHpBar && currentHP != maxHP && hPBar != null)
+        {
+            hPBar.gameObject.SetActive(true);
+            hPBar.ReduceHP(maxHP, currentHP);
+            isDisplayedHpBar = true;
+        }
+        else if (isDisplayedHpBar && currentHP == maxHP && hPBar != null)
+        {
+            hPBar.gameObject.SetActive(false);
+            isDisplayedHpBar = false;
         }
     }
 }

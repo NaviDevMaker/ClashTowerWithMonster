@@ -26,7 +26,7 @@ MonoBehaviour:
   moveSpeed: 1
   moveStep: 1
   attackType: 1
-  monsterAttackType: 1
+  monsterAttackType: 2
   monsterMoveType: 0
   projectileMoveSpeed: 80
   mover: {fileID: 211712780157053857, guid: 2cdff794e8835ec4484692a86abf979f, type: 3}

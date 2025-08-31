@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5354803255148635842}
   - component: {fileID: 7714517472027316401}
   - component: {fileID: 3965687354737395958}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: MeteoSpell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -66,3 +66,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3f9bc91f09d89e4793d44a6e82310d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tentativeID: 0

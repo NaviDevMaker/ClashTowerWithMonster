@@ -7,7 +7,7 @@ public class NetWorkSceneManager : SingletonMonobehavier<NetWorkSceneManager>
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     async void Start()
     {
-        sceneNames = await SetFieldFromAssets.SetField<SceneNames>("");
+        sceneNames = await SetFieldFromAssets.SetField<SceneNames>("Datas/SceneNames");
     }
 
     // Update is called once per frame

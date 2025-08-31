@@ -44,7 +44,7 @@ namespace Game.Monsters.SpellDemon
                 }
             }
         }
-        protected override void AllResetBoolProparty() => controller.animator.SetBool(controller.MonsterAnimPar.Attack, false);
+        protected override void AllResetBoolProparty() => controller.animator.SetBool(controller.MonsterAnimPar.Attack_Hash, false);
 
     }
 

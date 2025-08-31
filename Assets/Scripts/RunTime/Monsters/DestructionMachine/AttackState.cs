@@ -49,18 +49,16 @@ namespace Game.Monsters.DestructionMachine
                 isShotFirst = true;
                 SetNextCannonBallAndShot();
             }
-            catch (OperationCanceledException) { }
-            catch (ObjectDisposedException) { }
-            finally
+            catch (OperationCanceledException)
             {
-                if (cts.IsCancellationRequested)
-                {
-                    if (nextMover != null) nextMover.target = null;
-                    leftLengthTime = Mathf.Max(0f, (now - startNormalizeTime) * clipLength) / stateAnimSpeed;
-                    isAttacking = false;
-                }
-                else leftLengthTime = 0f;
+                if (nextMover != null) nextMover.target = null;
+                var elaspedTime = (now - startNormalizeTime) * clipLength;
+                leftLengthTime = Mathf.Max(0f,clipLength - elaspedTime) / stateAnimSpeed;
+                isAttacking = false;
             }
+            catch (ObjectDisposedException) { }
+            finally{ }
+            leftLengthTime = 0f;
         }
         async UniTask Reload()
         {

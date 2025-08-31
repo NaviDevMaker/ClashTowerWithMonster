@@ -40,7 +40,7 @@ public class AttackMotion
         catch (OperationCanceledException) { return; }
         var animPar = selectableMonster.monsterAnimatorPar;
         selectableMonster.currentMotionCls = motionCls;
-        animator.SetBool(animPar.Attack, true);
+        animator.SetBool(animPar.Attack_Hash, true);
         animator.Play("Attack");
         try
         {
@@ -58,7 +58,7 @@ public class AttackMotion
         }
         catch (OperationCanceledException) { return; }
         var animPar = selectableMonster.monsterAnimatorPar;
-        animator.SetBool(animPar.Attack, true);
+        animator.SetBool(animPar.Attack_Hash, true);
         animator.Play("Attack");
         Func<string,UniTask> waitMotionEnd = async (motionName) =>
         {
@@ -82,7 +82,7 @@ public class AttackMotion
         finally
         {
             animator.SetBool("isReloading", false);
-            animator.SetBool(selectableMonster.monsterAnimatorPar.Attack, false);
+            animator.SetBool(selectableMonster.monsterAnimatorPar.Attack_Hash, false);
             animator.Play("Idle");
         }
     }

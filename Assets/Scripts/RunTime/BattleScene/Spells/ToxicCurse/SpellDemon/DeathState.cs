@@ -9,9 +9,11 @@ namespace Game.Monsters.SpellDemon
         public override void OnEnter()
         {
             controller.transform.SetParent(null);
+
             Debug.Log($"{controller.animator.speed},€‚Êƒ‚[ƒVƒ‡ƒ“‚É“ü‚è‚Ü‚·");
             SetNormalStatus();
             base.OnEnter();
+            Debug.Log(clipLength);
         }
         public override void OnUpdate()
         {

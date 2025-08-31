@@ -5328,7 +5328,7 @@ GameObject:
   - component: {fileID: 6621299097994239672}
   - component: {fileID: 5316070363110693054}
   - component: {fileID: 2141065309782515934}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Poison-Smoke
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11792,7 +11792,7 @@ GameObject:
   - component: {fileID: 8892144530842220763}
   - component: {fileID: 1762446405350523726}
   - component: {fileID: 3765579129225428663}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: ToxicCurse (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 
 
 public interface ISpells 
@@ -67,12 +68,12 @@ namespace Game.Spells
                 SpellInvoke();
             }
         }
-        public void SpellInvoke()
+        public void SpellInvoke(UnityAction<GameObject> setTimerObj = null)
         {
             DrawSpellRange().Forget();
             LitLineRendererMaterial();
             Spell().Forget();
-            UIManager.Instance.StartSpellTimer(spellDuration, this);
+            UIManager.Instance.StartSpellTimer(spellDuration, this,setTimerObj);
             isSpellInvoked = true;
         }
         protected virtual void SetRange()

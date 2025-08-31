@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.UI.CanvasScaler;
 
 
 namespace Game.Spells.Confusion
@@ -42,33 +43,42 @@ namespace Game.Spells.Confusion
                 return isNotTower && inRange;
             }).ToList();
 
+            //一回掛けられてる状態でまたかけられた場合、前回のエフェクトは消して（一瞬頭上のクルクルは消える）またかけなおす
+            var expectedClses = new List<CancellationTokenSource>();
             var tasks = new List<UniTask>();
-            filteredList.ForEach(unit =>
-            {
+
+            for (var  i = 0; i < filteredList.Count;i++)
+            {          
+                var unit = filteredList[i];
                 if (unit == null) return;
                 var visualTokens = unit.statusCondition.visualTokens;
-                if (visualTokens.TryGetValue(statusConditionType,out var cls))
+                if (visualTokens.TryGetValue(statusConditionType, out var cls))
                 {
-                    if (cls == null) return;
                     cls.Cancel();
                     cls.Dispose();
+                    visualTokens.Remove(statusConditionType);
                 }
                 var newCls = new CancellationTokenSource();
+                expectedClses.Add(newCls);
                 visualTokens[statusConditionType] = newCls;
                 unit.statusCondition.Confusion.isActive = true;
                 unit.statusCondition.Confusion.isEffectedCount++;
                 var task = EffectManager.Instance.statusConditionEffect.confusionEffect.GenerateConfusionHitEffect(unit);
                 tasks.Add(task);
-            });
+            }
+           
             await UniTask.WhenAll(tasks);
             var newTasks = new List<UniTask<ParticleSystem>>();
-            filteredList.ForEach(unit =>
+            for (var i = 0; i < filteredList.Count; i++)
             {
+                var unit = filteredList[i];
                 if (unit == null) return;
+                var expectedCls = expectedClses[i];
                 var cls = unit.statusCondition.visualTokens[statusConditionType];
-                var task = EffectManager.Instance.statusConditionEffect.confusionEffect.GenerateConfusionEffect(unit, spellDuration,cls);
+                if (expectedCls != cls) continue;
+                var task = EffectManager.Instance.statusConditionEffect.confusionEffect.GenerateConfusionEffect(unit, spellDuration, cls);
                 newTasks.Add(task);
-            });
+            }
             particles = await UniTask.WhenAll(newTasks);
             filteredList.ForEach(unit =>
             {

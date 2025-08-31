@@ -18,3 +18,5 @@ MonoBehaviour:
   spellType: 0
   invokeType: 2
   spellDuration: 10
+  specificSpellType: 0
+  targetCount: 1

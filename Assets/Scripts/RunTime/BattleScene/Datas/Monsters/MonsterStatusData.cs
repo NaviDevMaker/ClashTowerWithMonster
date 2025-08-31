@@ -42,13 +42,15 @@ public enum AttackType
 { 
    Simple,
    Long,
+   Range,
+   Continuous
 }
-
 //モンスターのタイプ、攻撃するタイプかHPは高い代わりにタワーにしか
 public enum MonsterAttackType
 {
-　ToEveryThing,
-  OnlyBuilding,
+　 RelyOnMoveType,
+   ToEveryThing,
+   OnlyBuilding,
 }
 public enum MonsterMoveType
 { 

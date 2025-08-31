@@ -35,11 +35,11 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
         }
     }
 
-    public void CompareEachUnit(UnitBase other)
-    {
+     public void CompareEachUnit(UnitBase other)
+     {
         var vector = other.transform.position - me.transform.position;
 
-        var direction = vector.normalized;
+        var direction = vector != Vector3.zero ? vector.normalized : -(other.transform.forward);
        // Debug.Log(direction);
         float effectiveRadius_me = Mathf.Sqrt(Mathf.Pow(direction.x * me.rangeX, 2) + Mathf.Pow(direction.z * me.rangeZ, 2));
 
@@ -51,28 +51,26 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
         var flatVector = new Vector3(vector.x, 0f, vector.z);
         var distance = flatVector.magnitude;
 
-        if (distance < minDistance) PushEachUnit(other, distance, minDistance, direction);       
-    }
+        if (distance <= minDistance) PushEachUnit(other, distance, minDistance, direction);       
+     }
+     async void PushEachUnit(UnitBase other,float distance,float minDistance,Vector3 direction)
+     {
+           var extraDistance = minDistance - distance;
+           var push = direction * extraDistance;
+           push.y = 0f;
+           var otherType = other.GetType();
 
-     async void PushEachUnit(UnitBase other, float distance,float minDistance,Vector3 direction)
-     {         
-            var extraDistance = minDistance - distance;
-            var push = direction * extraDistance;
-            push.y = 0f;
-            var otherType = other.GetType();
-
-            Vector3 targetPos_me = Vector3.zero;
-            Vector3 targetPos_other = Vector3.zero;
-            if (otherType == typeof(TowerControlller))
-            {
+           Vector3 targetPos_me = Vector3.zero;
+           Vector3 targetPos_other = Vector3.zero;
+           if (otherType == typeof(TowerControlller))
+           {
                 Debug.Log("押されます");
                 targetPos_me = me.transform.position - push;
                 me.transform.position = Vector3.MoveTowards(me.transform.position, targetPos_me, pushAmount * Time.deltaTime);
-            }
-            else if ((other is IPlayer || other is IMonster) && (me is ISpells || me is ISkills))
-            {
+           }
+           else if ((other is IPlayer || other is IMonster) && (me is ISpells || me is ISkills || me is IRangeWeponAttack))
+           {
                 Debug.Log("呪文発動");
-                //Debug.Log($" 隕石のPushは{push}");
                 other.isKnockBacked_Spell = true;
                 push = push * pushAmount;
                 targetPos_other = other.transform.position + push;
@@ -81,24 +79,21 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
                 var waitTime = UniTask.Delay(TimeSpan.FromSeconds(pushDuration));
                 await UniTask.WhenAll(waitTime,tweenTask); // 例: 0.2秒間ノックバック中
                 other.isKnockBacked_Spell = false;
-            }
-            else if(other is IPlayer || other is IMonster)
-            {
-                Debug.Log("押された！！！！！");
-
-                var otherScaleType = other.UnitScale;
-                if ((otherScaleType & effectiveScale) != 0)
-                {
-                    if (other.statusCondition.Freeze.isActive) return;
-                    other.isKnockBacked_Unit = true;
-                    //targetPos_me = me.transform.position - push / 2;
-                    targetPos_other = other.transform.position + push; // / 2
-                    //me.transform.position = Vector3.MoveTowards(me.transform.position, targetPos_me, pushAmount * Time.deltaTime);
-                    other.transform.position = Vector3.MoveTowards(other.transform.position, targetPos_other, pushAmount * Time.fixedDeltaTime);
-                    await UniTask.Delay(TimeSpan.FromSeconds(0.05f)); // 例: 0.2秒間ノックバック中
-                    other.isKnockBacked_Unit = false;
-                }
-            }
+           }
+           else if (other is IPlayer || other is IMonster)
+           {
+             Debug.Log("押された！！！！！");
+             var otherScaleType = other.UnitScale;
+             if ((otherScaleType & effectiveScale) != 0)
+             {
+                if (other.statusCondition.Freeze.isActive) return;
+                other.isKnockBacked_Unit = true;
+                targetPos_other = other.transform.position + push;
+                other.transform.position = Vector3.MoveTowards(other.transform.position, targetPos_other, pushAmount * Time.fixedDeltaTime);
+                await UniTask.Delay(TimeSpan.FromSeconds(0.05f)); // 例: 0.2秒間ノックバック中
+                other.isKnockBacked_Unit = false;
+             }
+           }
     }
     public void KeepDistance(MoveType moveType)
     {
@@ -131,9 +126,10 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
         foreach (var unit in sortedArray)
         {
             var isDead = unit.isDead;
-            //var fly = unit.moveType == MoveType.Fly;
+            var oppoType = unit.moveType;
+            var oppoScale = unit.UnitScale;
             if (isDead) continue;
-            if ((effectiveSide & myType) == 0 || (effectiveScale & me.UnitScale) == 0) continue;
+            if ((effectiveSide & oppoType) == 0 || (effectiveScale & oppoScale) == 0) continue;
             filteredList.Add(unit);
         }
 

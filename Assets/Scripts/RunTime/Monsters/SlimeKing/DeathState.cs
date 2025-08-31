@@ -22,6 +22,7 @@ namespace Game.Monsters.SlimeKing
         }
         void SpawnSlime()
         {
+            if (controller.isSummonedInDeckChooseScene) return;
             var spawnOffset = 3.0f;
             var rayOffsetY = 0.3f;
             var unitPos = controller.transform.position;
