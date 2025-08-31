@@ -73,7 +73,7 @@ namespace Game.Monsters
                 Attack();
             }
             if((isInterval || isContineAttack) && !controller.statusCondition.Freeze.isActive) LookToTarget();
-            MoveToChaseState();//if(!isWaitingLeftTime)
+            MoveToChaseState();
         }
 
         public override void OnExit()
