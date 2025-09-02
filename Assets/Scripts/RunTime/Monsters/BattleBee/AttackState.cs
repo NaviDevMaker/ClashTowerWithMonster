@@ -18,12 +18,14 @@ namespace Game.Monsters.BattleBee
                 controller.MonsterStatus.AttackInterval);
             if (controller.statusCondition.Paresis.inverval == 0f) controller.statusCondition.Paresis.inverval = controller.MonsterStatus.AttackInterval;
         }
-        protected override async UniTask Attack_Generic(Func<List<UnitBase>> getTargets,
-            UnityAction<UnitBase> paresisAttack, UnityAction continuousAttack = null)
-        {
-            UnityAction<UnitBase> action = (currentTarget) => controller.ParesisTarget(currentTarget);
-            Func<List<UnitBase>> action2 = (() => target != null ? new List<UnitBase> {target} : Enumerable.Empty<UnitBase>().ToList());
-            await base.Attack_Generic(action2, action);
+        protected override async UniTask Attack_Generic(AttackArguments attackArguments)
+        { 
+            var arguments = new AttackArguments
+            {
+                getTargets = attackArguments.getTargets,
+                specialEffectAttack = (currentTarget) => controller.ParesisTarget(currentTarget)
+            };
+            await base.Attack_Generic(arguments);
         }
         public override void OnUpdate()
         {

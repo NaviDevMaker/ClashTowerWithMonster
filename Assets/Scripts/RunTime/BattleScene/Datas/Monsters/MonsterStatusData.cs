@@ -49,7 +49,7 @@ public enum AttackType
 public enum MonsterAttackType
 {
 Å@ RelyOnMoveType,
-   ToEveryThing,
+   GroundedAndEveryThing,
    OnlyBuilding,
 }
 public enum MonsterMoveType

@@ -19,7 +19,6 @@ public class LongDistanceAttack<T> : MonoBehaviour where T : UnitBase
     {
         this.attacker = attacker;
     }
-
     protected virtual void Update() { }
     protected virtual void DamageToEnemy(UnitBase target,Func<UniTask> hitEffect = null)
     {

@@ -28,10 +28,15 @@ namespace Game.Monsters.Cyclops
             base.OnExit();
         }
 
-        protected override async UniTask Attack_Generic(Func<List<UnitBase>> getTargets, 
-            UnityAction<UnitBase> specialEffectAttack = null, UnityAction continuousAttack = null)
+        protected override async UniTask Attack_Generic(AttackArguments attackArguments)
         {
-            await base.Attack_Generic(getTargets, specialEffectAttack,StartBeamAttack);
+            var arguments = new AttackArguments
+            { 
+                getTargets = attackArguments.getTargets,
+                continuousAttack = StartBeamAttack
+            };
+
+            await base.Attack_Generic(arguments);
         }    
         async void StartBeamAttack()
         {

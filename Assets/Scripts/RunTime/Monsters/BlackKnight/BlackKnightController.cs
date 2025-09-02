@@ -4,7 +4,7 @@ namespace Game.Monsters.BlackKnight
 {
     public class BlackKnightController : MonsterControllerBase<BlackKnightController>,IRangeAttack
     {
-        public GameObject wepon { get; private set;}
+        public GameObject rangeAttackObj { get; set;}
         public ShockWaveEffecter waveEffecter { get; private set;}
         protected override void Awake()
         {
@@ -32,12 +32,12 @@ namespace Game.Monsters.BlackKnight
             var data = _RangeAttackMonsterStatus;
             if (data == null) return;
             var weponName = data._RangeAttackInfo.RangeAttackWepon.name;
-            wepon = this.gameObject.GetObject(weponName);
-            waveEffecter = wepon.AddComponent<ShockWaveEffecter>();
+            rangeAttackObj = this.gameObject.GetObject(weponName);
+            waveEffecter = rangeAttackObj.AddComponent<ShockWaveEffecter>();
             var pushAmount = _RangeAttackMonsterStatus._RangeAttackInfo.PushAmount;
             var pushDuartion = _RangeAttackMonsterStatus._RangeAttackInfo.PerPushDuration;
             waveEffecter.Initialize(pushAmount,pushDuartion,ownerID);
-            Debug.Log(wepon.name);
+            Debug.Log(rangeAttackObj.name);
         }
     }
 }

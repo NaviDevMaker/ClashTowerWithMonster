@@ -4,7 +4,7 @@ namespace Game.Monsters.DemonKing
 {
     public class DemonKingController : MonsterControllerBase<DemonKingController>,IRangeAttack
     {
-        public GameObject wepon { get; private set; }
+        public GameObject rangeAttackObj { get; set; }
 
         protected override void Awake()
         {
@@ -33,8 +33,8 @@ namespace Game.Monsters.DemonKing
             var data = _RangeAttackMonsterStatus;
             if (data == null) return;
             var weponName = data._RangeAttackInfo.RangeAttackWepon.name;
-            wepon = this.gameObject.GetObject(weponName);
-            Debug.Log(wepon.name);
+            rangeAttackObj = this.gameObject.GetObject(weponName);
+            Debug.Log(rangeAttackObj.name);
         }
     }
 }

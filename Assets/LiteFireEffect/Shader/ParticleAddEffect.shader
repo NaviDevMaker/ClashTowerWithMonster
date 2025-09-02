@@ -17,7 +17,7 @@ Shader "LiteParticleEffect/Effect Add"
 	{
 		Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" }
 		Blend SrcAlpha One
-		Cull Off Lighting Off ZWrite Off
+		Cull Off Lighting Off ZWrite On
 		Pass
 		{
 			CGPROGRAM

@@ -45,6 +45,15 @@ namespace Game.Monsters
                 else return null;
             }
         }
+        public FlyProjectileStatusData _FlyProjectileAttackMonsterStatus
+        {
+            get
+            {
+                if (monsterStatusData.MonsterMoveType == MonsterMoveType.Fly 
+                    && monsterStatusData.AttackType == AttackType.Range) return monsterStatusData as FlyProjectileStatusData;
+                else return null;
+            }
+        }
 
         public UnitType _UnitType => UnitType.monster;
         public Renderer _BodyMesh => throw new System.NotImplementedException();

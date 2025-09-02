@@ -14,12 +14,17 @@ namespace Game.Monsters.BlackKnight
 
         ParticleSystem shockWaveEffect = null;
         ParticleSystem smokeEffect = null;
+        GameObject shockWaveObj = null;
+        GameObject smokeObj = null;
+
+        AddForceToUnit<ShockWaveEffecter> addForce = null;
         public override void OnEnter()
         {
             SetEffects();
             base.OnEnter();
             if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<BlackKnightController >(controller, this, clipLength,25,
                 controller.MonsterStatus.AttackInterval);
+            if (addForce == null) addForce = controller.waveEffecter.AddForceToUnit;
         }
         public override void OnUpdate()
         {
@@ -30,65 +35,34 @@ namespace Game.Monsters.BlackKnight
             base.OnExit();
         }
 
-        protected override async UniTask Attack_Generic(Func<List<UnitBase>> getTargets, 
-            UnityAction<UnitBase> specialEffectAttack, UnityAction continuousAttack = null)
+        protected override async UniTask Attack_Generic(AttackArguments attackArguments)
         {
-            var shockWaveObj = default(GameObject);
-            var smokeObj = default(GameObject);
-            float startNormalizeTime = 0f;
-            float now = 0f;
+            var arguments = new AttackArguments
+            {
+                getTargets = attackArguments.getTargets,
+                attackEffectAction = PlayShockWave,
+                specialEffectAttack = (target) => addForce.CompareEachUnit(target)
+            };
+            
+            PlaySmokeEffect(out smokeObj);
             try
             {
-                if (!controller.statusCondition.Freeze.isActive) LookToTarget();
-                await UniTask.WaitUntil(() =>
-                {
-                    if (controller.isDead) return false;
-                    return controller.animator.GetCurrentAnimatorStateInfo(0).IsName(controller.MonsterAnimPar.attackAnimClipName);
-                }, cancellationToken: cts.Token);
-                controller.animator.speed = 1.0f;
-
-                PlaySmokeEffect(out smokeObj);
-                Debug.Log(target.gameObject.name);
-                startNormalizeTime = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                Func<bool> wait = (() =>
-                {
-                    if (controller.isDead) return true;
-                    now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                    return now - startNormalizeTime >= attackEndNomTime;
-                });
-
-                await UniTask.WaitUntil(wait, cancellationToken: cts.Token);
-                if (target == null) return;
-                var currentTargets = getTargets();
-                var addForce = controller.waveEffecter.AddForceToUnit;
-                PlayShockWave(out shockWaveObj);
-                currentTargets.ForEach(target =>
-                {
-                    AddDamageToTarget(target);
-                    addForce.CompareEachUnit(target);
-                });
+                await base.Attack_Generic(arguments);
             }
-            catch (OperationCanceledException) 
-            {
-                var elapsedTime = (now - startNormalizeTime) * clipLength;
-                leftLengthTime = Mathf.Max(0f, clipLength - elapsedTime / stateAnimSpeed);
-                isAttacking = false;
-            }
-            catch (ObjectDisposedException) { }
             finally
             {
                 if (shockWaveObj != null && smokeObj != null) DestroyParticles(shockWaveObj,smokeObj);
             }
             leftLengthTime = 0f;
         }
-        void PlayShockWave(out GameObject shockWaveObj)
+        void PlayShockWave()
         {
             if (shockWaveEffect == null) 
             {
                 shockWaveObj = null;
                 return;
             }
-            var wepon = controller.wepon;
+            var wepon = controller.rangeAttackObj;
             var wavePos = target.transform.position;
             var offsetY = 0.5f;
             wavePos.y = Terrain.activeTerrain.SampleHeight(wavePos) + offsetY;
@@ -105,7 +79,7 @@ namespace Game.Monsters.BlackKnight
                 smokeObj = null;
                 return;
             }
-            var wepon = controller.wepon;
+            var wepon = controller.rangeAttackObj;
             var weponMeshObj = wepon.transform.parent.gameObject.transform.GetChild(0).gameObject;
             var smokePos = weponMeshObj.transform.position;
             var smokeRot = smokeEffect.transform.rotation;
