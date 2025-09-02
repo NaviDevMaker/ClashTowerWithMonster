@@ -24,6 +24,7 @@ namespace Game.Monsters
         MonsterAttackType myMonsterAttackType;
         public override void OnEnter()
         {
+            if (controller.MonsterStatus is IFlying flying) flyingOffsetY = flying.FlyingOffsetY;
             moveSpeed = controller.BuffStatus(BuffType.Speed, (int)controller.MonsterStatus.MoveSpeed);
             myMonsterAttackType = controller.MonsterStatus.MonsterAttackType;
             cts = new CancellationTokenSource();

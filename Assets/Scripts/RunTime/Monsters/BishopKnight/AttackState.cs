@@ -13,9 +13,8 @@ namespace Game.Monsters.BishopKnight
         ParticleSystem tornadoEffect = null;
         public override void OnEnter()
         {
-            base.OnEnter();
             TornadoEffectSet();
-
+            base.OnEnter();
             //This paremetars are examples,so please change it to your preference!!
             if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<BishopKnightController >(controller, this, clipLength,15,
                 controller.MonsterStatus.AttackInterval);
@@ -28,12 +27,11 @@ namespace Game.Monsters.BishopKnight
         {
             base.OnExit();
         }
-        protected override async UniTask Attack_Generic(Func<List<UnitBase>> getTargets,
-            UnityAction<UnitBase> statusConditionAttack = null, UnityAction continuousAttack = null)
+        protected override async UniTask Attack_Generic(AttackArguments attackArguments)
         {
            GameObject tornadoObj = null;
            PlayTornadoParticle(out tornadoObj);
-           await base.Attack_Generic(getTargets,statusConditionAttack);
+           await base.Attack_Generic(attackArguments);
            DestroyTornado(tornadoObj);
         }
         async void TornadoEffectSet()
@@ -54,7 +52,7 @@ namespace Game.Monsters.BishopKnight
                 return;
             }
             var tornado = UnityEngine.Object.Instantiate(tornadoEffect);
-            tornado.transform.SetParent(controller.wepon.transform);
+            tornado.transform.SetParent(controller.rangeAttackObj.transform);
             tornado.transform.localPosition = Vector3.zero;
             tornado.transform.localRotation = Quaternion.identity;
             tornadoObj = tornado.gameObject;

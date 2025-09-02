@@ -28,12 +28,14 @@ namespace Game.Monsters.EvilMushroom
             base.OnExit();
         }
 
-        protected override async UniTask Attack_Generic(Func<List<UnitBase>> getTargets,
-            UnityAction<UnitBase> paresisAttack,UnityAction continuousAttack = null)
+        protected override async UniTask Attack_Generic(AttackArguments attackArguments)
         {
-            UnityAction<UnitBase> action = (currentTarget) => controller.ParesisTarget(currentTarget);
-            Func<List<UnitBase>> action2 = (() => target != null ? new List<UnitBase> { target } : Enumerable.Empty<UnitBase>().ToList());
-            await base.Attack_Generic(action2,action);
+            var arguments = new AttackArguments
+            {
+                getTargets = attackArguments.getTargets,
+                specialEffectAttack = (currentTarget) => controller.ParesisTarget(currentTarget)
+            };
+            await base.Attack_Generic(attackArguments);
         }
 
         //async void ParesisTarget()

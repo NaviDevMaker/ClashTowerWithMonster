@@ -65,7 +65,6 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
             else return null;
         }
     } 
-
     public FlyingMonsterStatusData FyingMonsterStatus
     {
         get
@@ -84,7 +83,15 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
             else return null;
         }
     }
-
+    public FlyProjectileStatusData FlyProjectileStatusData
+    {
+        get
+        {
+            if (unitType == UnitType.monster && MonsterStatus.AttackType == AttackType.Range
+                && MonsterStatus.MonsterMoveType == MonsterMoveType.Fly) return StatusData as FlyProjectileStatusData;
+            else return null;
+        }
+    }
     public RangeAttackMonsterStatusData RangeAttackMonsterStatusData
     {
         get
@@ -325,8 +332,6 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
     }
     protected void SetMaterialColors()
     {
-        
-
         foreach (var materials in meshMaterials)
         {
             if (materials.Length == 0) continue;

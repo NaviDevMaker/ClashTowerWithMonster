@@ -11,8 +11,10 @@ namespace Game.Monsters.DemonKing
     {
         public AttackState(DemonKingController controller) : base(controller) { }
 
+        ParticleSystem hitConfusionEffect;
         public override void OnEnter()
         {
+            SetConfusionEffect();
             base.OnEnter();
             //This paremetars are examples,so please change it to your preference!!
             if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<DemonKingController >(controller, this, clipLength,17,
@@ -27,14 +29,20 @@ namespace Game.Monsters.DemonKing
         {
             base.OnExit();
         }
-        protected override async UniTask Attack_Generic(Func<List<UnitBase>> getTargets, UnityAction<UnitBase> specialEffectAttack = null, UnityAction continuousAttack = null)
+        protected override async UniTask Attack_Generic(AttackArguments attackArguments)
         {
-            UnityAction<UnitBase> action = (target) => ConfusionTarget(target);
-            await base.Attack_Generic(getTargets,action);
+            var arguments = new AttackArguments
+            { 
+                getTargets = attackArguments.getTargets,
+                attackEffectAction = PlayHitConfusionEffect,
+                specialEffectAttack = ConfusionTarget
+            };
+
+            await base.Attack_Generic(arguments);
         }    
         async void ConfusionTarget(UnitBase target)
         {
-            if (target is IPlayer) return;
+            if (target is IPlayer || target is TowerControlller) return;
             var r = UnityEngine.Random.Range(0, 100);
             var isConfusion = r <= 30;
             var statusConditionType = StatusConditionType.Confusion;
@@ -66,6 +74,26 @@ namespace Game.Monsters.DemonKing
                 if (count == 0) target.statusCondition.Confusion.isActive = false;
                 await RelatedToParticleProcessHelper.WaitUntilParticleDisappear(particle);
             }
+        }
+
+        //これ攻撃時の混乱エフェクトで相手が確率で混乱するときに出すエフェクトじゃないよ
+        async void PlayHitConfusionEffect()
+        {
+            var pos = PositionGetter.GetFlatPos(controller.rangeAttackObj.transform.position);
+            var rot = controller.transform.rotation;
+            var originalScale = hitConfusionEffect.transform.lossyScale;
+            var targetScale = new Vector3(originalScale.x * 2.5f, originalScale.y * 2.5f, originalScale.z * 3.5f);
+            var effect = UnityEngine.Object.Instantiate(hitConfusionEffect, pos, rot);
+            effect.transform.localScale = targetScale;
+            effect.Play();
+            var task = RelatedToParticleProcessHelper.WaitUntilParticleDisappear(effect);
+            await task;
+            if(effect != null) UnityEngine.Object.Destroy(effect.gameObject);
+        }
+        async void SetConfusionEffect()
+        {
+            var confusionObj = await SetFieldFromAssets.SetField<GameObject>("Effects/ConfusionHitEffect");
+            hitConfusionEffect = confusionObj.GetComponent<ParticleSystem>();
         }
     }
 }

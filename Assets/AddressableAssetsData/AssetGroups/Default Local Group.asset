@@ -20,6 +20,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0ba0ad5782982a34495a3564523bb363
+    m_Address: Effects/DragonFireEffect
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2580add102ca4704ca12ac410b813631
     m_Address: Effects/BlackNightWeponSmork
     m_ReadOnly: 0

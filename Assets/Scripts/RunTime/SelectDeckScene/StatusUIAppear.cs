@@ -291,8 +291,8 @@ public class StatusUIAppear: MonoBehaviour
         {
             (MonsterAttackType.RelyOnMoveType, MonsterMoveType.Walk) => "Ground Only",
             (MonsterAttackType.RelyOnMoveType, MonsterMoveType.Fly) => "Ground & Air",
-            (MonsterAttackType.ToEveryThing,MonsterMoveType.Walk)
-              or (MonsterAttackType.ToEveryThing, MonsterMoveType.Fly) => "Everything",
+            (MonsterAttackType.GroundedAndEveryThing,MonsterMoveType.Walk)
+              or (MonsterAttackType.GroundedAndEveryThing, MonsterMoveType.Fly) => "Everything",
             (MonsterAttackType.OnlyBuilding, MonsterMoveType.Walk) 
             or (MonsterAttackType.OnlyBuilding, MonsterMoveType.Fly) => "Building Only",
             _ => default,

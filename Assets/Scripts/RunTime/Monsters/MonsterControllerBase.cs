@@ -10,7 +10,7 @@ public interface IMonster
     ProjectileAttackMonsterStatus _ProjectileAttackMonsterStatus { get; }
 
     RangeAttackMonsterStatusData _RangeAttackMonsterStatus { get; }
-
+    FlyProjectileStatusData _FlyProjectileAttackMonsterStatus { get; }
     ContinuousAttackMonsterStatus _ContinuousAttackMonsterStatus { get;}
     UnitType _UnitType { get; }
 
@@ -19,7 +19,7 @@ public interface IMonster
 
 public interface IRangeAttack
 { 
-    GameObject wepon { get; }
+    GameObject rangeAttackObj { get; set; }
     void SetHitJudgementObject();
 }
 
@@ -46,9 +46,12 @@ namespace Game.Monsters
         public FlyingMonsterStatusData _FlyingMonsterStatus => FyingMonsterStatus;
         public ProjectileAttackMonsterStatus _ProjectileAttackMonsterStatus => ProjectileAttackMonsterStatus;
         public RangeAttackMonsterStatusData _RangeAttackMonsterStatus => RangeAttackMonsterStatusData;
-        public ContinuousAttackMonsterStatus _ContinuousAttackMonsterStatus => throw new System.NotImplementedException();
+        public ContinuousAttackMonsterStatus _ContinuousAttackMonsterStatus => ContinuousAttackMonsterStatus;
+        public FlyProjectileStatusData _FlyProjectileAttackMonsterStatus => FlyProjectileStatusData;
+
         public UnitType _UnitType => UnitType.monster;
         public Renderer _BodyMesh => BodyMesh;
+
 
         protected override void Start()
         {

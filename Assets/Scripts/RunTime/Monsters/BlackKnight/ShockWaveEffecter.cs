@@ -26,6 +26,8 @@ namespace Game.Monsters.BlackKnight
 
         public ContinuousAttackMonsterStatus _ContinuousAttackMonsterStatus => throw new System.NotImplementedException();
 
+        public FlyProjectileStatusData _FlyProjectileAttackMonsterStatus => throw new System.NotImplementedException();
+
         public void Initialize(float pushAmount,float pushDuration,int ownerID)
         {
             this.ownerID = ownerID;

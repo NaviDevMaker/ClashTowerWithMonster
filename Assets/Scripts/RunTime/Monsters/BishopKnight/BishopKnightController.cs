@@ -5,7 +5,7 @@ namespace Game.Monsters.BishopKnight
 {
     public class BishopKnightController : MonsterControllerBase<BishopKnightController>,IRangeAttack
     {
-        public GameObject wepon { get; private set; }
+        public GameObject rangeAttackObj { get; set; }
         protected override void Awake()
         {
             base.Awake();
@@ -39,8 +39,8 @@ namespace Game.Monsters.BishopKnight
             var data = _RangeAttackMonsterStatus;
             if (data == null) return;
             var weponName = data._RangeAttackInfo.RangeAttackWepon.name;
-            wepon = this.gameObject.GetObject(weponName);
-            Debug.Log(wepon.name);
+            rangeAttackObj = this.gameObject.GetObject(weponName);
+            Debug.Log(rangeAttackObj.name);
         }
     }
 }
