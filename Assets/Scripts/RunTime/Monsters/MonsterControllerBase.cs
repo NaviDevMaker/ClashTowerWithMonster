@@ -23,6 +23,11 @@ public interface IRangeAttack
     void SetHitJudgementObject();
 }
 
+public interface ISpecialIntervalActionInfo
+{
+    float actionInverval { get;}
+   float elapsedTime { get; set; }
+}
 namespace Game.Monsters
 {
     public class MonsterControllerBase<T> : UnitBase, IMonster,ISummonbable where T : MonsterControllerBase<T>
@@ -52,6 +57,11 @@ namespace Game.Monsters
         public UnitType _UnitType => UnitType.monster;
         public Renderer _BodyMesh => BodyMesh;
 
+        protected override void Awake()
+        {
+            base.Awake();
+            animator = GetComponent<Animator>();
+        }
 
         protected override void Start()
         {
@@ -59,7 +69,6 @@ namespace Game.Monsters
             Debug.Log("‚Š‚ƒ‚„‚³‚ƒ‚„‚“‚ˆ‚‹‚ƒ‚“‚„‚Š‚„‚“‚ƒ‚“‚„‚‹‚“‚„‚Ž");
             base.Start();
             addForceToUnit = new AddForceToUnit<MonsterControllerBase<T>>(this, StatusData.PushAmount);
-            animator = GetComponent<Animator>();
             ChangeState(IdleState);
             originalAnimatorSpeed = animator.speed;
         }

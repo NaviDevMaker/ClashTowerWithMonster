@@ -5,6 +5,7 @@ using System.Threading;
 using System.Linq;
 using UnityEngine.Events;
 using System.Collections.Generic;
+using Game.Monsters;
 
 public interface IAttackState
 {
@@ -15,6 +16,12 @@ namespace Game.Monsters
 {
     public class AttackStateBase<T> : StateMachineBase<T>, IUnitAttack,IAttackState where T : MonsterControllerBase<T>
     {
+        public interface ILongDistanceAction
+        {
+            LongDistanceAttack<T> GetNextMover();
+            void NextMoverAction(LongDistanceAttack<T> nextMover);
+        }
+
         public class AttackArguments
         {
             public Func<List<UnitBase>> getTargets;
@@ -45,7 +52,7 @@ namespace Game.Monsters
         protected bool isAttacking = false;
         bool isWaitingLeftTime = false;
         bool isContineAttack = false;
-        bool isSettedEventClip = false;
+        public bool isSettedEventClip { get; private set;} = false;
         public bool isInterval { get; private set; } = false;
         public override void OnEnter()
         {
@@ -78,7 +85,7 @@ namespace Game.Monsters
             attackAmount = controller.statusCondition != null ? controller.BuffStatus(BuffType.Power, controller.MonsterStatus.AttackAmount)
                 : controller.MonsterStatus.AttackAmount;
             controller.CheckParesis_Monster(controller.animator);
-            //Debug.Log($"[アニメ状態] name: {state.fullPathHash}, time: {state.normalizedTime}, looping: {state.loop}");
+            //Debug.Log($"[アニメ状態] name: {state.fullPathHash}, elapsedTime: {state.normalizedTime}, looping: {state.loop}");
             if (!isAttacking && !isWaitingLeftTime)
             {
                 isAttacking = true;
@@ -124,7 +131,7 @@ namespace Game.Monsters
                 });
                
                 await UniTask.WaitUntil(wait, cancellationToken: cts.Token);
-                
+                attackArguments.attackEffectAction?.Invoke();
                 if(attackArguments.repeatCount == 0)
                 {
                     var currentTargets = attackArguments.getTargets();
@@ -175,9 +182,40 @@ namespace Game.Monsters
             finally { if(attackArguments.attackEndAction != null) attackArguments.attackEndAction?.Invoke();}
             leftLengthTime = 0f;
         }
-        protected virtual async UniTask Attack_Long()
+        protected virtual async UniTask Attack_Long(Func<LongDistanceAttack<T>> getNextMover = null,
+            UnityAction<LongDistanceAttack<T>> moveAction = null)
         {
-            await UniTask.CompletedTask;
+            float startNormalizeTime = 0f;
+            float now = 0f;
+            LongDistanceAttack<T> nextMover = null;
+            try
+            {
+                if (!controller.statusCondition.Freeze.isActive) LookToTarget();
+                controller.animator.speed = 1.0f;
+                await UniTask.WaitUntil(() => controller.animator.GetCurrentAnimatorStateInfo(0).IsName(controller.MonsterAnimPar.attackAnimClipName)
+                , cancellationToken: cts.Token);
+                Debug.Log(target.gameObject.name);
+                startNormalizeTime = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                Func<bool> wait = (() =>
+                {
+                    now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                    return now - startNormalizeTime >= attackEndNomTime;
+                });
+
+                await UniTask.WaitUntil(wait, cancellationToken: cts.Token);
+                nextMover = getNextMover();
+                if(nextMover == null) return;
+                moveAction?.Invoke(nextMover);
+            }
+            catch (OperationCanceledException)
+            {
+                var elaspedTime = (now - startNormalizeTime) * clipLength;
+                leftLengthTime = Mathf.Max(0f, clipLength - elaspedTime) / stateAnimSpeed;
+                isAttacking = false;
+            }
+            catch (ObjectDisposedException) { }
+            finally { }
+            leftLengthTime = 0f;
         }
         protected void AddDamageToTarget(UnitBase currentTarget)
         {
@@ -242,7 +280,6 @@ namespace Game.Monsters
             isWaitingLeftTime = true;
             controller.animator.speed = 1.0f;
             controller.animator.Play("Idle");
-
             try
             {
                 await UniTask.Delay(TimeSpan.FromSeconds(leftLengthTime), cancellationToken: controller.GetCancellationTokenOnDestroy());
@@ -266,8 +303,7 @@ namespace Game.Monsters
             {
                 isWaitingLeftTime = false;
                 isContineAttack = false;
-            }        
-           
+            }             
             nextState = controller.ChaseState;
             controller.ChangeState(nextState);
             //controller.animator.SetBool(controller.MonsterAnimPar.Attack, false);//ここに必要かもしれないから必要だったらコメントアウト消して
@@ -276,9 +312,7 @@ namespace Game.Monsters
         bool ContinueAttackState()
         {
             var monsterAttackType = controller.MonsterStatus.MonsterAttackType;
-
             var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(controller.gameObject, controller.MonsterStatus.ChaseRange);
-
             var myType = controller.moveType;
             var effectiveMoveSide = myType switch
             {
@@ -349,7 +383,6 @@ namespace Game.Monsters
                 target = newTarget;
                 return true;
             }
-
             return false;
         }
        

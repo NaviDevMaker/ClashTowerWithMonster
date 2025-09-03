@@ -2,10 +2,14 @@ using UnityEngine;
 
 namespace Game.Monsters.SpeederBoy
 {
-    public class SpeederBoyController : MonsterControllerBase<SpeederBoyController>
+    public class SpeederBoyController : MonsterControllerBase<SpeederBoyController>,ISpecialIntervalActionInfo
     {
         public BuffState BuffState { get; private set; }
-        BuffTime buffTime;
+
+        public float actionInverval => 3.0f;
+
+        public float elapsedTime { get;set; } = 0f;
+
         protected override void Awake()
         {
             base.Awake();
@@ -36,18 +40,15 @@ namespace Game.Monsters.SpeederBoy
             BuffState = new BuffState(this);
             DeathState = new DeathState(this);
 
-            buffTime = new BuffTime { buffInverval = 3.0f, time = 0f };
-            BuffState.ResetTime = (() => buffTime.time = 0f);
+            BuffState.ResetTime = (() => elapsedTime = 0f);
         }
 
         void CheckBuffInverval()
         {
             if (currentState == BuffState || isDead) return;
-            var time = buffTime.time += Time.deltaTime;
-            var inverval = buffTime.buffInverval;
-
-            //Debug.Log(time);
-            if (time >= inverval && !BuffState.wasBuffedFailed && !isDead)
+            var time = elapsedTime += Time.deltaTime;
+            //Debug.Log(elapsedTime);
+            if (time >= actionInverval && !BuffState.wasBuffedFailed && !isDead)
             {
                 ChangeState(BuffState);
             }

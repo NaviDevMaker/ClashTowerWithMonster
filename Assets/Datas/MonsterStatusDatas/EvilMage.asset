@@ -12,21 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cafdd7cc1c21c34788b1e74148bd3c4, type: 3}
   m_Name: EvilMage
   m_EditorClassIdentifier: 
-  attackAmount: 0
-  hp: 0
-  pushAmount: 0
+  attackAmount: 20
+  hp: 1000
+  pushAmount: 10
   animInfo:
     attackStateAnimSpeed: 0.5
     deathStateAnimSpeed: 1
     attackMotionType: 0
-  attackInterval: 0
-  chaseRange: 0
-  summonWaitTime: 0
-  attackRange: 0
-  moveSpeed: 0
-  moveStep: 0
+  attackInterval: 1.5
+  chaseRange: 8
+  summonWaitTime: 1
+  attackRange: 10
+  moveSpeed: 2
+  moveStep: 1
   attackType: 1
   monsterAttackType: 1
   monsterMoveType: 0
-  projectileMoveSpeed: 0
-  mover: {fileID: 0}
+  projectileMoveSpeed: 25
+  moverStartTra: {fileID: 2233875331976675904, guid: 041354a7b13b04444bcc89bbf81b618e, type: 3}
+  mover: {fileID: 3645573690436673210, guid: 93a5a657f29424d439da3e849681c0d6, type: 3}

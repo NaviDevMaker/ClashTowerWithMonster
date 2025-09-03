@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackAmount: 3
   hp: 3500
-  pushAmount: 100
+  pushAmount: 10
   animInfo:
     attackStateAnimSpeed: 1
     deathStateAnimSpeed: 1
@@ -29,4 +29,5 @@ MonoBehaviour:
   monsterAttackType: 2
   monsterMoveType: 0
   projectileMoveSpeed: 80
+  moverStartTra: {fileID: 8499307277922491238, guid: c92511a7149de544e91b3c510cc64001, type: 3}
   mover: {fileID: 211712780157053857, guid: 2cdff794e8835ec4484692a86abf979f, type: 3}

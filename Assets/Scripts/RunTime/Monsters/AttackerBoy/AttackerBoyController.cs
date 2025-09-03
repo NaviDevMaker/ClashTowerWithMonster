@@ -1,21 +1,19 @@
 using UnityEngine;
 
 
-public class BuffTime
-{
-    public float buffInverval { get; set; }
-    public float time { get; set; }
-}
 namespace Game.Monsters.AttackerBoy
 {
-    public class AttackerBoyController : MonsterControllerBase<AttackerBoyController>
+    public class AttackerBoyController : MonsterControllerBase<AttackerBoyController>,ISpecialIntervalActionInfo
     {
         public BuffState BuffState { get; private set; }
-        BuffTime buffTime;
+
+        public float actionInverval => 3.0f;
+        public float elapsedTime { get;set; } = 0f;
+
         protected override void Awake()
         {
             base.Awake();
-            isSummoned = true;//テスト用だから消して
+            //isSummoned = true;//テスト用だから消して
         }
 
         protected override void Update()
@@ -44,8 +42,7 @@ namespace Game.Monsters.AttackerBoy
             BuffState = new BuffState(this);
             DeathState = new DeathState(this);
 
-            buffTime = new BuffTime { buffInverval = 3.0f, time = 0f };
-            BuffState.ResetTime = (() => buffTime.time = 0f);
+            BuffState.ResetTime = (() => elapsedTime = 0f);
         }
 
         private void OnDrawGizmos()
@@ -56,11 +53,10 @@ namespace Game.Monsters.AttackerBoy
         void CheckBuffInverval()
         {
             if (currentState == BuffState || isDead) return;
-            var time = buffTime.time += Time.deltaTime;
-            var inverval = buffTime.buffInverval;
+            var time = elapsedTime += Time.deltaTime;
 
-            //Debug.Log(time);
-            if(time >= inverval && !BuffState.wasBuffedFailed && !isDead)
+            //Debug.Log(elapsedTime);
+            if(time >= actionInverval && !BuffState.wasBuffedFailed && !isDead)
             {
                 ChangeState(BuffState);
             }
@@ -69,8 +65,6 @@ namespace Game.Monsters.AttackerBoy
             {
                 if(BuffState.unitIsRange) ChangeState(BuffState);
             }
-
         }
     }
-
 }

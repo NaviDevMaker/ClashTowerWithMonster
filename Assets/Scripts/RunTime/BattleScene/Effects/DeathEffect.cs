@@ -17,12 +17,11 @@ public class DeathEffect:IEffectSetter
         var unitPos = unit.gameObject.transform.position;
         Renderer meshRenderer = default;
         //var body = 0;
-        if (unit is IMonster || unit is IPlayer)
+        if (unit is IMonster || unit is IPlayer || unit is TowerController)
         {
            var unitBase = unit as UnitBase;
            meshRenderer =  unitBase.BodyMesh;
-        }
-        
+        }       
         else if(unit.GetType() == typeof(ArcherController))
         {
             var archerController = unit as ArcherController;

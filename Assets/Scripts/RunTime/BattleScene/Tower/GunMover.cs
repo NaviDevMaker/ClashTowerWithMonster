@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using System;
 using static UnityEngine.GraphicsBuffer;
 
-public class GunMover:LongDistanceAttack<TowerControlller> 
+public class GunMover:LongDistanceAttack<TowerController> 
 {
    
     [SerializeField] ParticleSystem trailEffect;
@@ -75,7 +75,7 @@ public class GunMover:LongDistanceAttack<TowerControlller>
         moveCoroutine = null;
         IsReachedTargetPos = true;
     }
-    protected override void Initialize(TowerControlller controlller)
+    protected override void Initialize(TowerController controlller)
     {
         base.Initialize(controlller);
         hit = Instantiate(hitEffect);
@@ -113,13 +113,17 @@ public class GunMover:LongDistanceAttack<TowerControlller>
     //}
     async UniTask HitEffect()
     {
-        var duration = hit.main.duration;
-        //hit.gameObject.transform.SetParent(target.transform);
-        hit.gameObject.transform.position = transform.position;
-        hit.gameObject.SetActive(true);
-        hit.Play();
-        await UniTask.Delay(TimeSpan.FromSeconds(duration));
-        hit.gameObject.transform.SetParent(transform);
-        hit.gameObject.SetActive(false);
+        try
+        {
+            var duration = hit.main.duration;
+            //hit.gameObject.transform.SetParent(target.transform);
+            hit.gameObject.transform.position = transform.position;
+            hit.gameObject.SetActive(true);
+            hit.Play();
+            await UniTask.Delay(TimeSpan.FromSeconds(duration));
+            hit.gameObject.transform.SetParent(transform);
+            hit.gameObject.SetActive(false);
+        }
+        catch (NullReferenceException) { }
     }
 }

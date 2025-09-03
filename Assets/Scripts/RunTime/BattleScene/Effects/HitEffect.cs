@@ -1,6 +1,7 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System;
+using static UnityEngine.GraphicsBuffer;
 
 public class HitEffect:IEffectSetter
 {
@@ -10,6 +11,7 @@ public class HitEffect:IEffectSetter
     }
 
     GameObject hitEffect;
+    GameObject mageAttackHitEffect;
     public async void GenerateHitEffect(UnitBase target)
     {
         Debug.Log(target);
@@ -19,7 +21,7 @@ public class HitEffect:IEffectSetter
         var center = renderer.bounds.center;
         var meshSize = renderer.bounds.size;
         var pos = new Vector3(center.x,center.y,center.z);
-        var scale = target is TowerControlller ? Vector3.one : target.myScale;
+        var scale = target is TowerController ? Vector3.one : target.myScale;
         var size = new Vector3(meshSize.x * scale.x, meshSize.y * scale.y,meshSize.z * scale.z);
         var particleObj = UnityEngine.Object.Instantiate(hitEffect, pos, Quaternion.identity);
         var particle = particleObj.GetComponent<ParticleSystem>();
@@ -33,14 +35,30 @@ public class HitEffect:IEffectSetter
         try
         {
             await UniTask.Delay(TimeSpan.FromSeconds(destroyDuration), cancellationToken: target.GetCancellationTokenOnDestroy());
-
         }
         catch (OperationCanceledException) { return; }
-        UnityEngine.Object.Destroy(particleObj);
-        
+        UnityEngine.Object.Destroy(particleObj);        
+    }
+    public async UniTask GenerateMageAttackHitEffect(Vector3 position, UnitBase target)
+    {
+        var particleObj = UnityEngine.Object.Instantiate(mageAttackHitEffect, position, Quaternion.identity);
+        var particle = particleObj.GetComponent<ParticleSystem>();
+        particle.Play();
+        particleObj.transform.SetParent(target?.transform);
+        try
+        {
+            var task = RelatedToParticleProcessHelper.WaitUntilParticleDisappear(particle);
+            await task;
+        }
+        catch (OperationCanceledException) {}
+        finally
+        {
+           if(particleObj != null) UnityEngine.Object.Destroy(particleObj);
+        }
     }
     public async void SetEffect()
     {
        hitEffect =  await SetFieldFromAssets.SetField<GameObject>("Effects/HitEffect");
+       mageAttackHitEffect = await SetFieldFromAssets.SetField<GameObject>("Effects/MageHitAttackEffect");
     }
 }

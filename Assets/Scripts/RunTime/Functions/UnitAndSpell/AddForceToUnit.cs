@@ -62,7 +62,7 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
 
            Vector3 targetPos_me = Vector3.zero;
            Vector3 targetPos_other = Vector3.zero;
-           if (otherType == typeof(TowerControlller))
+           if (otherType == typeof(TowerController))
            {
                 Debug.Log("‰Ÿ‚³‚ê‚Ü‚·");
                 targetPos_me = me.transform.position - push;

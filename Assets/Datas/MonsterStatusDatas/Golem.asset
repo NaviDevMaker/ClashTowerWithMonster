@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4a89a51bd4caa44fad839972306ac40, type: 3}
+  m_Name: Golem
+  m_EditorClassIdentifier: 
+  attackAmount: 20
+  hp: 2000
+  pushAmount: 10
+  animInfo:
+    attackStateAnimSpeed: 0
+    deathStateAnimSpeed: 0
+    attackMotionType: 0
+  attackInterval: 2.5
+  chaseRange: 0
+  summonWaitTime: 3
+  attackRange: 4
+  moveSpeed: 1
+  moveStep: 1
+  attackType: 2
+  monsterAttackType: 2
+  monsterMoveType: 0
+  rangeAttackInfo:
+    rangeAttackWepon: {fileID: 6946043457334994846, guid: 6c6570f6f572da74fb7322aab719e483, type: 3}
+    pushAmount: 0
+    perPushDuration: 0

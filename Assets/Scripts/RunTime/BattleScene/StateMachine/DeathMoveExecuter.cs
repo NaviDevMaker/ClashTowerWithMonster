@@ -95,7 +95,7 @@ public class DeathMoveExecuter
         cts.Dispose();
     }
 
-    public async UniTask ExecuteDeathAction_Tower(TowerControlller tower, float length)
+    public async UniTask ExecuteDeathAction_Tower(TowerController tower, float length)
     {
         var cts = new CancellationTokenSource();
         var token = cts.Token;
@@ -129,7 +129,7 @@ public class DeathMoveExecuter
     //async void FadeOutColor(float fadeDuration, CancellationToken cancellationToken, Material material)
     //{
     //    Debug.Log("Playerのフェイドアウト開始");
-    //    var time = 0f;
+    //    var elapsedTime = 0f;
     //    var meshMaterial = material;
 
      
@@ -138,15 +138,15 @@ public class DeathMoveExecuter
 
     //    try
     //    {
-    //        while (time <= fadeDuration && !cancellationToken.IsCancellationRequested)
+    //        while (elapsedTime <= fadeDuration && !cancellationToken.IsCancellationRequested)
     //        {
-    //            var lerpedTime = time / fadeDuration;
+    //            var lerpedTime = elapsedTime / fadeDuration;
     //            var color = startColor;
     //            color.a = Mathf.Lerp(startAlpha, 0f, lerpedTime);
 
     //            meshMaterial.color = color;
     //            //Debug.Log(meshMaterial.color.a);
-    //            time += Time.deltaTime;
+    //            elapsedTime += Time.deltaTime;
     //            await UniTask.Yield(cancellationToken: cancellationToken);
     //        }
     //    }

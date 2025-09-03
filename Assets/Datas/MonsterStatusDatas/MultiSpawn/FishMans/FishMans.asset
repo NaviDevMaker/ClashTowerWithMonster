@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 780e5af3f3a2cb548b16beb020aca469, type: 3}
+  m_Name: FishMans
+  m_EditorClassIdentifier: 
+  spawnCount: 5
+  eachSpawnDelayTime: 0.15
+  monsterPrefab: {fileID: 5580802705477339386, guid: 96b91063cd1f78b46b329219d0a9f0fe, type: 3}

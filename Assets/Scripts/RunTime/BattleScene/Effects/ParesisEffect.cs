@@ -26,7 +26,7 @@ public class ParesisEffect:IEffectSetter
         visualTokens[StatusConditionType.Paresis] = newCls;
         var renderer = target.BodyMesh;
         //if(target is IMonster || target is IPlayer) renderer = target.MySkinnedMeshes[0];
-        //else if(target.GetType() == typeof(TowerControlller)) renderer = target.MyMeshes[0];
+        //else if(target.GetType() == typeof(TowerController)) renderer = target.MyMeshes[0];
         if (renderer == null) return;
         var center = renderer.bounds.center;
         var size = renderer.bounds.size.magnitude;  

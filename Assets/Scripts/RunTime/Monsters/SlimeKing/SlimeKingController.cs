@@ -6,7 +6,6 @@ namespace Game.Monsters.SlimeKing
 {
     public class SlimeKingController : MonsterControllerBase<SlimeKingController>
     {
-
          public GameObject slimeObj { get; private set; }
          public int spawnSlimeCount { get; private set; } = 4;//€–S‚É¶¬‚·‚éƒXƒ‰ƒCƒ€‚Ì”
          protected override void Awake()
@@ -34,7 +33,7 @@ namespace Game.Monsters.SlimeKing
 
         public void SetSummonParticle(Vector3 particlePos)
         {
-                StartCoroutine(EffectManager.Instance.magicCircleEffect.SummonEffect(particlePos, CardType.Monster));
+           StartCoroutine(EffectManager.Instance.magicCircleEffect.SummonEffect(particlePos, CardType.Monster));
         }
     }
 }

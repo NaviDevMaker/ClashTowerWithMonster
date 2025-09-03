@@ -40,13 +40,13 @@ namespace Game.Monsters.EvilMushroom
 
         //async void ParesisTarget()
         //{
-        //    if (target == null || target is TowerControlller) return;
+        //    if (target == null || target is TowerController) return;
         //    var statusCondition = target.statusCondition;
         //    if (statusCondition != null)
         //    {
         //        Debug.Log("–ƒáƒ‚³‚¹‚Ü‚·");
                
-        //        var interval = controller.statusCondition.Paresis.inverval;
+        //        var interval = controller.statusCondition.Paresis.actionInverval;
         //        statusCondition.Paresis.isActive = true;
         //        var attackedCount = statusCondition.Paresis.isEffectedCount;
         //        EffectManager.Instance.statusConditionEffect.paresisEffect.GenerateParesisEffect(target, attackCount: attackedCount);

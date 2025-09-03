@@ -1,10 +1,11 @@
 using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Game.Monsters.DestructionMachine
 {
-    public class AttackState : AttackStateBase<DestructionMachineController>
+    public class AttackState : AttackStateBase<DestructionMachineController>, AttackStateBase<DestructionMachineController>.ILongDistanceAction
     {
         public AttackState(DestructionMachineController controller) : base(controller) { }
         LongDistanceAttack<DestructionMachineController> nextMover = null;
@@ -27,7 +28,8 @@ namespace Game.Monsters.DestructionMachine
             base.OnExit();
         }
 
-        protected override async UniTask Attack_Long()
+        protected override async UniTask Attack_Long(Func<LongDistanceAttack<DestructionMachineController>> getNextMover = null,
+            UnityAction<LongDistanceAttack<DestructionMachineController>> moveAction = null)
         {
             float startNormalizeTime = 0f;
             float now = 0f;
@@ -79,30 +81,40 @@ namespace Game.Monsters.DestructionMachine
         {
 
             if (nextMover != null) return;
-            foreach (var mover in controller.movers)
-            {
-                if (!mover.gameObject.activeSelf)
-                {
-                    nextMover = mover;
-                    break;
-                }
-            }
-            if (nextMover != null)
-            {
-                var effectPos = nextMover.transform.position;
-                var scaleAmount = 0.5f;
-                EffectManager.Instance.expsionEffect.GenerateExplosionEffect(effectPos,scaleAmount);
-                nextMover.target = this.target;
-                nextMover.gameObject.SetActive(true);
-                nextMover.Move();
-                Debug.Log("‘Å‚½‚ê‚Ü‚µ‚½");
-            }
+            nextMover = GetNextMover();
+            NextMoverAction(nextMover);
         }
 
         public override void StopAnimFromEvent()
         {
             nextMover = null;
             base.StopAnimFromEvent();
+        }
+
+        public LongDistanceAttack<DestructionMachineController> GetNextMover()
+        {
+            foreach (var mover in controller.movers)
+            {
+                if (!mover.gameObject.activeSelf)
+                {
+                    return mover;
+                }
+            }
+            return null;
+        }
+
+        public void NextMoverAction(LongDistanceAttack<DestructionMachineController> nextMover)
+        {
+            if (nextMover != null)
+            {
+                var effectPos = nextMover.transform.position;
+                var scaleAmount = 0.5f;
+                EffectManager.Instance.expsionEffect.GenerateExplosionEffect(effectPos, scaleAmount);
+                nextMover.target = this.target;
+                nextMover.gameObject.SetActive(true);
+                nextMover.Move();
+                Debug.Log("‘Å‚½‚ê‚Ü‚µ‚½");
+            }
         }
     }
 

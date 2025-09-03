@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 7958742968483761341}
   - component: {fileID: 565336656290363673}
   - component: {fileID: 7431342070670376768}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Light001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5115,7 +5115,7 @@ GameObject:
   - component: {fileID: 4127416578819607557}
   - component: {fileID: 5287483240000284937}
   - component: {fileID: 1293245155472148546}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Smoke001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9960,7 +9960,7 @@ GameObject:
   - component: {fileID: 609574892418961942}
   - component: {fileID: 8191292390923873162}
   - component: {fileID: 1808570807156135174}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Star001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15259,7 +15259,7 @@ GameObject:
   - component: {fileID: 5760221521497080016}
   - component: {fileID: 617592333867631229}
   - component: {fileID: 5819843441834591310}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Fire002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20231,7 +20231,7 @@ GameObject:
   - component: {fileID: 3686211325176084401}
   - component: {fileID: 4041697615433972257}
   - component: {fileID: 3623747266198389495}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Light002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25808,7 +25808,7 @@ GameObject:
   - component: {fileID: 4626263881059690766}
   - component: {fileID: 3887993270641133495}
   - component: {fileID: 7463259381408356152}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: DragonFireEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -9,20 +9,22 @@ public interface IBuilding { }
 public interface ILongDistanceAttacker<T> where T : UnitBase
 {
     List<LongDistanceAttack<T>> movers { get; set; }
-
+    Transform startTra { get;}
     void SetToStartPos(LongDistanceAttack<T> mover);
     int moverCount { get;}
     void SetMoverToList();
 }
 
 
-public class TowerControlller :UnitBase,IBuilding,ILongDistanceAttacker<TowerControlller>
+public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerController>
 {
     [SerializeField] ArcherController archer;
     UnitBase targetEnemy;
     
     public int moverCount { get; private set;} = 5;
-    public List<LongDistanceAttack<TowerControlller>> movers { get; set; } = new List<LongDistanceAttack<TowerControlller>>();
+    public List<LongDistanceAttack<TowerController>> movers { get; set; } = new List<LongDistanceAttack<TowerController>>();
+    public Transform startTra { get => throw new NotImplementedException();}
+
     float deathActionLength = 0f;
     bool isSettedLength = false;
     enum State
@@ -133,7 +135,7 @@ public class TowerControlller :UnitBase,IBuilding,ILongDistanceAttacker<TowerCon
         var castedShotGuns = this.movers.OfType<GunMover>().ToList();
         archer.shotGuns = castedShotGuns;
     }
-    public void SetToStartPos(LongDistanceAttack<TowerControlller> gun)
+    public void SetToStartPos(LongDistanceAttack<TowerController> gun)
     {
        // Debug.Log("’èˆÊ’u‚É–ß‚è‚Ü‚·");
         gun.gameObject.SetActive(false);
