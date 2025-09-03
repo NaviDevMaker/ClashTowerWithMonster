@@ -11,7 +11,7 @@ namespace Game.Monsters.Fishman
             base.OnEnter();
 
             //This paremetars are examples,so please change it to your preference!!
-            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<FishmanController >(controller, this, clipLength,10,
+            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<FishmanController >(controller, this, clipLength,21,
                 controller.MonsterStatus.AttackInterval);
         }
         public override void OnUpdate()

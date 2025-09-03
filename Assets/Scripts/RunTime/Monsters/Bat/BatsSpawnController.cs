@@ -28,7 +28,7 @@ namespace Game.Monsters.Bat
             };
 
             var prefab = multiSpawnMonsterData.MonsterPrefab;
-            var delayTime = multiSpawnMonsterData.EachSpawnDelayTime;//multiSpawnMonsterData.EachSpawnDelayTime;
+            var delayTime = multiSpawnMonsterData.EachSpawnDelayTime;
             for (int i = 0; i < multiSpawnMonsterData.SpawnCount; i++)
             {
                 var spawnPos = positions[i];

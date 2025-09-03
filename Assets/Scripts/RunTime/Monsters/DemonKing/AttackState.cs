@@ -42,7 +42,7 @@ namespace Game.Monsters.DemonKing
         }    
         async void ConfusionTarget(UnitBase target)
         {
-            if (target is IPlayer || target is TowerControlller) return;
+            if (target is IPlayer || target is TowerController) return;
             var r = UnityEngine.Random.Range(0, 100);
             var isConfusion = r <= 30;
             var statusConditionType = StatusConditionType.Confusion;

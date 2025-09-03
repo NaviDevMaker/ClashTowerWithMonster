@@ -78,9 +78,9 @@ namespace Game.Monsters
         protected virtual void SetTargetTower()
         {
             Debug.Log("ターゲットのタワーを取得します");
-            TowerControlller[] targetTowers = GameObject.FindObjectsByType<TowerControlller>(sortMode: FindObjectsSortMode.None);
+            TowerController[] targetTowers = GameObject.FindObjectsByType<TowerController>(sortMode: FindObjectsSortMode.None);
 
-            List<TowerControlller> toList = new List<TowerControlller>(targetTowers);
+            List<TowerController> toList = new List<TowerController>(targetTowers);
             toList = toList
                 .Where(tower =>
                 { 

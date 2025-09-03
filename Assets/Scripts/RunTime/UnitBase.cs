@@ -143,7 +143,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
 
     //protected bool isSettedHPbar { get; private set; } = false;
     //bool test = false;
-    //float time = 0f;
+    //float elapsedTime = 0f;
     public List<Renderer> AllMesh { get; private set; } = new List<Renderer>();
     protected virtual void Awake()
     {
@@ -160,8 +160,8 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
     }
     protected virtual void Update()
     {
-        //time += Time.deltaTime;
-        //if (time > 3f && !test)
+        //elapsedTime += Time.deltaTime;
+        //if (elapsedTime > 3f && !test)
         //{
         //    Test();
         //    test = true;

@@ -293,7 +293,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tentativeID: 0
-  unitScale: 0
+  unitScale: 1
   unitType: 0
   mySkinnedMeshes:
   - {fileID: 4271776688034286068}
@@ -1247,7 +1247,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tentativeID: 0
-  unitScale: 0
+  unitScale: 1
   unitType: 0
   mySkinnedMeshes:
   - {fileID: 5007393292259996410}
@@ -3255,7 +3255,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tentativeID: 0
-  unitScale: 0
+  unitScale: 1
   unitType: 0
   mySkinnedMeshes:
   - {fileID: 8370031962666214340}

@@ -97,7 +97,7 @@ namespace Game.Spells.Freeze
                 var filteredList = units.Where(unit =>
                 {
                     var inRange = spellEffectHelper.CompareUnitInRange(unit);
-                    var isNotTower = !(unit is TowerControlller);
+                    var isNotTower = !(unit is TowerController);
                     return inRange && isNotTower;
                 }).ToList();
 

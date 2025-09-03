@@ -1,8 +1,11 @@
+using Cysharp.Threading.Tasks;
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Game.Monsters.EvilMage
 {
-    public class AttackState : AttackStateBase<EvilMageController>
+    public class AttackState : AttackStateBase<EvilMageController>, AttackStateBase<EvilMageController>.ILongDistanceAction
     {
         public AttackState(EvilMageController controller) : base(controller) { }
 
@@ -22,6 +25,35 @@ namespace Game.Monsters.EvilMage
         {
             base.OnExit();
         }
+        protected override async UniTask Attack_Long(Func<LongDistanceAttack<EvilMageController>> getNextMover = null, 
+            UnityAction<LongDistanceAttack<EvilMageController>> moveAction = null)
+        {
+            await base.Attack_Long(GetNextMover,NextMoverAction);
+        }
+        public LongDistanceAttack<EvilMageController> GetNextMover()
+        {
+            foreach (var mover in controller.movers)
+            {
+                if(mover is MageSpellMover mageMover)
+                {
+                    if (!mageMover.gameObject.activeInHierarchy && !mageMover.IsProcessingTask)
+                    {
+                        return mover;
+                    }
+                }            
+            }
+            return null;
+        }
+        public void NextMoverAction(LongDistanceAttack<EvilMageController> nextMover)
+        {
+            if (nextMover != null)
+            {
+                var effectPos = nextMover.transform.position;
+                nextMover.target = this.target;
+                nextMover.gameObject.SetActive(true);
+                nextMover.Move();
+                Debug.Log("‘Å‚½‚ê‚Ü‚µ‚½");
+            }
+        }
     }
-
 }

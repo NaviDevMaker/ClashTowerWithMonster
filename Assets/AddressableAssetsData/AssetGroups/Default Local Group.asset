@@ -55,6 +55,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 44d03215dd28ab84695190c024a5408f
+    m_Address: Effects/GolemAttackTornado
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6276bcb0acf05e043a0abe90d73c6f31
     m_Address: Prefabs/Monsters/Slime
     m_ReadOnly: 0
@@ -95,8 +100,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7f00a4125a1e6554393b47e3f1343bf1
+    m_Address: Monsters/FlyingDemon
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8178e2f7b9d4a5f459b0df04b43c2067
     m_Address: HPBar/Tower
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 88cc4ab5e7d49724ba8ce07b7933f34f
+    m_Address: Effects/GolemAttackSmoke
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -132,6 +147,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dfb17cbd7707bb048a3edae692a7d3f1
     m_Address: UI/SummonTimer
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ec6714913d78fd54eb1528935aa536a8
+    m_Address: Effects/MageHitAttackEffect
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

@@ -11,7 +11,7 @@ namespace Game.Monsters.FylingDemon
             base.OnEnter();
 
             //This paremetars are examples,so please change it to your preference!!
-            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<FylingDemonController >(controller, this, clipLength,10,
+            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<FylingDemonController >(controller, this, clipLength,20,
                 controller.MonsterStatus.AttackInterval);
         }
         public override void OnUpdate()

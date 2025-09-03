@@ -37,7 +37,7 @@ public class ShapeShift : SpellBase
             var filteredList = units.Where(unit =>
             {
                 var inRange = spellEffectHelper.CompareUnitInRange(unit);
-                var isNotTower = !(unit is TowerControlller);
+                var isNotTower = !(unit is TowerController);
                 var isNotPlayer = !(unit is IPlayer);
                 return inRange && isNotTower && isNotPlayer;
             }).ToList();
