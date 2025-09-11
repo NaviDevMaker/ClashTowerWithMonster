@@ -9,9 +9,7 @@ namespace Game.Monsters.LizardWarrior
         public override void OnEnter()
         {
             base.OnEnter();
-
-            //This paremetars are examples,so please change it to your preference!!
-            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<LizardWarriorController >(controller, this, clipLength,10,
+            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<LizardWarriorController >(controller, this, clipLength,20,
                 controller.MonsterStatus.AttackInterval);
         }
         public override void OnUpdate()

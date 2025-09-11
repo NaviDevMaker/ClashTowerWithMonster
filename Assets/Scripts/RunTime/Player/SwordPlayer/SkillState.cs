@@ -49,10 +49,8 @@ namespace Game.Players.Sword
                     spellEffectHelper.EffectToUnit();
                     controller.addForceToUnit_Skill.KeepDistance(MoveType.Spell);
                 }
-
                 await UniTask.Yield();
             }
-
             foreach (var p in particles) { var main = p.main; main.loop = false; }
             await EnactiveAll();
             foreach (var p in particles) p.gameObject.SetActive(false);
@@ -82,7 +80,6 @@ namespace Game.Players.Sword
                 var task = RelatedToParticleProcessHelper.WaitUntilParticleDisappear(par);
                 tasks.Add(task);
             }
-
             return tasks;
         }
     }

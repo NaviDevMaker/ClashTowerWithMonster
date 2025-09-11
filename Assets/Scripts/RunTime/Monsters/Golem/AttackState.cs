@@ -8,9 +8,13 @@ using UnityEngine.Rendering;
 
 namespace Game.Monsters.Golem
 {
-    public class AttackState : AttackStateBase<GolemController>
+    public class AttackState : AttackStateBase<GolemController>,IEffectSetter
     {
-        public AttackState(GolemController controller) : base(controller) { }
+        public AttackState(GolemController controller) : base(controller)
+        {
+            SetEffect();
+        }
+
         ParticleSystem tornadoEffect;
         ParticleSystem smokeEffect;
 
@@ -18,7 +22,6 @@ namespace Game.Monsters.Golem
         ParticleSystem currentSmoke;
         public override void OnEnter()
         {
-            SetTornadoEffect();
             base.OnEnter();
             if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<GolemController >(controller, this, clipLength,22,
                 controller.MonsterStatus.AttackInterval);
@@ -31,9 +34,9 @@ namespace Game.Monsters.Golem
         {
             base.OnExit();
         }
-        protected override async UniTask Attack_Generic(AttackArguments attackArguments)
+        protected override async UniTask Attack_Generic(SimpleAttackArguments attackArguments)
         {
-            var arguments = new AttackArguments
+            var arguments = new SimpleAttackArguments
             { 
                getTargets = attackArguments.getTargets,
                attackEffectAction = PlayEffects,
@@ -79,7 +82,7 @@ namespace Game.Monsters.Golem
             tornado.Play();
             currentSmoke.Play();
         }
-        async void SetTornadoEffect()
+        public async void SetEffect()
         {
             var tornadoObj = await SetFieldFromAssets.SetField<GameObject>("Effects/GolemAttackTornado");
             var smokeObj = await SetFieldFromAssets.SetField<GameObject>("Effects/GolemAttackSmoke");

@@ -25,6 +25,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 236b7e4aa8afb7344849959f14e58b60
+    m_Address: Monsters/SalamanderSummonFireEffect
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2580add102ca4704ca12ac410b813631
     m_Address: Effects/BlackNightWeponSmork
     m_ReadOnly: 0
@@ -50,6 +55,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3f179e7f7f397964a803f66ab1317b11
+    m_Address: Effects/UnitHealEffect
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 43b21b9b185202948be8e24bea1d0324
     m_Address: Datas/DeckPreserver
     m_ReadOnly: 0
@@ -60,8 +70,23 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4ff8eafa25d48e4448cd0994255ebf55
+    m_Address: Monsters/Spider_Middle
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 61262723a3943ea488bd33aac497c707
+    m_Address: Effects/FireLingEffectParent
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6276bcb0acf05e043a0abe90d73c6f31
     m_Address: Prefabs/Monsters/Slime
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 63dd359ce780e2240893330df0156627
+    m_Address: Effects/SalamanderMouthEffect
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -85,6 +110,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6b7a152f6613afe49ab8258283987efe
+    m_Address: Monsters/Spider_Small
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6cb4b95ea1b82b64b8c3b4d7b045e96d
     m_Address: PlayerSpells/SwordPlayerSkillEffect
     m_ReadOnly: 0
@@ -97,6 +127,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 76e2f2a095d7daa45af1aee10ba7ab39
     m_Address: HPBar/Enemy_Small
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7efacda211ef7e440ae84097ac64d0df
+    m_Address: Effects/SkeletonShieidEffect
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -120,8 +155,28 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9a3701bba8e0c55478691857d51216a9
+    m_Address: Effects/OrcAttackEffect
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9f1233beef237f24dbec36201d5eb5a8
+    m_Address: Specter/DeathSpecter
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a01f905cbb744e344898ecaaf5fc9481
+    m_Address: Monsters/EggParent_Middle
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b46ab7721ee72ab46bf02d2c860abe6a
     m_Address: HPBar/Enemy_Large
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bedd8f54cee184a438e910a266b17cc8
+    m_Address: Monsters/Spider_Large
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -140,6 +195,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cc7e10b243f32fe409b937862ba1831b
+    m_Address: Monsters/SpecialEffectMonsters/NagaWizardEffect_Head
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: cde486d06b8212d45bfc242de6e667b4
     m_Address: Effects/BeamEffect
     m_ReadOnly: 0
@@ -155,8 +215,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eccd2a920b8504b418a64fb6d2b708ab
+    m_Address: Monsters/SpiderEgg_Large
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fd54b1f72ac770c408b15c2aabca1739
     m_Address: UI/SpellTimer
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ff9f0a342d94f414587bbb8d9096ec30
+    m_Address: Monsters/SpecialEffectMonsters/NagaWizard
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

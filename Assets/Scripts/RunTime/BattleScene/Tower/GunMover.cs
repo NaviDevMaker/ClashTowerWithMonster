@@ -116,14 +116,15 @@ public class GunMover:LongDistanceAttack<TowerController>
         try
         {
             var duration = hit.main.duration;
-            //hit.gameObject.transform.SetParent(target.transform);
-            hit.gameObject.transform.position = transform.position;
+            hit.gameObject.transform.SetParent(target.transform);
+            hit.gameObject.transform.position = target.BodyMesh.bounds.center;
             hit.gameObject.SetActive(true);
             hit.Play();
             await UniTask.Delay(TimeSpan.FromSeconds(duration));
             hit.gameObject.transform.SetParent(transform);
             hit.gameObject.SetActive(false);
         }
+        catch(MissingReferenceException) { }
         catch (NullReferenceException) { }
     }
 }

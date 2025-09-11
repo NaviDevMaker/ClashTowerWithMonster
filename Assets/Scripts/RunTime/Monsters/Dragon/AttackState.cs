@@ -9,9 +9,12 @@ using UnityEngine.Events;
 
 namespace Game.Monsters.Dragon
 {
-    public class AttackState : AttackStateBase<DragonController>
+    public class AttackState : AttackStateBase<DragonController>,IEffectSetter
     {
-        public AttackState(DragonController controller) : base(controller) { }
+        public AttackState(DragonController controller) : base(controller)
+        {
+            SetEffect();
+        }
         ParticleSystem projectileFireEffect;
         class HitJudgeColliderInfo
         {
@@ -33,7 +36,6 @@ namespace Game.Monsters.Dragon
         public override void OnEnter()
         {
             hitJudgeColliderInfo = new HitJudgeColliderInfo();
-            SetProjectileFireEffect();
             base.OnEnter();
             //This paremetars are examples,so please change it to your preference!!
             if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<DragonController>(controller, this, clipLength,28,
@@ -48,7 +50,7 @@ namespace Game.Monsters.Dragon
             base.OnExit();
             isBreathFire = false;
         }
-        protected override async UniTask Attack_Generic(AttackArguments attackArguments)
+        protected override async UniTask Attack_Generic(SimpleAttackArguments attackArguments)
         {
             if (!controller.animator.GetCurrentAnimatorStateInfo(0).IsName(controller.MonsterAnimPar.attackAnimClipName))
             {
@@ -76,12 +78,12 @@ namespace Game.Monsters.Dragon
 
                 await UniTask.WaitUntil(wait, cancellationToken: cts.Token);
              
-                Func<float> getCurrentNorm = () =>
-                {
-                   var current = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                   return current - startNormalizeTime;
-                };
-                PlayProjectileFireEffect(getCurrentNorm,attackArguments.getTargets);
+                //Func<float> getCurrentNorm = () =>
+                //{
+                //   var current = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                //   return current - startNormalizeTime;
+                //};
+                PlayProjectileFireEffect(attackArguments.getTargets);
             }
             catch (OperationCanceledException)
             {
@@ -116,7 +118,7 @@ namespace Game.Monsters.Dragon
             return canAttack =　!isBreathFire ? (targetPos - myPos).magnitude <= attackRange && !isDead && (targetSide & effectiveSide) != 0
                  : !isDead && (targetSide & effectiveSide) != 0;// && !isDead;         
         }
-        async void PlayProjectileFireEffect(Func<float> getCurrentNorm,Func<List<UnitBase>> getCurrentTargets)
+        async void PlayProjectileFireEffect(Func<List<UnitBase>> getCurrentTargets)//Func<float> getCurrentNorm,
         {
             Debug.Log("炎を吐きます");
             var fire = default(ParticleSystem);
@@ -156,7 +158,7 @@ namespace Game.Monsters.Dragon
               
               var startColPos = colObj.transform.position;
               var targetPos = colObj.transform.position - controller.transform.right * hitJudgeColliderInfo.absRightAmount;
-              var startLength = getCurrentNorm() * clipLength;
+              var startLength = GetCurrentNormalizedTime() * clipLength;
               var leftLength = clipLength - startLength;
               var interval =  leftLength / (float)controller.repeatCount;
               Debug.Log($"インターバルは{interval}");
@@ -190,7 +192,7 @@ namespace Game.Monsters.Dragon
               damageEachUnit.Invoke();
               while (CanFireShot(doubleCls))
               {
-                  var elapsedTime = clipLength * getCurrentNorm() - startLength;
+                  var elapsedTime = clipLength * GetCurrentNormalizedTime() - startLength;
                   var lerp = Mathf.Clamp01(elapsedTime / leftLength);
                   var targetZ = Mathf.Lerp(startEulerZ, targetEulerZ, lerp);
                   var targetRot = Quaternion.Euler(euler.x, euler.y, targetZ);
@@ -216,7 +218,7 @@ namespace Game.Monsters.Dragon
                 isBreathFire = false;
             }
         }
-        async void SetProjectileFireEffect()
+        public async void SetEffect()
         {
             if (projectileFireEffect != null) return;
             var fireObj = await SetFieldFromAssets.SetField<GameObject>("Effects/DragonFireEffect");
@@ -245,9 +247,9 @@ namespace Game.Monsters.Dragon
             {
                 var cancelled = doubleCls.IsCancellationRequested;
                 var isFreezed = controller.statusCondition.Freeze.isActive;
-                var isDead = target.isDead;
-                if (isEnd) return !cancelled && !isFreezed && !isDead;
-                else return !cancelled && !isFreezed && !isDead && !isInterval;
+                //var isDead = target.isDead;
+                if (isEnd) return !cancelled && !isFreezed;// && !isDead;
+                else return !cancelled && !isFreezed && !isInterval;//&& !isDead;
             }
             catch (ObjectDisposedException) { return false; }
            

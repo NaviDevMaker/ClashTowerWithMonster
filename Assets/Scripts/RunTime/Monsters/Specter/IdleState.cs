@@ -5,8 +5,6 @@ namespace Game.Monsters.Specter
     public class IdleState : IdleStateBase<SpecterController>
     {
         public IdleState(SpecterController controller) : base(controller) { }
-
-
         public override void OnEnter()
         {
             OnEnterProcess().Forget();
@@ -23,7 +21,5 @@ namespace Game.Monsters.Specter
         {
             await base.OnEnterProcess();
         }
-
     }
-
 }

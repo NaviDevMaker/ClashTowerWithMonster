@@ -11,9 +11,10 @@ namespace Game.Monsters.Spider
             base.OnEnter();
 
             //This paremetars are examples,so please change it to your preference!!
-            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<SpiderController >(controller, this, clipLength,10,
+            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<SpiderController >(controller, this, clipLength,7,
                 controller.MonsterStatus.AttackInterval);
         }
+
         public override void OnUpdate()
         {
             base.OnUpdate();

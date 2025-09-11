@@ -9,6 +9,7 @@ public static class PoolObjectPreserver
     public static List<LineRenderer> lineRenderers = new List<LineRenderer>();
     public static List<GameObject> transformerEffectList = new List<GameObject>();
     public static List<GameObject> SummonedUIImagesObj = new List<GameObject>();
+    public static List<GameObject> skeletonHeadObjList = new List<GameObject>();
     public static MeteoMover MeteoGeter()
     {
         foreach (var meteo in meteoList)
@@ -58,7 +59,18 @@ public static class PoolObjectPreserver
         }
         return null;
     }
+    public static GameObject SkeletonHeadGetter()
+    {
+        foreach (var skeleton  in skeletonHeadObjList)
+        {
+            if (!skeleton.gameObject.activeSelf)
+            {
+                return skeleton;
+            }
+        }
 
+        return null;
+    }
     public static void ListClear(Scene oldScene,Scene newScene)
     {
         lineRenderers.Clear();

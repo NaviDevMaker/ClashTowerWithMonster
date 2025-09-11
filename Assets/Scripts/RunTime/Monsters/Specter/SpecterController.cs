@@ -1,35 +1,45 @@
+using Cysharp.Threading.Tasks;
+using Game.Monsters.BlackKnight;
 using UnityEngine;
 
 namespace Game.Monsters.Specter
 {
-    public class SpecterController : MonsterControllerBase<SpecterController>
+    public class SpecterController : MonsterControllerBase<SpecterController>,IRangeAttack
     {
-
+        public GameObject rangeAttackObj { get; set; }
         protected override void Awake()
         {
             base.Awake();
             //isSummoned = true;//テスト用だから消して
         }
-        //public int ID;//テスト用だから消してね
         protected override void Start()
         {
             Debug.Log("ｊｃｄさｃｄｓｈｋｃｓｄｊｄｓｃｓｄｋｓｄｎ");
             base.Start();
         }
-
         public override void Initialize(int owner = -1)
         {
-            /*Please select your monster movetype.
+            SetHitJudgementObject();
             moveType = MoveType.Walk;
-            moveType = MoveType.Fly;*/
             base.Initialize(owner);
-            /*I recommend to delete comment out after you create state class at Auto State Creater
             IdleState = new IdleState(this);
             ChaseState = new ChaseState(this);
             AttackState = new AttackState(this);
-            DeathState = new DeathState(this);*/
+            DeathState = new DeathState(this);
         }
-
+        public void SetHitJudgementObject()
+        {
+            var data = _RangeAttackMonsterStatus;
+            if (data == null) return;
+            var weponName = data._RangeAttackInfo.RangeAttackWepon.name;
+            rangeAttackObj = this.gameObject.GetObject(weponName);
+            Debug.Log(rangeAttackObj.name);
+        }
+        public override async void DestroyAll()
+        {
+            var deathState = DeathState as DeathState;
+            await UniTask.WaitUntil(deathState.getDeathMoverStatus);
+            base.DestroyAll();
+        }
     }
-
 }

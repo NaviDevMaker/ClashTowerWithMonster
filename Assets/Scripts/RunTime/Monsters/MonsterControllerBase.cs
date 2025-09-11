@@ -37,7 +37,6 @@ namespace Game.Monsters
         public MonsterAnimatorPar MonsterAnimPar { get => monsterAnimPar; }
         public bool isSummoned { get; set; } = false;
         public string SummonedCardName { get; set; }
-
         public IdleStateBase<T> IdleState { get; protected set; }
         public ChaseStateBase<T> ChaseState { get; protected set; }
         public AttackStateBase<T> AttackState { get; protected set; }
@@ -65,7 +64,7 @@ namespace Game.Monsters
 
         protected override void Start()
         {
-            isSummoned = true;//これテスト用だからもしコメントアウトされてなかったら消してね
+            //isSummoned = true;//これテスト用だからもしコメントアウトされてなかったら消してね
             Debug.Log("ｊｃｄさｃｄｓｈｋｃｓｄｊｄｓｃｓｄｋｓｄｎ");
             base.Start();
             addForceToUnit = new AddForceToUnit<MonsterControllerBase<T>>(this, StatusData.PushAmount);
@@ -89,6 +88,7 @@ namespace Game.Monsters
                 }
                 Debug.Log(currentState);
             }
+            //これデッキ選択シーンの時に見本用のモンスターをその都度削除するからそのため
             else
             {
                 if (isDead && currentState != DeathState)
@@ -100,8 +100,7 @@ namespace Game.Monsters
         private void FixedUpdate()
         {
             if(isSummoned && IdleState.isEndSummon && !isDead) addForceToUnit.KeepDistance(moveType);
-        }
-      
+        } 
         public virtual void ChangeState(StateMachineBase<T> nextState)
         {
             currentState?.OnExit();

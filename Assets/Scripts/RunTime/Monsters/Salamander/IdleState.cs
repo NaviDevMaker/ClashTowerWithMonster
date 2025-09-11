@@ -6,7 +6,6 @@ namespace Game.Monsters.Salamander
     {
         public IdleState(SalamanderController controller) : base(controller) { }
 
-
         public override void OnEnter()
         {
             OnEnterProcess().Forget();
@@ -21,9 +20,18 @@ namespace Game.Monsters.Salamander
         }
         protected override async UniTask OnEnterProcess()
         {
+            var summonFireObj = await SetFieldFromAssets.SetField<GameObject>("Monsters/SalamanderSummonFireEffect");
+            if (summonFireObj == null) return;
+            var pos = controller.transform.position;
+            var rot = controller.transform.rotation;
+            var summonFire = UnityEngine.Object.Instantiate(summonFireObj,pos,rot);
+            var cmp = summonFire.GetComponent<SummonFireLing>();
+            if (cmp != null)
+            {
+                cmp.Initialize(controller);
+                cmp.DamageAndPush();
+            }
             await base.OnEnterProcess();
         }
-
     }
-
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine.Events;
 using System.Collections.Generic;
 using Game.Monsters;
+using static UnityEngine.Rendering.DebugUI.Table;
 
 public interface IAttackState
 {
@@ -21,32 +22,35 @@ namespace Game.Monsters
             LongDistanceAttack<T> GetNextMover();
             void NextMoverAction(LongDistanceAttack<T> nextMover);
         }
-
-        public class AttackArguments
+        protected class SimpleAttackArguments
         {
-            public Func<List<UnitBase>> getTargets;
-            public UnityAction<UnitBase> specialEffectAttack = null;
-            public UnityAction continuousAttack = null;
+            public Func<List<UnitBase>> getTargets;//ターゲットの取得
+            public UnityAction<UnitBase> specialEffectAttack = null;//攻撃後の個別の敵に対しての特別な処理（この攻撃後にHP回復など）
+            public UnityAction attackEffectAction = null;//ダメージを与えるフレームになった時に出すエフェクトのアクション(ゴーレムの煙など)
+            public UnityAction attackEndAction = null;//攻撃終わりにする処理
+            public UnityAction<Func<float>> actionByLeftAttackLength = null;//何か攻撃開始時の時間が関係するような処理の時
+            public float repeatCount = 0f;//攻撃回数（サイクロプスやナーガウィザードの多段攻撃の回数）
+        }
+        protected class LongAttackArguments
+        {
+            public Func<LongDistanceAttack<T>> getNextMover;
+            public UnityAction<LongDistanceAttack<T>> moveAction;
             public UnityAction attackEffectAction = null;
             public UnityAction attackEndAction = null;
-            public UnityAction<Func<float>> actionByLeftAttackLength = null;
-            public float repeatCount = 0f;
+            public int repeatCount = 0;
         }
 
-        protected AttackArguments attackArguments;
         public AttackStateBase(T controller) : base(controller) { }
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        //Vector3 towerTargetPos;
         public UnitBase target;
         protected int attackAmount = 0;
         protected float stateAnimSpeed { get; private set; } = 0f;
         protected float attackRange { get; private set;} = 0f;
         protected CancellationTokenSource cts;
-
         public int maxFrame = 0;
         public int attackEndFrame = 0;
         public float attackEndNomTime = 0f;
         public float interval = 0f;
+        float startNormalizeTime = 0f;
 
         protected float leftLengthTime = 0f;
         protected bool isAttacking = false;
@@ -59,7 +63,6 @@ namespace Game.Monsters
             SetUp();
             if (!isSettedEventClip) ChangeClipForAnimationEvent();//
         }
-
         protected void SetUp()
         {
             attackAmount = controller.statusCondition != null ? controller.BuffStatus(BuffType.Power, controller.MonsterStatus.AttackAmount)
@@ -94,7 +97,6 @@ namespace Game.Monsters
             if((isInterval || isContineAttack) && !controller.statusCondition.Freeze.isActive) LookToTarget();
             if(!CheckAttackable()) CancelAttack();
         }
-
         public override void OnExit()
         {
             controller.animator.speed = 1.0f;//凍ってるときに死んだ時用
@@ -102,15 +104,15 @@ namespace Game.Monsters
             controller.animator.SetBool(controller.MonsterAnimPar.Attack_Hash, false);
         }
 
-        protected virtual async UniTask Attack_Generic(AttackArguments attackArguments)
-            // continuousAttackはサイクロプスみたいな一回で何度も攻撃する系のやつ
+        protected virtual async UniTask Attack_Generic(SimpleAttackArguments attackArguments)
         {
             if (!controller.animator.GetCurrentAnimatorStateInfo(0).IsName(controller.MonsterAnimPar.attackAnimClipName))
             {
                 controller.animator.Play(controller.MonsterAnimPar.attackAnimClipName);
             }
+
+            //これcontinuousのモンスターじゃないけどでもリピート攻撃の時(オークとかドラゴン)
             if(controller is IRepeatAttack repeat) attackArguments.repeatCount = repeat.repeatCount;
-            float startNormalizeTime = 0f;
             float now = 0f;
             try
             {
@@ -129,7 +131,6 @@ namespace Game.Monsters
                     now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
                     return now - startNormalizeTime >= attackEndNomTime;
                 });
-               
                 await UniTask.WaitUntil(wait, cancellationToken: cts.Token);
                 attackArguments.attackEffectAction?.Invoke();
                 if(attackArguments.repeatCount == 0)
@@ -141,24 +142,21 @@ namespace Game.Monsters
                     {
                         AddDamageToTarget(target);
                         if (attackArguments.specialEffectAttack != null) attackArguments.specialEffectAttack?.Invoke(target);
-                        if (attackArguments.continuousAttack != null) attackArguments.continuousAttack?.Invoke();
                     });
                 }
                 else
                 {
-                    var elapsedNormalizedTime = now - startNormalizeTime;
-                    var startLength = elapsedNormalizedTime * clipLength;
-                    var leftLength = clipLength - startLength;
-                    var repeatInterval = leftLength / attackArguments.repeatCount;
-                    Func<float> getCurrentNorm = () =>
-                    {
-                        var current = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                        return current - startNormalizeTime;
-                    };
+                    var repeatCount = (int)attackArguments.repeatCount;
+                    var repeatInterval = GetRepeatInterval(startNormalizeTime,repeatCount);
+                   
+                    attackArguments.actionByLeftAttackLength?.Invoke(GetCurrentNormalizedTime);
+                    Debug.Log($"{GetCurrentNormalizedTime()},リピート攻撃開始します");
 
-                    attackArguments.actionByLeftAttackLength?.Invoke(getCurrentNorm);
-                    while(getCurrentNorm() <= 1.0f && !controller.isDead)
+                    while(GetCurrentNormalizedTime() < 1.0f && !cts.IsCancellationRequested
+                        && !isInterval)
                     {
+                        repeatInterval = GetRepeatInterval(startNormalizeTime, repeatCount);
+                        Debug.Log($"リピート{GetCurrentNormalizedTime()}");
                         if (target == null) break;
                         var currentTargets = attackArguments.getTargets();
                         if (!currentTargets.Contains(target)) currentTargets.Add(target);
@@ -166,7 +164,6 @@ namespace Game.Monsters
                         {
                             AddDamageToTarget(target);
                             if (attackArguments.specialEffectAttack != null) attackArguments.specialEffectAttack?.Invoke(target);
-                            if (attackArguments.continuousAttack != null) attackArguments.continuousAttack?.Invoke();
                         });
                         await UniTask.Delay(TimeSpan.FromSeconds(repeatInterval), cancellationToken: cts.Token);
                     }
@@ -182,10 +179,9 @@ namespace Game.Monsters
             finally { if(attackArguments.attackEndAction != null) attackArguments.attackEndAction?.Invoke();}
             leftLengthTime = 0f;
         }
-        protected virtual async UniTask Attack_Long(Func<LongDistanceAttack<T>> getNextMover = null,
-            UnityAction<LongDistanceAttack<T>> moveAction = null)
+        protected virtual async UniTask Attack_Long(LongAttackArguments longAttackArguments)
         {
-            float startNormalizeTime = 0f;
+            if (controller is IRepeatAttack repeat) longAttackArguments.repeatCount = repeat.repeatCount;
             float now = 0f;
             LongDistanceAttack<T> nextMover = null;
             try
@@ -203,9 +199,30 @@ namespace Game.Monsters
                 });
 
                 await UniTask.WaitUntil(wait, cancellationToken: cts.Token);
-                nextMover = getNextMover();
-                if(nextMover == null) return;
-                moveAction?.Invoke(nextMover);
+                longAttackArguments.attackEffectAction?.Invoke();
+                if (longAttackArguments.repeatCount == 0)
+                {
+                    nextMover = longAttackArguments.getNextMover();
+                    if (nextMover == null) return;
+                    longAttackArguments.moveAction?.Invoke(nextMover);
+                }
+                else
+                {
+                    var remaining = longAttackArguments.repeatCount;
+                    var repeatInterval = GetRepeatInterval(startNormalizeTime, remaining);
+                    while (remaining > 0 && GetCurrentNormalizedTime() < 1.0f && !cts.IsCancellationRequested
+                        && !isInterval)
+                    {
+                        LookToTarget();
+                        repeatInterval = GetRepeatInterval(startNormalizeTime, remaining);
+                        Debug.Log("ロングでリピートなアタック！！");
+                        nextMover = longAttackArguments.getNextMover();
+                        if (nextMover == null) return;
+                        longAttackArguments.moveAction?.Invoke(nextMover);
+                        remaining--;
+                        await UniTask.Delay(TimeSpan.FromSeconds(repeatInterval), cancellationToken: cts.Token);
+                    }
+                }
             }
             catch (OperationCanceledException)
             {
@@ -214,10 +231,10 @@ namespace Game.Monsters
                 isAttacking = false;
             }
             catch (ObjectDisposedException) { }
-            finally { }
+            finally { longAttackArguments.attackEndAction?.Invoke(); }
             leftLengthTime = 0f;
         }
-        protected void AddDamageToTarget(UnitBase currentTarget)
+        protected virtual void AddDamageToTarget(UnitBase currentTarget)
         {
             if (currentTarget.TryGetComponent<IUnitDamagable>(out var unitDamagable))
             {
@@ -232,6 +249,7 @@ namespace Game.Monsters
             var canAttack = false;
             var targetPos = Vector3.zero;
             var isDead = target.isDead;
+            var isTransparent = target.statusCondition.Transparent.isActive;
             var collider = target.GetComponent<Collider>();
             var closestPos = collider.ClosestPoint(controller.transform.position);
 
@@ -245,11 +263,11 @@ namespace Game.Monsters
                 false => Side.EnemySide,
             };
 
-            canAttack = (targetPos - myPos).magnitude <= attackRange && !isDead && (targetSide & effectiveSide) != 0;// && !isDead;         
+            canAttack = (targetPos - myPos).magnitude <= attackRange && !isDead
+                && (targetSide & effectiveSide) != 0 && !isTransparent;// && !isDead;         
             Debug.Log($"[距離チェック] 距離: {canAttack}, 射程: {controller.MonsterStatus.AttackRange}");
             return canAttack;
-        }
-        
+        }      
         protected float GetAttackRange()
         {
             if (controller.MonsterStatus == null) return default;
@@ -306,9 +324,7 @@ namespace Game.Monsters
             }             
             nextState = controller.ChaseState;
             controller.ChangeState(nextState);
-            //controller.animator.SetBool(controller.MonsterAnimPar.Attack, false);//ここに必要かもしれないから必要だったらコメントアウト消して
         }
-
         bool ContinueAttackState()
         {
             var monsterAttackType = controller.MonsterStatus.MonsterAttackType;
@@ -328,6 +344,7 @@ namespace Game.Monsters
                 {
                     var enemySide = cmp.GetUnitSide(controller.ownerID);
                     var isDead = cmp.isDead;
+                    var isTransparent = cmp.statusCondition.Transparent.isActive;
                     var moveType = cmp.moveType;
                     var isConfused = controller.statusCondition.Confusion.isActive;
                     var effectiveSide = isConfused switch
@@ -340,10 +357,10 @@ namespace Game.Monsters
                     {
                         var isSummoned = summonbable.isSummoned;
                         return (enemySide & effectiveSide) != 0 && !isDead
-                          && (moveType & effectiveMoveSide) != 0 && isSummoned;// 
+                          && (moveType & effectiveMoveSide) != 0 && isSummoned && !isTransparent;
                     }
                     return (enemySide & effectiveSide) != 0 && !isDead
-                            && (moveType & effectiveMoveSide) != 0;// 
+                            && (moveType & effectiveMoveSide) != 0;
                 }).ToArray(),
 
                 MonsterAttackType.OnlyBuilding => sortedArray.Where(cmp =>
@@ -357,6 +374,7 @@ namespace Game.Monsters
                 MonsterAttackType.GroundedAndEveryThing => sortedArray.Where(cmp =>
                 {
                     var enemySide = cmp.GetUnitSide(controller.ownerID);
+                    var isTransparent = cmp.statusCondition.Transparent.isActive;
                     var isDead = cmp.isDead;
                     var isConfused = controller.statusCondition.Confusion.isActive;
                     var effectiveSide = isConfused switch
@@ -369,7 +387,7 @@ namespace Game.Monsters
                     {
                         var isSummoned = summonbable.isSummoned;
                         return (enemySide & effectiveSide) != 0 && !isDead
-                               && isSummoned;// 
+                               && isSummoned && !isTransparent;
                     }
                     return (enemySide & effectiveSide) != 0 && !isDead;
                 }).ToArray(),   
@@ -390,21 +408,25 @@ namespace Game.Monsters
         {
             if (controller.MonsterStatus.AttackType == AttackType.Simple || controller.MonsterStatus.AttackType == AttackType.Continuous)
             {
-                var argments = new AttackArguments
+                var argments = new SimpleAttackArguments
                 {
                     getTargets = () => target != null ? new List<UnitBase> { target } : Enumerable.Empty<UnitBase>().ToList()
                 };
                 Attack_Generic(argments).Forget();
             }
-            else if(controller.MonsterStatus.AttackType == AttackType.Range)
+            else if (controller.MonsterStatus.AttackType == AttackType.Range)
             {
-                var argments = new AttackArguments
+                var argments = new SimpleAttackArguments
                 {
                     getTargets = () => controller.GetUnitInWeponRange().Invoke()
                 };
                 Attack_Generic(argments).Forget();
             }
-            else if (controller.MonsterStatus.AttackType == AttackType.Long) Attack_Long().Forget();
+            else if (controller.MonsterStatus.AttackType == AttackType.Long)
+            {
+                var arguments = new LongAttackArguments();
+                Attack_Long(arguments).Forget();
+            }
         }
         public virtual async void StopAnimFromEvent()
         {
@@ -443,6 +465,21 @@ namespace Game.Monsters
 
             overrideController[attackMotionClip.name] = newClip;
             isSettedEventClip = true;
+        }
+        protected float GetCurrentNormalizedTime()
+        {
+            var current = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+            Debug.Log($"現在は{current},スタートは{startNormalizeTime}");
+            return current - startNormalizeTime;
+        }
+        float GetRepeatInterval(float startNormalizedTime,int repeatCount)
+        {
+            var now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+            var elapsedNormalizedTime = now - startNormalizeTime;
+            var startLength = elapsedNormalizedTime * clipLength;
+            var leftLength = clipLength - startLength;
+            var repeatInterval = leftLength /  (float)repeatCount;
+            return (repeatInterval / stateAnimSpeed) / controller.animator.speed;
         }
     }
 }

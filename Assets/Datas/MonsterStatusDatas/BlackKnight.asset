@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4a89a51bd4caa44fad839972306ac40, type: 3}
   m_Name: BlackKnight
   m_EditorClassIdentifier: 
-  attackAmount: 40
+  attackAmount: 5
   hp: 1000
   pushAmount: 10
   animInfo:
@@ -30,5 +30,5 @@ MonoBehaviour:
   monsterMoveType: 0
   rangeAttackInfo:
     rangeAttackWepon: {fileID: 1091788709870844578, guid: cf4498d5ede9e6b468c444ee113b8f26, type: 3}
-    pushAmount: 0.5
+    pushAmount: 1
     perPushDuration: 0.5

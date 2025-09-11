@@ -5,7 +5,8 @@ using UnityEngine.Events;
 
 namespace Game.Monsters.EvilMage
 {
-    public class AttackState : AttackStateBase<EvilMageController>, AttackStateBase<EvilMageController>.ILongDistanceAction
+    public class AttackState : AttackStateBase<EvilMageController>
+        , AttackStateBase<EvilMageController>.ILongDistanceAction
     {
         public AttackState(EvilMageController controller) : base(controller) { }
 
@@ -25,10 +26,14 @@ namespace Game.Monsters.EvilMage
         {
             base.OnExit();
         }
-        protected override async UniTask Attack_Long(Func<LongDistanceAttack<EvilMageController>> getNextMover = null, 
-            UnityAction<LongDistanceAttack<EvilMageController>> moveAction = null)
+        protected override async UniTask Attack_Long(LongAttackArguments longAttackArguments)
         {
-            await base.Attack_Long(GetNextMover,NextMoverAction);
+            var arguments = new LongAttackArguments
+            {
+                getNextMover = GetNextMover,
+                moveAction = NextMoverAction
+            };
+            await base.Attack_Long(arguments);
         }
         public LongDistanceAttack<EvilMageController> GetNextMover()
         {
@@ -48,7 +53,6 @@ namespace Game.Monsters.EvilMage
         {
             if (nextMover != null)
             {
-                var effectPos = nextMover.transform.position;
                 nextMover.target = this.target;
                 nextMover.gameObject.SetActive(true);
                 nextMover.Move();

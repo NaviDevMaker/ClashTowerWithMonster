@@ -30,11 +30,6 @@ namespace Game.Monsters.SlimeKing
             DeathState = new DeathState(this);
             slimeObj = await SetFieldFromAssets.SetField<GameObject>("Prefabs/Monsters/Slime");
         }
-
-        public void SetSummonParticle(Vector3 particlePos)
-        {
-           StartCoroutine(EffectManager.Instance.magicCircleEffect.SummonEffect(particlePos, CardType.Monster));
-        }
     }
 }
 

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4a89a51bd4caa44fad839972306ac40, type: 3}
+  m_Name: Specter
+  m_EditorClassIdentifier: 
+  attackAmount: 40
+  hp: 200
+  pushAmount: 10
+  animInfo:
+    attackStateAnimSpeed: 1
+    deathStateAnimSpeed: 1
+    attackMotionType: 0
+  attackInterval: 1.5
+  chaseRange: 8
+  summonWaitTime: 0.5
+  attackRange: 3
+  moveSpeed: 4
+  moveStep: 1
+  attackType: 2
+  monsterAttackType: 0
+  monsterMoveType: 0
+  rangeAttackInfo:
+    rangeAttackWepon: {fileID: 161782512372926613, guid: f99dcbe7a5c8c1f4b9e8db4ae19520ef, type: 3}
+    pushAmount: 0
+    perPushDuration: 0

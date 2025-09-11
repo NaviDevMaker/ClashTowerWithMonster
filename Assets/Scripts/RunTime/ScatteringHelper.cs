@@ -77,10 +77,8 @@ public static class ScatteringHelper
         float min,float max) where T : MonoBehaviour
     {
         //Max’l‚ðŠÜ‚Ü‚¹‚½‚¢‚©‚çfloat    
-
         //var min = -5.0f;
         //var max = 5.0f;
-
         try
         {
             var fadeOutTime = 4.0f;

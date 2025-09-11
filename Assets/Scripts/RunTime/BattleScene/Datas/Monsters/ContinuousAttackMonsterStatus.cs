@@ -10,7 +10,8 @@ public class ContinuousAttackMonsterStatus : MonsterStatusData
     [System.Serializable]
     public class ContinuousAttackInfo
     {
-        [SerializeField] float interval;
-        public float Interval => interval;
+        [SerializeField] int continuousCount;
+
+        public int ContinuousCount  => continuousCount;
     }
 }

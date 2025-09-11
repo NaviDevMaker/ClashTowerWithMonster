@@ -21,7 +21,7 @@ MonoBehaviour:
     _DepthMaskLayerMask:
       serializedVersion: 2
       m_Bits: 0
-    _UseCustomData: 1
+    _UseCustomData: 0
     _UseDepthMask: 0
     _UseCustomTexture: 0
     _CustomTexture: {fileID: 0}
@@ -34,16 +34,16 @@ MonoBehaviour:
     _FadeStart: 20
     _FadeEnd: 40
     _NormalsEdgeDetection: 1
-    _NormalsOffset: 0.01
+    _NormalsOffset: 0.25
     _NormalsHardness: 0
     _NormalsPower: 1
     _DepthEdgeDetection: 1
     _AcuteAngleFix: 0
     _ViewDirThreshold: 1
     _ViewDirThresholdScale: 50
-    _DepthThreshold: 1
-    _DepthHardness: 0.9
-    _DepthPower: 5
+    _DepthThreshold: 0.15
+    _DepthHardness: 1
+    _DepthPower: 2.44
     _EdgeColor: {r: 0, g: 0, b: 0, a: 1}
     _UseEdgeBlendDepthFade: 0
     _EdgeBlendFadeStart: 10

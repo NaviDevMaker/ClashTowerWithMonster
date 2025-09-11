@@ -6,16 +6,19 @@ using DG.Tweening;
 using Game.Spells;
 using static UnitBase;
 using System.Linq;
+using Game.Monsters;
+using Game.Monsters.BlackKnight;
 
 
-public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
+public class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
 {
     T me;
     float pushAmount;
     float pushDuration;
     UnitScale effectiveScale;
     PushEffectUnit pushEffectUnit;
-    public AddForceToUnit(T me,float pushAmount,float pushDuration = default,PushEffectUnit pushEffectUnit = default)
+    public AddForceToUnit(T me,float pushAmount,float pushDuration = default,
+        PushEffectUnit pushEffectUnit = default)
     {
         this.me = me;
         this.pushAmount = pushAmount;
@@ -37,6 +40,7 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
 
      public void CompareEachUnit(UnitBase other)
      {
+        if (me is ShockWaveEffecter) Debug.Log("デーモンが押します");
         var vector = other.transform.position - me.transform.position;
 
         var direction = vector != Vector3.zero ? vector.normalized : -(other.transform.forward);
@@ -55,45 +59,48 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
      }
      async void PushEachUnit(UnitBase other,float distance,float minDistance,Vector3 direction)
      {
-           var extraDistance = minDistance - distance;
-           var push = direction * extraDistance;
-           push.y = 0f;
-           var otherType = other.GetType();
+         var extraDistance = minDistance - distance;
+         var push = direction * extraDistance;
+         push.y = 0f;
+         var otherType = other.GetType();
 
-           Vector3 targetPos_me = Vector3.zero;
-           Vector3 targetPos_other = Vector3.zero;
-           if (otherType == typeof(TowerController))
-           {
-                Debug.Log("押されます");
-                targetPos_me = me.transform.position - push;
-                me.transform.position = Vector3.MoveTowards(me.transform.position, targetPos_me, pushAmount * Time.deltaTime);
-           }
-           else if ((other is IPlayer || other is IMonster) && (me is ISpells || me is ISkills || me is IRangeWeponAttack))
-           {
-                Debug.Log("呪文発動");
-                other.isKnockBacked_Spell = true;
-                push = push * pushAmount;
-                targetPos_other = other.transform.position + push;
-                var tween = other.transform.DOMove(targetPos_other,pushDuration);//
-                var tweenTask = tween.ToUniTask();
-                var waitTime = UniTask.Delay(TimeSpan.FromSeconds(pushDuration));
-                await UniTask.WhenAll(waitTime,tweenTask); // 例: 0.2秒間ノックバック中
-                other.isKnockBacked_Spell = false;
-           }
-           else if (other is IPlayer || other is IMonster)
-           {
+         Vector3 targetPos_me = Vector3.zero;
+         Vector3 targetPos_other = Vector3.zero;
+         if (otherType == typeof(TowerController))
+         {
+             Debug.Log("押されます");
+             targetPos_me = me.transform.position - push;
+             me.transform.position = Vector3.MoveTowards(me.transform.position, targetPos_me, pushAmount * Time.deltaTime);
+             return;
+         }
+           
+         if ((other is IPlayer || other is IMonster) && (me is ISpells || me is ISkills || me is IRangeAttackAddForceBase))
+         {
+             Debug.Log("呪文発動");
+             other.isKnockBacked_Spell = true;
+             push = push * pushAmount;
+             targetPos_other = other.transform.position + push;
+             var moveSet = new Vector3TweenSetup(targetPos_other, pushDuration);
+             var tween = other.gameObject.Mover(moveSet);
+             var tweenTask = tween.ToUniTask();
+             var waitTime = UniTask.Delay(TimeSpan.FromSeconds(pushDuration));
+             await UniTask.WhenAll(waitTime,tweenTask); // 例: 0.2秒間ノックバック中
+             other.isKnockBacked_Spell = false;
+         }
+         else if (other is IPlayer || other is IMonster)
+         {
              Debug.Log("押された！！！！！");
              var otherScaleType = other.UnitScale;
              if ((otherScaleType & effectiveScale) != 0)
              {
-                if (other.statusCondition.Freeze.isActive) return;
-                other.isKnockBacked_Unit = true;
-                targetPos_other = other.transform.position + push;
-                other.transform.position = Vector3.MoveTowards(other.transform.position, targetPos_other, pushAmount * Time.fixedDeltaTime);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.05f)); // 例: 0.2秒間ノックバック中
-                other.isKnockBacked_Unit = false;
+                  if (other.statusCondition.Freeze.isActive) return;
+                  other.isKnockBacked_Unit = true;
+                  targetPos_other = other.transform.position + push;
+                  other.transform.position = Vector3.MoveTowards(other.transform.position, targetPos_other, pushAmount * Time.fixedDeltaTime);
+                  await UniTask.Delay(TimeSpan.FromSeconds(0.05f)); // 例: 0.2秒間ノックバック中
+                  other.isKnockBacked_Unit = false;
              }
-           }
+         }
     }
     public void KeepDistance(MoveType moveType)
     {
@@ -132,10 +139,8 @@ public  class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
             if ((effectiveSide & oppoType) == 0 || (effectiveScale & oppoScale) == 0) continue;
             filteredList.Add(unit);
         }
-
         return filteredList;
     }
-
     List<UnitBase> GetUnitInRange_Spell()
     {
         var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(me.gameObject, me.prioritizedRange);

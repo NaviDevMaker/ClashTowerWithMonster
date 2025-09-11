@@ -7,9 +7,14 @@ using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine.Events;
 
+public interface IHitEffectDisapaer
+{
+    UniTask WaitEffectDissapaer();
+}
+
 namespace Game.Monsters.EvilMage
 {
-    public class MageSpellMover : LongDistanceAttack<EvilMageController>
+    public class MageSpellMover : LongDistanceAttack<EvilMageController>,IHitEffectDisapaer
     {
         VisualEffect visualEffect;
         ParticleSystem smokeParticle;
@@ -46,7 +51,7 @@ namespace Game.Monsters.EvilMage
             smokeParticle = GetComponentInChildren<ParticleSystem>();
             mainModule = smokeParticle.main;
         }    
-        public async UniTask WaitEffectDisapaer()
+        public async UniTask WaitEffectDissapaer()
         {
             Func<UniTask> visualEffectDisapaer = async () =>
             {

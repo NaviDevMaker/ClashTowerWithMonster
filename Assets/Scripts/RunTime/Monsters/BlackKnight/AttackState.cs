@@ -8,23 +8,23 @@ using static Unity.Burst.Intrinsics.Arm;
 
 namespace Game.Monsters.BlackKnight
 {
-    public class AttackState : AttackStateBase<BlackKnightController>
+    public class AttackState : AttackStateBase<BlackKnightController>,IEffectSetter
     {
-        public AttackState(BlackKnightController controller) : base(controller) { }
+        public AttackState(BlackKnightController controller) : base(controller)
+        {
+            SetEffect();
+        }
 
         ParticleSystem shockWaveEffect = null;
         ParticleSystem smokeEffect = null;
         GameObject shockWaveObj = null;
         GameObject smokeObj = null;
 
-        AddForceToUnit<ShockWaveEffecter> addForce = null;
         public override void OnEnter()
         {
-            SetEffects();
             base.OnEnter();
             if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<BlackKnightController >(controller, this, clipLength,25,
                 controller.MonsterStatus.AttackInterval);
-            if (addForce == null) addForce = controller.waveEffecter.AddForceToUnit;
         }
         public override void OnUpdate()
         {
@@ -35,13 +35,13 @@ namespace Game.Monsters.BlackKnight
             base.OnExit();
         }
 
-        protected override async UniTask Attack_Generic(AttackArguments attackArguments)
+        protected override async UniTask Attack_Generic(SimpleAttackArguments attackArguments)
         {
-            var arguments = new AttackArguments
+            var arguments = new SimpleAttackArguments
             {
                 getTargets = attackArguments.getTargets,
                 attackEffectAction = PlayShockWave,
-                specialEffectAttack = (target) => addForce.CompareEachUnit(target)
+                specialEffectAttack = controller.waveEffecter.PushUnit
             };
             
             PlaySmokeEffect(out smokeObj);
@@ -94,7 +94,7 @@ namespace Game.Monsters.BlackKnight
             smokeObj = smoke.gameObject;
             smoke.Play();
         }
-        async void SetEffects()
+        public async void SetEffect()
         {
             if (shockWaveEffect != null && smokeEffect != null) return;
             Func<string, UniTask<ParticleSystem>> setEffectAction = async (adress)  =>

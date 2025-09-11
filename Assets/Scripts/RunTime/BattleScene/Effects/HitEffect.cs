@@ -19,17 +19,22 @@ public class HitEffect:IEffectSetter
        
         if (renderer == null) return;
         var center = renderer.bounds.center;
-        var meshSize = renderer.bounds.size;
         var pos = new Vector3(center.x,center.y,center.z);
-        var scale = target is TowerController ? Vector3.one : target.myScale;
-        var size = new Vector3(meshSize.x * scale.x, meshSize.y * scale.y,meshSize.z * scale.z);
+        var scale =  target.UnitScale switch
+        {
+            UnitScale.player or UnitScale.small => Vector3.one * 1.5f,
+            UnitScale.middle => Vector3.one * 2f,
+            UnitScale.large or UnitScale.tower => Vector3.one * 3.0f,
+            _=> default
+        };
+
         var particleObj = UnityEngine.Object.Instantiate(hitEffect, pos, Quaternion.identity);
         var particle = particleObj.GetComponent<ParticleSystem>();
         var startSize = particle.main.startSize;
         startSize.mode = ParticleSystemCurveMode.TwoCurves;
-        startSize.constantMin = size.x;
-        startSize.constantMax = size.x * 2.0f;
-        particleObj.transform.localScale = size;
+        startSize.constantMin = scale.x;
+        startSize.constantMax = scale.x * 2.0f;
+        particleObj.transform.localScale = scale;
         particleObj.transform.SetParent(target.transform);
         var destroyDuration = 0.25f;
         try

@@ -27,14 +27,12 @@ public  class EffectManager : SingletonMonobehavier<EffectManager>
    public MagicCircleEffect magicCircleEffect { get; private set;}
    public DeathEffect deathEffect { get; private set;}
    public HitEffect hitEffect { get; private set;}
-
+   public HealEffect healEffect { get; private set; }
    public ExplosionEffect expsionEffect { get; private set;}
-
     private void Start()
     {
         Initialize();
     }
-
     void Initialize()
     {
         magicCircleEffect = new MagicCircleEffect();
@@ -42,5 +40,6 @@ public  class EffectManager : SingletonMonobehavier<EffectManager>
         hitEffect = new HitEffect();
         statusConditionEffect = new StatusConditionEffect();
         expsionEffect = new ExplosionEffect();
+        healEffect = new HealEffect();
     }
 }
