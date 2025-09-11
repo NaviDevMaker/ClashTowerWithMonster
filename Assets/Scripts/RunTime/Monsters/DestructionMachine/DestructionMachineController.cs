@@ -47,11 +47,11 @@ namespace Game.Monsters.DestructionMachine
             {
                 var mover = Instantiate(ProjectileAttackMonsterStatus.Mover, Vector3.zero, Quaternion.identity);
                 var moverCmp = mover.GetComponent<CannonBallMover>();
-                moverCmp.Setup(this, startTra, localPos, rot,movers, SetToStartPos,ProjectileAttackMonsterStatus.ProjectileMoveSpeed);
+                moverCmp.Setup(this, startTra, localPos, rot,movers, EndMoveAction,ProjectileAttackMonsterStatus.ProjectileMoveSpeed);
             }
         }
 
-        public void SetToStartPos(LongDistanceAttack<DestructionMachineController> cannonBall)
+        public void EndMoveAction(LongDistanceAttack<DestructionMachineController> cannonBall)
         {
             cannonBall.gameObject.SetActive(false);
             cannonBall.transform.SetParent(startTra);

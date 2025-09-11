@@ -10,7 +10,7 @@ public interface ILongDistanceAttacker<T> where T : UnitBase
 {
     List<LongDistanceAttack<T>> movers { get; set; }
     Transform startTra { get;}
-    void SetToStartPos(LongDistanceAttack<T> mover);
+    void EndMoveAction(LongDistanceAttack<T> mover);
     int moverCount { get;}
     void SetMoverToList();
 }
@@ -84,7 +84,9 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
                         if (hit.gameObject == this.gameObject || hit.isDead || hitEnemyType == Side.PlayerSide || !summoned) continue;
                     }
                 }
-                if (hit.gameObject == this.gameObject || hit.isDead || hitEnemyType == Side.PlayerSide) continue;
+                var isTransparent = hit.statusCondition.Transparent.isActive;
+                if (hit.gameObject == this.gameObject || hit.isDead || hitEnemyType == Side.PlayerSide
+                    || isTransparent) continue;
                 targetEnemy = hit;
                 archer.target = hit;
                 Debug.Log("“G‚ð”­Œ©‚µ‚Ü‚µ‚½");
@@ -128,14 +130,14 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
         for (int i = 0; i < moverCount; i++)
         {
             var gunMover = Instantiate(TowerStatus.TowerShotgun,Vector3.zero,Quaternion.identity);
-            gunMover.Setup(this,parent,pos,rot,movers,SetToStartPos,TowerStatus.GunSpeed);
+            gunMover.Setup(this,parent,pos,rot,movers,EndMoveAction,TowerStatus.GunSpeed);
             //GunSetUp(gunMover);
         }
 
         var castedShotGuns = this.movers.OfType<GunMover>().ToList();
         archer.shotGuns = castedShotGuns;
     }
-    public void SetToStartPos(LongDistanceAttack<TowerController> gun)
+    public void EndMoveAction(LongDistanceAttack<TowerController> gun)
     {
        // Debug.Log("’èˆÊ’u‚É–ß‚è‚Ü‚·");
         gun.gameObject.SetActive(false);

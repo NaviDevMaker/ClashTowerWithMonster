@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c59fa63ac79f84fa2afd90730244fa, type: 3}
   m_Name: PlayerStatus
   m_EditorClassIdentifier: 
-  attackAmount: 5
+  attackAmount: 20
   hp: 200
   pushAmount: 10
   attackRange: 2

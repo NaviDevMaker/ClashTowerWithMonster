@@ -4,6 +4,8 @@ namespace Game.Monsters.NagaWizard
 {
     public class NagaWizardController : MonsterControllerBase<NagaWizardController>
     {
+        [SerializeField] Transform effectEmit;
+        public Transform EffectEmit  => effectEmit;
 
         protected override void Awake()
         {
@@ -19,15 +21,12 @@ namespace Game.Monsters.NagaWizard
 
         public override void Initialize(int owner = -1)
         {
-            /*Please select your monster movetype.
             moveType = MoveType.Walk;
-            moveType = MoveType.Fly;*/
             base.Initialize(owner);
-            /*I recommend to delete comment out after you create state class at Auto State Creater
             IdleState = new IdleState(this);
             ChaseState = new ChaseState(this);
             AttackState = new AttackState(this);
-            DeathState = new DeathState(this);*/
+            DeathState = new DeathState(this);
         }
 
     }

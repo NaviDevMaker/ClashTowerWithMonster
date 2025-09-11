@@ -185,7 +185,7 @@ public class SummonMonsterPointer : MonoBehaviour
         var pos = selectedCardPrefab.transform.position;
         var rot = selectedCardPrefab.transform.rotation;
         var obj = Instantiate(selectedCardPrefab,pos,rot);
-        if(obj.TryGetComponent<MultiSpawnMonster>(out var multiSpawnMonster))
+        if(obj.TryGetComponent<ISpawner>(out var multiSpawnMonster))
         {
             obj.gameObject.SetActive(false);
             multiSpawnMonster.SpawnMonsters(pos,rot,AlphaChange);
@@ -222,12 +222,12 @@ public class SummonMonsterPointer : MonoBehaviour
               if (selectedCardData.CardType == CardType.Monster)
               {
                     var monster = monsters[selectedCardData.CardName];
-                    if(monster is MultiSpawnMonster multi)
+                    if(monster is ISpawner multi)
                     {
                         var count = multi._SpawnCount;
                         for (int i = 0; i < count; i++)
                         {
-                           var childMonster = multi.transform.GetChild(i).gameObject;
+                           var childMonster = multi.parent.GetChild(i).gameObject;
                            AlphaChange(childMonster.GetComponent<IMonster>());
                         }
                     }

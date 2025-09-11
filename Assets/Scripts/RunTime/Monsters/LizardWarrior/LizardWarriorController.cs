@@ -1,9 +1,11 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Game.Monsters.LizardWarrior
 {
-    public class LizardWarriorController : MonsterControllerBase<LizardWarriorController>
+    public class LizardWarriorController : MonsterControllerBase<LizardWarriorController>,IRangeAttack
     {
+        public GameObject rangeAttackObj { get; set; }
 
         protected override void Awake()
         {
@@ -16,20 +18,27 @@ namespace Game.Monsters.LizardWarrior
             Debug.Log("ｊｃｄさｃｄｓｈｋｃｓｄｊｄｓｃｓｄｋｓｄｎ");
             base.Start();
         }
-
         public override void Initialize(int owner = -1)
         {
-            /*Please select your monster movetype.
             moveType = MoveType.Walk;
-            moveType = MoveType.Fly;*/
             base.Initialize(owner);
-            /*I recommend to delete comment out after you create state class at Auto State Creater
             IdleState = new IdleState(this);
             ChaseState = new ChaseState(this);
             AttackState = new AttackState(this);
-            DeathState = new DeathState(this);*/
+            DeathState = new DeathState(this);
         }
-
+        public void SetHitJudgementObject() { }
+        public override async void DestroyAll()
+        {
+            if (hPBar != null) Destroy(hPBar.gameObject);
+            DeathState death = DeathState as DeathState;
+            await UniTask.WaitUntil(() =>
+            {
+                if (death != null) return death.FireLingActionEnd;
+                else return false;
+            });
+            Debug.Log("リザードウォーリアーが破壊されます");
+            if (this != null && this.gameObject != null) Destroy(this.gameObject);
+        }
     }
-
 }

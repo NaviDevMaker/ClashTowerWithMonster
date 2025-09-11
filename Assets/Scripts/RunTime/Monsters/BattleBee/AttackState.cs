@@ -18,9 +18,9 @@ namespace Game.Monsters.BattleBee
                 controller.MonsterStatus.AttackInterval);
             if (controller.statusCondition.Paresis.inverval == 0f) controller.statusCondition.Paresis.inverval = controller.MonsterStatus.AttackInterval;
         }
-        protected override async UniTask Attack_Generic(AttackArguments attackArguments)
+        protected override async UniTask Attack_Generic(SimpleAttackArguments attackArguments)
         { 
-            var arguments = new AttackArguments
+            var arguments = new SimpleAttackArguments
             {
                 getTargets = attackArguments.getTargets,
                 specialEffectAttack = (currentTarget) => controller.ParesisTarget(currentTarget)

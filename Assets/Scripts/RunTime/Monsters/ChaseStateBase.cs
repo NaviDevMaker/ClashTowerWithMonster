@@ -13,7 +13,7 @@ namespace Game.Monsters
         public ChaseStateBase(T controller) : base(controller) { }
 
         GameObject targetTower = null;
-        GameObject targetEnemy = null;
+        protected GameObject targetEnemy { get; private set;} = null;
 
         bool reachTargetEnemy = false;
         bool isChasing = false;
@@ -22,8 +22,11 @@ namespace Game.Monsters
         public CancellationTokenSource cts = new CancellationTokenSource();
         SemaphoreSlim moveSemaphoreSlim = new SemaphoreSlim(1, 1);
         MonsterAttackType myMonsterAttackType;
+        protected float currentMoveSpeed = 0f;
+        protected float baseAnimSpeed = 1.0f;
         public override void OnEnter()
         {
+            currentMoveSpeed = controller.MonsterStatus.MoveSpeed;
             if (controller.MonsterStatus is IFlying flying) flyingOffsetY = flying.FlyingOffsetY;
             moveSpeed = controller.BuffStatus(BuffType.Speed, (int)controller.MonsterStatus.MoveSpeed);
             myMonsterAttackType = controller.MonsterStatus.MonsterAttackType;
@@ -36,10 +39,10 @@ namespace Game.Monsters
         }
         public override void OnUpdate()
         {
-            moveSpeed = controller.BuffStatus(BuffType.Speed, (int)controller.MonsterStatus.MoveSpeed);
+            moveSpeed = controller.BuffStatus(BuffType.Speed, (int)currentMoveSpeed);
             var isBuffed = controller.statusCondition.BuffSpeed.isActive;
             var isFreezed = controller.statusCondition.Freeze.isActive;
-            if (isBuffed && !isFreezed) { var newSpeed = 1.3f; controller.animator.speed = newSpeed; }
+            if (isBuffed && !isFreezed) { var newSpeed = baseAnimSpeed * 1.3f; controller.animator.speed = newSpeed; }
             Debug.Log(isChasing);
 
             if (isFreezed) return;
@@ -55,7 +58,6 @@ namespace Game.Monsters
                 {
 
                 }
-
                 return;
             }
 
@@ -65,7 +67,7 @@ namespace Game.Monsters
                 controller.ChangeState(nextState);
                 return;
             }
-           EvaluateNewTargetAndChase();// if (myMonsterAttackType == MonsterAttackType.ToEveryThing) 
+           EvaluateNewTargetAndChase();
         }
         public override void OnExit()
         {
@@ -77,24 +79,20 @@ namespace Game.Monsters
         }
         protected virtual void SetTargetTower()
         {
-            Debug.Log("ターゲットのタワーを取得します");
-            TowerController[] targetTowers = GameObject.FindObjectsByType<TowerController>(sortMode: FindObjectsSortMode.None);
+            //Debug.Log("ターゲットのタワーを取得します");
+            //TowerController[] targetTowers = GameObject.FindObjectsByType<TowerController>(sortMode: FindObjectsSortMode.None);
 
-            List<TowerController> toList = new List<TowerController>(targetTowers);
-            toList = toList
-                .Where(tower =>
-                { 
-                    var isDead = tower.isDead;
-                    var side = tower.GetUnitSide(controller.ownerID);
-                    return !isDead && side == Side.EnemySide;
-                }) 
-                .OrderBy(tower => Vector3.Distance(controller.transform.position, tower.transform.position)).ToList();
-            if (toList.Count > 0) targetTower = toList[0].gameObject;          
-            //foreach (var tower in toList)
-            //{
-            //    if (tower.Side == controller.Side) continue;
-            //    else targetTower = tower.gameObject; break;
-            //}
+            //List<TowerController> toList = new List<TowerController>(targetTowers);
+            //toList = toList
+            //    .Where(tower =>
+            //    { 
+            //        var isDead = tower.isDead;
+            //        var side = tower.GetUnitSide(controller.ownerID);
+            //        return !isDead && side == Side.EnemySide;
+            //    }) 
+            //    .OrderBy(tower => Vector3.Distance(controller.transform.position, tower.transform.position)).ToList();
+            //if (toList.Count > 0)
+            targetTower = controller.gameObject.GetTargetTower(controller.ownerID)?.gameObject;
         }
 
         async UniTask ChaseTarget()
@@ -174,6 +172,11 @@ namespace Game.Monsters
                         {
                             var isDead = controller.isDead;
                             var isFreeze = controller.statusCondition.Freeze.isActive;
+                            if(targetEnemy != null && targetEnemy.TryGetComponent<UnitBase>(out var unit))
+                            {
+                                var isTransparent = unit.statusCondition.Transparent.isActive;
+                                if (isTransparent) { cts?.Cancel(); break; }
+                            }
                             flatMyPosition = PositionGetter.GetFlatPos(controller.transform.position);
                             //var simpleDistance = Vector3.Distance(controller.transform.position, targetPos);
                             //var correntDistance = simpleDistance - myRadius;
@@ -319,15 +322,15 @@ namespace Game.Monsters
                 var enemySide = cmp.GetUnitSide(controller.ownerID);
                 var isDead = cmp.isDead;
                 var moveType = cmp.moveType;
+                var isTransparent = cmp.statusCondition.Transparent.isActive;
                 if(cmp.TryGetComponent<ISummonbable>(out var summonbable))
                 {
                     var isSummoned = summonbable.isSummoned;
-
                     return (enemySide & effectiveSide) != 0  && !isDead
                       && (moveType & effectiveMoveSide) != 0 && isSummoned;// 
                 }
                 return (enemySide & effectiveSide) != 0 && !isDead
-                        && (moveType & effectiveMoveSide) != 0;// 
+                        && (moveType & effectiveMoveSide) != 0 && !isTransparent;// 
             }).ToArray();
 
             if (filterdArray.Length == 0)

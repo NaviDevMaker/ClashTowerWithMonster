@@ -52,7 +52,7 @@ namespace Game.Spells.Freeze
             if (freezeMaterial != null)
             {
                 if (freezeMaterial.HasProperty("_FreezeRateMax")) max = freezeMaterial.GetFloat("_FreezeRateMax");
-                freezeMaterial.renderQueue = 3000;
+                freezeMaterial.renderQueue = 1999;
             }
 
             Debug.Log(max);
@@ -187,9 +187,13 @@ namespace Game.Spells.Freeze
                var originalRenderer = target.AllMesh[0];
                var mats = originalRenderer.materials;
                var duration = 0.01f;
-               foreach ( var mat in mats) FadeProcessHelper.FadeOutColor(duration, mat).Forget();
+               foreach ( var mat in mats)
+               {
+                   FadeProcessHelper.ChangeToTranparent(mat);
+                   FadeProcessHelper.FadeOutColor(duration, mat).Forget();
+               }
 
-               var name = $"{gameObject.name}_FreezeSpell";
+                var name = $"{gameObject.name}_FreezeSpell";
                var parentObj = new GameObject(name);
                parentObj.transform.position = target.transform.position;
                Mesh originalMesh = new Mesh();
@@ -347,9 +351,12 @@ namespace Game.Spells.Freeze
                 var renderer = target.AllMesh[0];
                 var mats = renderer.materials;
                 var duration = 0.01f;
-                foreach (var material in mats) FadeProcessHelper.FadeInColor(duration, material).Forget();
-            }
-            
+                foreach (var material in mats)
+                {
+                    FadeProcessHelper.FadeInColor(duration, material).Forget();
+                    FadeProcessHelper.ChangeToOpaque(material);
+                }
+            }           
         }
         Func<UniTask> FreezerateSetter(Material freezeMaterial, float start, float end, float duration, CancellationTokenSource cls = null)
         {

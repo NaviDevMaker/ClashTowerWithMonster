@@ -28,11 +28,11 @@ public class DeathMoveExecuter
         var cts = new CancellationTokenSource();
         var clipLengthBySpeed = clipLength * (1 / monsterController.animator.speed) * (1 / stateAnimSpeed);
 
-
         foreach (var materials in monsterController.meshMaterials)
         {
             foreach (var material in materials)
             {
+                FadeProcessHelper.ChangeToTranparent(material);
                FadeProcessHelper.FadeOutColor(clipLengthBySpeed,material,cts.Token).Forget();
             }
         }
@@ -62,6 +62,7 @@ public class DeathMoveExecuter
         {
             foreach (var material in materials)
             {
+                FadeProcessHelper.ChangeToTranparent(material);
                FadeProcessHelper.FadeOutColor(clipLengthBySpeed,material,cts.Token).Forget();
             }
         }
@@ -87,6 +88,7 @@ public class DeathMoveExecuter
         var mesh = archer.MyMesh;
         foreach (var material in mesh.materials)
         {
+            FadeProcessHelper.ChangeToTranparent(material);
            FadeProcessHelper.FadeOutColor(clipLengthBySpeed, material, token).Forget();
         }
         EffectManager.Instance.deathEffect.GenerateDeathEffect(archer, clipLength);

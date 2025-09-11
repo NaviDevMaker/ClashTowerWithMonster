@@ -28,8 +28,7 @@ namespace Game.Monsters.DestructionMachine
             base.OnExit();
         }
 
-        protected override async UniTask Attack_Long(Func<LongDistanceAttack<DestructionMachineController>> getNextMover = null,
-            UnityAction<LongDistanceAttack<DestructionMachineController>> moveAction = null)
+        protected override async UniTask Attack_Long(LongAttackArguments longAttackArguments)
         {
             float startNormalizeTime = 0f;
             float now = 0f;

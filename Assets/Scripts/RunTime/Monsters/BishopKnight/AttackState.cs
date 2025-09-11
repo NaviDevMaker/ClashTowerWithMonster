@@ -6,14 +6,16 @@ using UnityEngine.Events;
 
 namespace Game.Monsters.BishopKnight
 {
-    public class AttackState : AttackStateBase<BishopKnightController>
+    public class AttackState : AttackStateBase<BishopKnightController>,IEffectSetter
     {
-        public AttackState(BishopKnightController controller) : base(controller) { }
+        public AttackState(BishopKnightController controller) : base(controller) 
+        {
+            SetEffect();
+        }
 
         ParticleSystem tornadoEffect = null;
         public override void OnEnter()
         {
-            TornadoEffectSet();
             base.OnEnter();
             //This paremetars are examples,so please change it to your preference!!
             if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<BishopKnightController >(controller, this, clipLength,15,
@@ -27,23 +29,13 @@ namespace Game.Monsters.BishopKnight
         {
             base.OnExit();
         }
-        protected override async UniTask Attack_Generic(AttackArguments attackArguments)
+        protected override async UniTask Attack_Generic(SimpleAttackArguments attackArguments)
         {
            GameObject tornadoObj = null;
            PlayTornadoParticle(out tornadoObj);
            await base.Attack_Generic(attackArguments);
            DestroyTornado(tornadoObj);
-        }
-        async void TornadoEffectSet()
-        {
-            if (tornadoEffect != null) return;
-            var tornadoObj = await SetFieldFromAssets.SetField<GameObject>("Effects/Tornado");
-            if(tornadoObj == null) return;  
-            tornadoEffect = tornadoObj.GetComponent<ParticleSystem>();
-            var main = tornadoEffect.main;
-            var animSpeed = controller.MonsterStatus.AnimaSpeedInfo.AttackStateAnimSpeed;
-            main.duration = clipLength / animSpeed;
-        }
+        }         
         void PlayTornadoParticle(out GameObject tornadoObj)
         {
             if (tornadoEffect == null)
@@ -65,6 +57,17 @@ namespace Game.Monsters.BishopKnight
             var task = RelatedToParticleProcessHelper.WaitUntilParticleDisappear(p);
             await task;
             if(p != null) UnityEngine.Object.Destroy(p.gameObject);
+        }
+
+        public async void SetEffect()
+        {
+            if (tornadoEffect != null) return;
+            var tornadoObj = await SetFieldFromAssets.SetField<GameObject>("Effects/Tornado");
+            if (tornadoObj == null) return;
+            tornadoEffect = tornadoObj.GetComponent<ParticleSystem>();
+            var main = tornadoEffect.main;
+            var animSpeed = controller.MonsterStatus.AnimaSpeedInfo.AttackStateAnimSpeed;
+            main.duration = clipLength / animSpeed;
         }
     }
 }

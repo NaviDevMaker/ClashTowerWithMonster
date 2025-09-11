@@ -7,14 +7,16 @@ using UnityEngine.Events;
 
 namespace Game.Monsters.DemonKing
 {
-    public class AttackState : AttackStateBase<DemonKingController>
+    public class AttackState : AttackStateBase<DemonKingController>,IEffectSetter
     {
-        public AttackState(DemonKingController controller) : base(controller) { }
+        public AttackState(DemonKingController controller) : base(controller)
+        {
+            SetEffect();
+        }
 
         ParticleSystem hitConfusionEffect;
         public override void OnEnter()
         {
-            SetConfusionEffect();
             base.OnEnter();
             //This paremetars are examples,so please change it to your preference!!
             if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<DemonKingController >(controller, this, clipLength,17,
@@ -29,9 +31,9 @@ namespace Game.Monsters.DemonKing
         {
             base.OnExit();
         }
-        protected override async UniTask Attack_Generic(AttackArguments attackArguments)
+        protected override async UniTask Attack_Generic(SimpleAttackArguments attackArguments)
         {
-            var arguments = new AttackArguments
+            var arguments = new SimpleAttackArguments
             { 
                 getTargets = attackArguments.getTargets,
                 attackEffectAction = PlayHitConfusionEffect,
@@ -90,7 +92,7 @@ namespace Game.Monsters.DemonKing
             await task;
             if(effect != null) UnityEngine.Object.Destroy(effect.gameObject);
         }
-        async void SetConfusionEffect()
+        public async void SetEffect()
         {
             var confusionObj = await SetFieldFromAssets.SetField<GameObject>("Effects/ConfusionHitEffect");
             hitConfusionEffect = confusionObj.GetComponent<ParticleSystem>();

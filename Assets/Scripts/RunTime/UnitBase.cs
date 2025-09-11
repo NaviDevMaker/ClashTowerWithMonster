@@ -18,8 +18,8 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         public StatusEffect BuffPower { get; set; }
         public StatusEffect DemonCurse { get; set; }
         public StatusEffect Freeze { get; set; }
-
         public StatusEffect Confusion { get; set; }
+        public StatusEffect Transparent { get; set; }
 
         public Dictionary<StatusConditionType,CancellationTokenSource> visualTokens = new Dictionary<StatusConditionType,CancellationTokenSource>();
         public Dictionary<StatusConditionType,GameObject> visualChunks = new Dictionary<StatusConditionType,GameObject>();
@@ -31,6 +31,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
             DemonCurse = new StatusEffect();
             Freeze = new StatusEffect();
             Confusion = new StatusEffect();
+            Transparent = new StatusEffect();
         }
     }
     public float rangeX { get; private set; } = 0f;
@@ -138,8 +139,8 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
 
     public bool isKnockBacked_Unit { get; set; } = false;
     public bool isKnockBacked_Spell { get; set; } = false;
-    public UnitScale UnitScale { get => unitScale;}
-    public Renderer BodyMesh => bodyMesh;
+    public virtual UnitScale UnitScale { get => unitScale;}
+    public virtual Renderer BodyMesh => bodyMesh;
 
     //protected bool isSettedHPbar { get; private set; } = false;
     //bool test = false;
@@ -149,39 +150,26 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
     {
         Initialize(tentativeID);
         SetRadius();
-        prioritizedRange = rangeX >= rangeZ ? rangeX : rangeZ;
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    protected virtual void Start()
-    {
-        SetRenderers();
-        SetMaterialColors();       
-        SetHPBar().Forget();
-    }
+    protected virtual void Start() => SetUps();
+  
     protected virtual void Update()
     {
-        //elapsedTime += Time.deltaTime;
-        //if (elapsedTime > 3f && !test)
-        //{
-        //    Test();
-        //    test = true;
-        //}
         HPBarProcess();
     }
 
-    //public void Test()
-    //{
-    //    var r = AllMesh[0];
-    //    var m = r.material;
-    //    var c = m.color;
-    //    c.a = 0f;
-    //    m.color = c;
-    //}
     // 将来はstartで呼ばないから気を付けてね
     public virtual void Initialize(int owner)
     {
        if(owner != -1) SetOwnerID(owner);
        statusCondition = new StatusCondition();
+    }
+    void SetUps()
+    {
+        SetRenderers();
+        SetMaterialColors();
+        SetHPBar().Forget();
     }
     void SetOwnerID(int owner)
     {
@@ -230,6 +218,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         currentHP -= damage;
        
         Debug.Log($"{name}は{damage}ダメーじ、残り{currentHP}");
+        if (hPBar == null) return;
         hPBar.ReduceHP(maxHP, currentHP);//テスト用にコメントアウトしたから後で戻して
         if (currentHP <= 0)
         {
@@ -300,7 +289,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         }
     }
 
-    void SetRadius()
+    protected void SetRadius()
     {
        var collider = GetComponent<Collider>();
         if (collider == null) return;
@@ -308,6 +297,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         var bounds = collider.bounds;
         rangeX = bounds.extents.x;
         rangeZ = bounds.extents.z;
+        prioritizedRange = rangeX >= rangeZ ? rangeX : rangeZ;
     }
 
     void SetRenderers()
@@ -338,7 +328,9 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
             var colorArray = new Color[materials.Length];
             for (int i = 0; i < colorArray.Length; i++)
             {
-                materials[i].renderQueue = 3001;
+                var mat = materials[i];
+                var currentRendererQueue = mat.renderQueue;
+                mat.renderQueue = currentRendererQueue + 1;
                 colorArray[i] = materials[i].color;
             }
 

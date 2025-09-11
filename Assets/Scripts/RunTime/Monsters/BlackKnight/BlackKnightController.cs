@@ -34,9 +34,7 @@ namespace Game.Monsters.BlackKnight
             var weponName = data._RangeAttackInfo.RangeAttackWepon.name;
             rangeAttackObj = this.gameObject.GetObject(weponName);
             waveEffecter = rangeAttackObj.AddComponent<ShockWaveEffecter>();
-            var pushAmount = _RangeAttackMonsterStatus._RangeAttackInfo.PushAmount;
-            var pushDuartion = _RangeAttackMonsterStatus._RangeAttackInfo.PerPushDuration;
-            waveEffecter.Initialize(pushAmount,pushDuartion,ownerID);
+            waveEffecter.Initialize(this);
             Debug.Log(rangeAttackObj.name);
         }
     }

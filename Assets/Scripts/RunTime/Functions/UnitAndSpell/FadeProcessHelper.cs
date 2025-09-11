@@ -108,4 +108,16 @@ public static class FadeProcessHelper
         material.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
         material.SetFloat("_ZWrite", 0); // 透過オブジェクトはZWriteを切る
     }
+
+    public static void ChangeToOpaque(Material material)
+    {
+        material.SetOverrideTag("RenderType", "Opaque");
+        material.SetInt("_Surface", 0);
+        material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Geometry;
+        material.EnableKeyword("_SURFACE_TYPE_OPAQUE");
+        material.DisableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        material.SetFloat("SrcBlend", (float)UnityEngine.Rendering.BlendMode.One);
+        material.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.Zero);
+        material.SetFloat("_ZWrite", 1);
+    }
 }

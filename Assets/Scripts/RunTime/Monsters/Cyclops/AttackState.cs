@@ -8,16 +8,25 @@ using UnityEngine.Events;
 
 namespace Game.Monsters.Cyclops
 {
-    public class AttackState : AttackStateBase<CyclopsController>
+    public class AttackState : AttackStateBase<CyclopsController>,IEffectSetter
     {
-        public AttackState(CyclopsController controller) : base(controller) { }
+        public AttackState(CyclopsController controller) : base(controller)
+        {
+            SetEffect();
+        }
         ParticleSystem beamEffect;
+        float beamMotionzEndNorm = 0f;
         public override void OnEnter()
         {
             base.OnEnter();
-            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<CyclopsController >(controller, this, clipLength,14,
-                controller.MonsterStatus.AttackInterval);
-            SetBeamEffect();
+            if (attackEndNomTime == 0f)
+            { 
+                StateFieldSetter.AttackStateFieldSet<CyclopsController>(controller, this, clipLength, 14,
+                                controller.MonsterStatus.AttackInterval);
+                var targetClipName = controller.MonsterAnimPar.attackAnimClipName + "_PlusEvent";
+                var beamEndFrame = 45;
+                beamMotionzEndNorm = (float)beamEndFrame / (float)maxFrame;
+            }
         }
         public override void OnUpdate()
         {
@@ -28,20 +37,27 @@ namespace Game.Monsters.Cyclops
             base.OnExit();
         }
 
-        protected override async UniTask Attack_Generic(AttackArguments attackArguments)
+        protected override async UniTask Attack_Generic(SimpleAttackArguments attackArguments)
         {
-            var arguments = new AttackArguments
+            var arguments = new SimpleAttackArguments
             { 
                 getTargets = attackArguments.getTargets,
-                continuousAttack = StartBeamAttack
+                attackEffectAction = StartBeamAttack,
+                repeatCount = controller.ContinuousAttackMonsterStatus._ContinuousAttackInfo.ContinuousCount
             };
 
             await base.Attack_Generic(arguments);
-        }    
+        }
+
+        protected override void AddDamageToTarget(UnitBase currentTarget)
+        {
+            Debug.Log("ダメージを与えます");
+            if (GetCurrentNormalizedTime() >= beamMotionzEndNorm) return;
+            base.AddDamageToTarget(currentTarget);
+        }
         async void StartBeamAttack()
         {
             Debug.Log("ビーム発射!!!!!");
-            var damageInterval = controller.ContinuousAttackMonsterStatus._ContinuousAttackInfo.Interval;
             var doubleCls = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, controller.GetCancellationTokenOnDestroy());
             var rotOffset = Quaternion.Euler(178f,-18f,0f);
             var pos = controller.BeamHand.position;
@@ -54,7 +70,8 @@ namespace Game.Monsters.Cyclops
                 var cancelled = doubleCls.IsCancellationRequested;
                 var isFreezed = controller.statusCondition.Freeze.isActive;
                 var isDead = target.isDead;
-                return !cancelled && !isFreezed && !isDead && !isInterval;
+                var isInBeamEmitNorm = GetCurrentNormalizedTime() < beamMotionzEndNorm;
+                return !cancelled && !isFreezed && !isDead && !isInterval && isInBeamEmitNorm;
             };
 
             try
@@ -74,8 +91,7 @@ namespace Game.Monsters.Cyclops
                     var targetScale = new Vector3(currentScale.x, currentScale.y, z);
                     beam.transform.localScale = targetScale;
                     beam.transform.localRotation = rot;
-                    AddDamageToTarget(target);
-                    await UniTask.Delay(TimeSpan.FromSeconds(damageInterval), cancellationToken: doubleCls.Token);
+                    await UniTask.Yield(cancellationToken: doubleCls.Token);
                 }
             }
             catch(OperationCanceledException){ }     
@@ -84,7 +100,7 @@ namespace Game.Monsters.Cyclops
                 if(beam != null) UnityEngine.Object.Destroy(beam.gameObject);
             }
         }
-        async void SetBeamEffect()
+        public async void SetEffect()
         {
             if (beamEffect != null) return;
             var beamObj = await SetFieldFromAssets.SetField<GameObject>("Effects/BeamEffect");
