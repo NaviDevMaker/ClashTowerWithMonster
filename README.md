@@ -59,6 +59,3 @@
 
 ---
 
-## GitHub（コード確認用）
-
-[https://github.com/TK220107miyatayuuki/ClashTowerWithMonster](https://github.com/TK220107miyatayuuki/ClashTowerWithMonster)
