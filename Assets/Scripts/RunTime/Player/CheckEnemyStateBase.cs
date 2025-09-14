@@ -46,6 +46,8 @@ namespace Game.Players
                 var unitSide = cmp.GetUnitSide(controller.ownerID);
                 var isDead = cmp.isDead;
                 var playerAttackType = controller.PlayerStatus.PlayerAttackType;
+                var isTransparent = cmp.statusCondition.Transparent.isActive;
+                var isNonTarget = cmp.statusCondition.NonTarget.isActive;
                 if(playerAttackType == PlayerAttackType.OnlyGroundedEnemy)
                 {
                     if(cmp is IMonster)
@@ -53,9 +55,8 @@ namespace Game.Players
                         var unitMoveType = cmp.moveType;
                         if (unitMoveType == MoveType.Fly) return false;
                     }
-                    return unitSide == Side.EnemySide && !isDead;
                 }
-                return unitSide == Side.EnemySide && !isDead;
+                return unitSide == Side.EnemySide && !isDead && !isTransparent && !isNonTarget;
             }).ToArray();
 
             if (filterdArray.Length == 0)

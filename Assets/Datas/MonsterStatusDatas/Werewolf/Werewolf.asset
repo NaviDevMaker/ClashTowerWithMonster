@@ -9,24 +9,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 12a106b546dca0d4a8a17ef5b6e24124, type: 3}
-  m_Name: StingRay
+  m_Script: {fileID: 11500000, guid: bc1854ba0494c1b4fa6bfcc5784c968b, type: 3}
+  m_Name: Werewolf
   m_EditorClassIdentifier: 
-  attackAmount: 5
-  hp: 1000
+  attackAmount: 10
+  hp: 200
   pushAmount: 10
   animInfo:
-    attackStateAnimSpeed: 0.5
+    attackStateAnimSpeed: 1
     deathStateAnimSpeed: 1
     attackMotionType: 0
-  attackInterval: 2
-  chaseRange: 7
+  attackInterval: 1
+  chaseRange: 5
   summonWaitTime: 1
-  attackRange: 4
-  moveSpeed: 2
+  attackRange: 2
+  moveSpeed: 3
   moveStep: 1
-  attackType: 2
+  attackType: 0
   monsterAttackType: 0
-  monsterMoveType: 1
-  flyingOffsetY: 1.5
-  projectileHitJudgeObj: {fileID: 256720674575134743, guid: 8ba807df7eccaaa43a7f75dda6e54241, type: 3}
+  monsterMoveType: 0
+  continuousAttackInfo:
+    continuousCount: 8

@@ -41,6 +41,7 @@ namespace Game.Monsters
         }
 
         public AttackStateBase(T controller) : base(controller) { }
+        
         public UnitBase target;
         protected int attackAmount = 0;
         protected float stateAnimSpeed { get; private set; } = 0f;
@@ -62,7 +63,7 @@ namespace Game.Monsters
         bool isContineAttack = false;
         public bool isSettedEventClip { get; private set;} = false;
         public bool isInterval { get; private set; } = false;
-        bool _isAbsorbed = false;
+        public bool _isAbsorbed = false;//これSO側がリフレクションで参照ね
         
         public override void OnEnter()
         {
@@ -94,7 +95,8 @@ namespace Game.Monsters
             attackAmount = controller.statusCondition != null ? controller.BuffStatus(BuffType.Power, controller.MonsterStatus.AttackAmount)
                 : controller.MonsterStatus.AttackAmount;
             controller.CheckParesis_Monster(controller.animator);
-            UpdateAbsorption();
+            //これ吸収とかの関係ないやつね
+            //controller.MonsterStatus.AttackStateUpdateMethod(controller);
             //Debug.Log($"[アニメ状態] name: {state.fullPathHash}, elapsedTime: {state.normalizedTime}, looping: {state.loop}");
             if (!isAttacking && !isWaitingLeftTime)
             {
@@ -495,41 +497,7 @@ namespace Game.Monsters
             var leftLength = clipLength - startLength;
             var repeatInterval = leftLength /  (float)repeatCount;
             return (repeatInterval / stateAnimSpeed) / controller.animator.speed;
-        }
-        async void MoveToCorrectPos()
-        {
-            Debug.Log("元の位置に戻ります");
-            try
-            {
-                if (controller.MonsterStatus is IFlying flying)
-                {
-                    var targetPos = PositionGetter.GetFlatPos(controller.transform.position) + Vector3.up * flying.FlyingOffsetY;
-                    var moveSpeed = 10f;
-                    while (!controller.statusCondition.Absorption.isActive && !controller.isDead
-                        && Vector3.Distance(controller.transform.position, targetPos) >= Mathf.Epsilon)
-                    {
-                        targetPos = PositionGetter.GetFlatPos(controller.transform.position)
-                                        + Vector3.up * flying.FlyingOffsetY;
-                        var move = Vector3.MoveTowards(controller.transform.position, targetPos, Time.deltaTime * moveSpeed);
-                        controller.transform.position = move;   
-                        await UniTask.Yield(cancellationToken: controller.GetCancellationTokenOnDestroy());
-                    }
-                }
-            }
-            catch (OperationCanceledException) { }
-           
-        }
-
-        void UpdateAbsorption()
-        {
-            var isAbsorbed = controller.statusCondition.Absorption.isActive;
-
-            if (_isAbsorbed && !isAbsorbed)
-            {
-                MoveToCorrectPos();
-            }
-            _isAbsorbed = isAbsorbed;
-        }
+        }     
     }
 }
 

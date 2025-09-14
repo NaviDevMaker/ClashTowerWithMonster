@@ -105,7 +105,7 @@ namespace Game.Monsters.Dragon
             var collider = target.GetComponent<Collider>();
             var closestPos = collider.ClosestPoint(controller.transform.position);
             var isTransparent = target.statusCondition.Transparent.isActive;
-
+            var isNonTarget = target.statusCondition.NonTarget.isActive;
             targetPos = PositionGetter.GetFlatPos(closestPos);
             var myPos = PositionGetter.GetFlatPos(controller.transform.position);
             var isConfused = controller.statusCondition.Confusion.isActive;
@@ -117,7 +117,7 @@ namespace Game.Monsters.Dragon
             };
 
             return canAttack =Å@!isBreathFire ? (targetPos - myPos).magnitude <= attackRange && !isDead
-                && (targetSide & effectiveSide) != 0 && !isTransparent
+                && (targetSide & effectiveSide) != 0 && !isTransparent && !isNonTarget
                  : true;// && !isDead;         
         }
         async void PlayProjectileFireEffect(Func<List<UnitBase>> getCurrentTargets)//Func<float> getCurrentNorm,

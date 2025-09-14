@@ -70,6 +70,7 @@ namespace Game.Monsters.Cyclops
                 var cancelled = doubleCls.IsCancellationRequested;
                 var isFreezed = controller.statusCondition.Freeze.isActive;
                 var isDead = target.isDead;
+
                 var isInBeamEmitNorm = GetCurrentNormalizedTime() < beamMotionzEndNorm;
                 return !cancelled && !isFreezed && !isDead && !isInterval && isInBeamEmitNorm;
             };

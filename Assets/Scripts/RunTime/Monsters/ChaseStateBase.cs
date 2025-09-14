@@ -82,22 +82,8 @@ namespace Game.Monsters
         }
         protected virtual void SetTargetTower()
         {
-            //Debug.Log("ターゲットのタワーを取得します");
-            //TowerController[] targetTowers = GameObject.FindObjectsByType<TowerController>(sortMode: FindObjectsSortMode.None);
-
-            //List<TowerController> toList = new List<TowerController>(targetTowers);
-            //toList = toList
-            //    .Where(tower =>
-            //    { 
-            //        var isDead = tower.isDead;
-            //        var side = tower.GetUnitSide(controller.ownerID);
-            //        return !isDead && side == Side.EnemySide;
-            //    }) 
-            //    .OrderBy(tower => Vector3.Distance(controller.transform.position, tower.transform.position)).ToList();
-            //if (toList.Count > 0)
             targetTower = controller.gameObject.GetTargetTower(controller.ownerID)?.gameObject;
         }
-
         async UniTask ChaseTarget()
         {
 
@@ -217,9 +203,9 @@ namespace Game.Monsters
                     //targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
                     Debug.Log(targetPos);
                       
-                        while (Vector3.Distance(controller.transform.position, targetPos) > controller.MonsterStatus.AttackRange
+                     while (Vector3.Distance(controller.transform.position, targetPos) > controller.MonsterStatus.AttackRange
                          && target != null)
-                        {
+                     {
                             var perPixelMoveTime = (1 / moveStep) / moveSpeed;
 
                             targetPos = targetCollider.ClosestPoint(controller.transform.position);
@@ -242,26 +228,26 @@ namespace Game.Monsters
                                 var isFreeze = controller.statusCondition.Freeze.isActive;　
                                 if (isDead || isFreeze) { cts?.Cancel(); break; }
 
-                                if (Vector3.Distance(controller.transform.position, targetPos) <= controller.MonsterStatus.AttackRange
-                                      || controller.isKnockBacked_Spell)
-                                {
-                                    Debug.Log("敵に到着");
-                                    cts?.Cancel();
-                                    SetAttackStateField(target, targetPos);
-                                    break;
-                                }
-                                await UniTask.Yield();
-                            }
-                            //キャンセルしても上のTaskはawaitしていないからここまで進み、下のawait moveTaskに到達するとエラーが出てしまうのでここでbreak
-                            if (cts.IsCancellationRequested)
+                            if (Vector3.Distance(controller.transform.position, targetPos) <= controller.MonsterStatus.AttackRange
+                                  || controller.isKnockBacked_Spell)
                             {
-                                Debug.Log("ノックバックor死亡orフリーズ");
-                                moveTween.Kill();
-                                break;
+                                 Debug.Log("敵に到着");
+                                 cts?.Cancel();
+                                 SetAttackStateField(target, targetPos);
+                                 break;
                             }
-                            //基本的にはここまでキャンセルされず到達する
-                            await moveTask;
+                            await UniTask.Yield();
                         }
+                        //キャンセルしても上のTaskはawaitしていないからここまで進み、下のawait moveTaskに到達するとエラーが出てしまうのでここでbreak
+                        if (cts.IsCancellationRequested)
+                        {
+                            Debug.Log("ノックバックor死亡orフリーズ");
+                            moveTween.Kill();
+                            break;
+                        }
+                         //基本的にはここまでキャンセルされず到達する
+                         await moveTask;
+                     }
                 }
             }
             finally
@@ -272,7 +258,6 @@ namespace Game.Monsters
                 cts?.Dispose();
             }
         }
-
         void SetAttackStateField(GameObject target, Vector3 targetPos = default)
         {
             reachTargetEnemy = true;

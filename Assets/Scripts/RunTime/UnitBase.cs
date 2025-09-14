@@ -20,7 +20,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         public StatusEffect Freeze { get; set; }
         public StatusEffect Confusion { get; set; }
         public StatusEffect Transparent { get; set; }
-
+        public StatusEffect NonTarget { get; set; } 
         public StatusEffect Absorption { get; set; }
 
         public Dictionary<StatusConditionType,CancellationTokenSource> visualTokens = new Dictionary<StatusConditionType,CancellationTokenSource>();
@@ -34,6 +34,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
             Freeze = new StatusEffect();
             Confusion = new StatusEffect();
             Transparent = new StatusEffect();
+            NonTarget = new StatusEffect();
             Absorption = new StatusEffect();
         }
     }

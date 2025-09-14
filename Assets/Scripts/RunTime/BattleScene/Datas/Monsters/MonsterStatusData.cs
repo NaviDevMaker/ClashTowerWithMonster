@@ -1,3 +1,4 @@
+using Game.Monsters;
 using UnityEngine;
 
 [System.Serializable]
@@ -36,6 +37,10 @@ public class MonsterStatusData : StatusData
     public float SummonWaitTime { get => summonWaitTime;}
     public StateAnimaInfo AnimaSpeedInfo { get => animInfo;}
     public float AttackInterval { get => attackInterval;}
+
+    //public bool isInitilizedAttackState { get; protected set; } = false;
+    public virtual void AttackStateUpdateMethod<Tonwer>(Tonwer controller) where Tonwer : MonsterControllerBase<Tonwer> { }
+    //public virtual void AttackStateInitialize<Tonwer>(Tonwer controller) where Tonwer : MonsterControllerBase<Tonwer> { }
 }
 //UŒ‚‚Ìí—Ş
 public enum AttackType
