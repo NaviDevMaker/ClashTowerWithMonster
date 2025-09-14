@@ -21,6 +21,8 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         public StatusEffect Confusion { get; set; }
         public StatusEffect Transparent { get; set; }
 
+        public StatusEffect Absorption { get; set; }
+
         public Dictionary<StatusConditionType,CancellationTokenSource> visualTokens = new Dictionary<StatusConditionType,CancellationTokenSource>();
         public Dictionary<StatusConditionType,GameObject> visualChunks = new Dictionary<StatusConditionType,GameObject>();
         public StatusCondition()
@@ -32,6 +34,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
             Freeze = new StatusEffect();
             Confusion = new StatusEffect();
             Transparent = new StatusEffect();
+            Absorption = new StatusEffect();
         }
     }
     public float rangeX { get; private set; } = 0f;
@@ -40,7 +43,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
     public float prioritizedRange { get; private set; }
 
     public float originalAnimatorSpeed { get; protected set; } = 0f;
-    public MoveType moveType { get; protected set; }
+    public MoveType moveType { get; set; }
     protected HPbar hPBar = null;
     [SerializeField] public int tentativeID;//Ç±ÇÍç≈èIî≈Ç≈ÇÕè¡ÇµÇƒÇÀ
     [SerializeField] UnitScale unitScale;

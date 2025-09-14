@@ -50,8 +50,8 @@ namespace Game.Players
                 {
                     if(cmp is IMonster)
                     {
-                        var unitMoveType = cmp.MonsterStatus?.MonsterMoveType;
-                        if (unitMoveType == MonsterMoveType.Fly) return false;
+                        var unitMoveType = cmp.moveType;
+                        if (unitMoveType == MoveType.Fly) return false;
                     }
                     return unitSide == Side.EnemySide && !isDead;
                 }

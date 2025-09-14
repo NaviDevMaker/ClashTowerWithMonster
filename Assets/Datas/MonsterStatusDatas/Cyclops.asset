@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Cyclops
   m_EditorClassIdentifier: 
   attackAmount: 1
-  hp: 1000
+  hp: 1
   pushAmount: 10
   animInfo:
-    attackStateAnimSpeed: 0
-    deathStateAnimSpeed: 0
+    attackStateAnimSpeed: 1
+    deathStateAnimSpeed: 1
     attackMotionType: 0
   attackInterval: 1.5
   chaseRange: 12

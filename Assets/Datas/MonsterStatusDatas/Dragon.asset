@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Dragon
   m_EditorClassIdentifier: 
   attackAmount: 1
-  hp: 1000
+  hp: 1
   pushAmount: 10
   animInfo:
     attackStateAnimSpeed: 1

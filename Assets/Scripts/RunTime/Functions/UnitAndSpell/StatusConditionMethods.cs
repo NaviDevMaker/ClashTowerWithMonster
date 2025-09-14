@@ -25,7 +25,28 @@ public static class StatusConditionMethods
             animator.speed = unit.originalAnimatorSpeed;
         }
     }
-
+    public static void CheckAbsorption<T>(this T unit) where T : UnitBase
+    {
+        var isDead = unit.isDead;
+        if (isDead) return;
+        var isFreezed = unit.statusCondition.Freeze.isActive;
+        if (isFreezed) return;
+        var isAbsorbed = unit.statusCondition.Absorption.isActive;
+        var data = unit.MonsterStatus;
+        if (data == null) return;
+        if (isAbsorbed)
+        {         
+            unit.moveType = MoveType.Walk;
+        }
+        else
+        {
+            if (data is IFlying)
+            {
+                unit.moveType = MoveType.Fly;
+            }
+        }
+    
+    }
     public static void CheckFreeze_Unit<T>(this T unit, Animator animator) where T : UnitBase
     {
         var isFreezed = unit.statusCondition.Freeze.isActive;

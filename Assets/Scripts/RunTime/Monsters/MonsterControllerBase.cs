@@ -64,7 +64,7 @@ namespace Game.Monsters
 
         protected override void Start()
         {
-            //isSummoned = true;//これテスト用だからもしコメントアウトされてなかったら消してね
+            isSummoned = true;//これテスト用だからもしコメントアウトされてなかったら消してね
             Debug.Log("ｊｃｄさｃｄｓｈｋｃｓｄｊｄｓｃｓｄｋｓｄｎ");
             base.Start();
             addForceToUnit = new AddForceToUnit<MonsterControllerBase<T>>(this, StatusData.PushAmount);
@@ -78,6 +78,7 @@ namespace Game.Monsters
                 base.Update();
                 Debug.Log($"{statusCondition.Freeze.isActive},{statusCondition.Freeze.isEffectedCount}");
                 this.CheckFreeze_Unit(animator);
+                this.CheckAbsorption();
                 if (isSummoned)
                 {
                     currentState?.OnUpdate();
