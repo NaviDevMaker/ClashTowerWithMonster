@@ -205,6 +205,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dd0aa66839ee05b4d939f5d16a10c3df
+    m_Address: Monsters/StingRayWindVFX
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dfb17cbd7707bb048a3edae692a7d3f1
     m_Address: UI/SummonTimer
     m_ReadOnly: 0

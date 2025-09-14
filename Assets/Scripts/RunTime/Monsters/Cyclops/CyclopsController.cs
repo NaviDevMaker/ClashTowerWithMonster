@@ -11,7 +11,16 @@ namespace Game.Monsters.Cyclops
         protected override void Awake()
         {
             base.Awake();
-            //isSummoned = true;//テスト用だから消して
+            isSummoned = true;//テスト用だから消して
+        }
+
+        protected override void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                isDead = true;
+            }
+            base.Update();
         }
         //public int ID;//テスト用だから消してね
         protected override void Start()

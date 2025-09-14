@@ -46,11 +46,15 @@ namespace Game.Monsters
         protected float stateAnimSpeed { get; private set; } = 0f;
         protected float attackRange { get; private set;} = 0f;
         protected CancellationTokenSource cts;
+        //キャンセルされるのは自分自身のオブジェクトが破壊されたとき、又は敵がCheckAttackable()がfalseの時
+        //それでOnExitでDispose(死んだとき)はAttack内でDisposeのcatchがあるから実質キャンセルと同じでRepeat系のアタックの時も
+     　 //攻撃は継続しない感じ
+       　//エフェクト系もattackEndActionをfinallyで呼び出すからエフェクトの継続も問題ない感じ
         public int maxFrame = 0;
         public int attackEndFrame = 0;
         public float attackEndNomTime = 0f;
         public float interval = 0f;
-        float startNormalizeTime = 0f;
+        protected float startNormalizeTime = 0f;
 
         protected float leftLengthTime = 0f;
         protected bool isAttacking = false;
@@ -58,6 +62,8 @@ namespace Game.Monsters
         bool isContineAttack = false;
         public bool isSettedEventClip { get; private set;} = false;
         public bool isInterval { get; private set; } = false;
+        bool _isAbsorbed = false;
+        
         public override void OnEnter()
         {
             SetUp();
@@ -88,6 +94,7 @@ namespace Game.Monsters
             attackAmount = controller.statusCondition != null ? controller.BuffStatus(BuffType.Power, controller.MonsterStatus.AttackAmount)
                 : controller.MonsterStatus.AttackAmount;
             controller.CheckParesis_Monster(controller.animator);
+            UpdateAbsorption();
             //Debug.Log($"[アニメ状態] name: {state.fullPathHash}, elapsedTime: {state.normalizedTime}, looping: {state.loop}");
             if (!isAttacking && !isWaitingLeftTime)
             {
@@ -146,16 +153,16 @@ namespace Game.Monsters
                 }
                 else
                 {
-                    var repeatCount = (int)attackArguments.repeatCount;
-                    var repeatInterval = GetRepeatInterval(startNormalizeTime,repeatCount);
+                    var remaining = (int)attackArguments.repeatCount;
+                    var repeatInterval = GetRepeatInterval(startNormalizeTime,remaining);
                    
                     attackArguments.actionByLeftAttackLength?.Invoke(GetCurrentNormalizedTime);
                     Debug.Log($"{GetCurrentNormalizedTime()},リピート攻撃開始します");
 
-                    while(GetCurrentNormalizedTime() < 1.0f && !cts.IsCancellationRequested
+                    while(remaining > 0 && GetCurrentNormalizedTime() < 1.0f && !cts.IsCancellationRequested
                         && !isInterval)
                     {
-                        repeatInterval = GetRepeatInterval(startNormalizeTime, repeatCount);
+                        repeatInterval = GetRepeatInterval(startNormalizeTime, remaining);
                         Debug.Log($"リピート{GetCurrentNormalizedTime()}");
                         if (target == null) break;
                         var currentTargets = attackArguments.getTargets();
@@ -165,6 +172,7 @@ namespace Game.Monsters
                             AddDamageToTarget(target);
                             if (attackArguments.specialEffectAttack != null) attackArguments.specialEffectAttack?.Invoke(target);
                         });
+                        remaining--;
                         await UniTask.Delay(TimeSpan.FromSeconds(repeatInterval), cancellationToken: cts.Token);
                     }
                 }                  
@@ -252,7 +260,14 @@ namespace Game.Monsters
             var isTransparent = target.statusCondition.Transparent.isActive;
             var collider = target.GetComponent<Collider>();
             var closestPos = collider.ClosestPoint(controller.transform.position);
-
+            var myMoveType = controller.moveType;
+            var effectiveMoveSide = myMoveType switch
+            {
+                MoveType.Walk => MoveType.Walk,
+                MoveType.Fly => MoveType.Fly | MoveType.Walk,
+                _ => default
+            };
+            var targetMoveType = target.moveType;
             targetPos = PositionGetter.GetFlatPos(closestPos);
             var myPos = PositionGetter.GetFlatPos(controller.transform.position);
             var isConfused = controller.statusCondition.Confusion.isActive;
@@ -264,7 +279,7 @@ namespace Game.Monsters
             };
 
             canAttack = (targetPos - myPos).magnitude <= attackRange && !isDead
-                && (targetSide & effectiveSide) != 0 && !isTransparent;// && !isDead;         
+                && (targetSide & effectiveSide) != 0 && !isTransparent && (effectiveMoveSide & targetMoveType) != 0;// && !isDead;         
             Debug.Log($"[距離チェック] 距離: {canAttack}, 射程: {controller.MonsterStatus.AttackRange}");
             return canAttack;
         }      
@@ -472,7 +487,7 @@ namespace Game.Monsters
             Debug.Log($"現在は{current},スタートは{startNormalizeTime}");
             return current - startNormalizeTime;
         }
-        float GetRepeatInterval(float startNormalizedTime,int repeatCount)
+        protected float GetRepeatInterval(float startNormalizedTime,int repeatCount)
         {
             var now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
             var elapsedNormalizedTime = now - startNormalizeTime;
@@ -480,6 +495,40 @@ namespace Game.Monsters
             var leftLength = clipLength - startLength;
             var repeatInterval = leftLength /  (float)repeatCount;
             return (repeatInterval / stateAnimSpeed) / controller.animator.speed;
+        }
+        async void MoveToCorrectPos()
+        {
+            Debug.Log("元の位置に戻ります");
+            try
+            {
+                if (controller.MonsterStatus is IFlying flying)
+                {
+                    var targetPos = PositionGetter.GetFlatPos(controller.transform.position) + Vector3.up * flying.FlyingOffsetY;
+                    var moveSpeed = 10f;
+                    while (!controller.statusCondition.Absorption.isActive && !controller.isDead
+                        && Vector3.Distance(controller.transform.position, targetPos) >= Mathf.Epsilon)
+                    {
+                        targetPos = PositionGetter.GetFlatPos(controller.transform.position)
+                                        + Vector3.up * flying.FlyingOffsetY;
+                        var move = Vector3.MoveTowards(controller.transform.position, targetPos, Time.deltaTime * moveSpeed);
+                        controller.transform.position = move;   
+                        await UniTask.Yield(cancellationToken: controller.GetCancellationTokenOnDestroy());
+                    }
+                }
+            }
+            catch (OperationCanceledException) { }
+           
+        }
+
+        void UpdateAbsorption()
+        {
+            var isAbsorbed = controller.statusCondition.Absorption.isActive;
+
+            if (_isAbsorbed && !isAbsorbed)
+            {
+                MoveToCorrectPos();
+            }
+            _isAbsorbed = isAbsorbed;
         }
     }
 }

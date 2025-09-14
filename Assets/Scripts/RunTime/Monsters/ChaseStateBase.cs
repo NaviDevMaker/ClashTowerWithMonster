@@ -27,7 +27,8 @@ namespace Game.Monsters
         public override void OnEnter()
         {
             currentMoveSpeed = controller.MonsterStatus.MoveSpeed;
-            if (controller.MonsterStatus is IFlying flying) flyingOffsetY = flying.FlyingOffsetY;
+            if (controller.MonsterStatus is IFlying flying
+                && !controller.statusCondition.Absorption.isActive) flyingOffsetY = flying.FlyingOffsetY;
             moveSpeed = controller.BuffStatus(BuffType.Speed, (int)controller.MonsterStatus.MoveSpeed);
             myMonsterAttackType = controller.MonsterStatus.MonsterAttackType;
             cts = new CancellationTokenSource();
@@ -46,6 +47,8 @@ namespace Game.Monsters
             Debug.Log(isChasing);
 
             if (isFreezed) return;
+            if (controller.moveType == MoveType.Walk) flyingOffsetY = 0f;
+            else if (controller.MonsterStatus is IFlying flying) flyingOffsetY = flying.FlyingOffsetY;
             if(controller.isKnockBacked_Unit)
             {
                 try

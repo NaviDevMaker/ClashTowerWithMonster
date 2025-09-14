@@ -3,10 +3,14 @@ using UnityEngine;
 namespace Game.Monsters.StingRay
 {
     public class StingRayController : MonsterControllerBase<StingRayController>
+        ,IRangeAttack,IRepeatAttack
     {
+        public GameObject rangeAttackObj { get; set; }
+        public int repeatCount => 10;
 
         protected override void Awake()
         {
+            SetHitJudgementObject();
             base.Awake();
             //isSummoned = true;//テスト用だから消して
         }
@@ -19,17 +23,20 @@ namespace Game.Monsters.StingRay
 
         public override void Initialize(int owner = -1)
         {
-            /*Please select your monster movetype.
-            moveType = MoveType.Walk;
-            moveType = MoveType.Fly;*/
+            moveType = MoveType.Fly;
             base.Initialize(owner);
-            /*I recommend to delete comment out after you create state class at Auto State Creater
             IdleState = new IdleState(this);
             ChaseState = new ChaseState(this);
             AttackState = new AttackState(this);
-            DeathState = new DeathState(this);*/
+            DeathState = new DeathState(this);
         }
-
+        public void SetHitJudgementObject()
+        {
+            var data = _FlyProjectileAttackMonsterStatus;
+            if (data == null) return;
+            var weponName = data.ProjectileHitJudgeObj.name;
+            rangeAttackObj = this.gameObject.GetObject(weponName);
+            Debug.Log(rangeAttackObj.name);
+        }
     }
-
 }

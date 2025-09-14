@@ -56,7 +56,7 @@ namespace Game.Monsters.Dragon
             {
                 controller.animator.Play(controller.MonsterAnimPar.attackAnimClipName);
             }
-            float startNormalizeTime = 0f;
+            startNormalizeTime = 0f;
             float now = 0f;
             try
             {
@@ -104,6 +104,7 @@ namespace Game.Monsters.Dragon
             var isDead = target.isDead;
             var collider = target.GetComponent<Collider>();
             var closestPos = collider.ClosestPoint(controller.transform.position);
+            var isTransparent = target.statusCondition.Transparent.isActive;
 
             targetPos = PositionGetter.GetFlatPos(closestPos);
             var myPos = PositionGetter.GetFlatPos(controller.transform.position);
@@ -115,8 +116,9 @@ namespace Game.Monsters.Dragon
                 false => Side.EnemySide,
             };
 
-            return canAttack =Å@!isBreathFire ? (targetPos - myPos).magnitude <= attackRange && !isDead && (targetSide & effectiveSide) != 0
-                 : !isDead && (targetSide & effectiveSide) != 0;// && !isDead;         
+            return canAttack =Å@!isBreathFire ? (targetPos - myPos).magnitude <= attackRange && !isDead
+                && (targetSide & effectiveSide) != 0 && !isTransparent
+                 : true;// && !isDead;         
         }
         async void PlayProjectileFireEffect(Func<List<UnitBase>> getCurrentTargets)//Func<float> getCurrentNorm,
         {
@@ -208,7 +210,7 @@ namespace Game.Monsters.Dragon
             {
                 var rotX = Quaternion.Euler(-45f, 0f, 0f);
                 var targetMonstertRot = controller.transform.rotation * rotX;
-                hitJudgeColliderInfo.hitObj.SetActive(false);
+                hitJudgeColliderInfo.hitObj?.SetActive(false);
                 //RotateMonster(doubleCls,targetMonstertRot,isEnd:true).Forget();
                 if (fire != null)
                 {
@@ -247,9 +249,10 @@ namespace Game.Monsters.Dragon
             {
                 var cancelled = doubleCls.IsCancellationRequested;
                 var isFreezed = controller.statusCondition.Freeze.isActive;
+                var isDeadMine = controller.isDead;
                 //var isDead = target.isDead;
-                if (isEnd) return !cancelled && !isFreezed;// && !isDead;
-                else return !cancelled && !isFreezed && !isInterval;//&& !isDead;
+                if (isEnd) return !cancelled && !isFreezed && !isDeadMine;// && !isDead;
+                else return !cancelled && !isFreezed && !isInterval && !isDeadMine;//&& !isDead;
             }
             catch (ObjectDisposedException) { return false; }
            
