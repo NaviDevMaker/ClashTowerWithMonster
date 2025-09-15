@@ -13,7 +13,7 @@ namespace Game.Monsters.TransformedPlayer
     public class TransformedPlayer : MonsterControllerBase<TransformedPlayer>, INonTarget
     {
         public UnitBase baseEntity { get; set; }
-        public float nonTargetInterval { get; set; } = 30f;
+        public float nonTargetInterval { get; set; } = 5f;
         public float elapsedTime { get; private set;}
 
         protected override void Awake()

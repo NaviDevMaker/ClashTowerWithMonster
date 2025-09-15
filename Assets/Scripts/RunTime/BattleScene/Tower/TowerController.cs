@@ -37,7 +37,7 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
     State state;
     protected override void Start()
     {
-       
+        moveType = MoveType.Walk;
         base.Start();
         //Initialize(ownerID);
         //Debug.Log(Side);
@@ -85,8 +85,9 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
                     }
                 }
                 var isTransparent = hit.statusCondition.Transparent.isActive;
+                var isNonTarget = hit.statusCondition.NonTarget.isActive;
                 if (hit.gameObject == this.gameObject || hit.isDead || hitEnemyType == Side.PlayerSide
-                    || isTransparent) continue;
+                    || isTransparent || isNonTarget) continue;
                 targetEnemy = hit;
                 archer.target = hit;
                 Debug.Log("“G‚ð”­Œ©‚µ‚Ü‚µ‚½");

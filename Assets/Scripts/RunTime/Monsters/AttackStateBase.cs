@@ -7,6 +7,7 @@ using UnityEngine.Events;
 using System.Collections.Generic;
 using Game.Monsters;
 using static UnityEngine.Rendering.DebugUI.Table;
+using Unity.VisualScripting;
 
 public interface IAttackState
 {
@@ -362,6 +363,7 @@ namespace Game.Monsters
                     var enemySide = cmp.GetUnitSide(controller.ownerID);
                     var isDead = cmp.isDead;
                     var isTransparent = cmp.statusCondition.Transparent.isActive;
+                    var isNonTarget = cmp.statusCondition.NonTarget.isActive;
                     var moveType = cmp.moveType;
                     var isConfused = controller.statusCondition.Confusion.isActive;
                     var effectiveSide = isConfused switch
@@ -374,24 +376,30 @@ namespace Game.Monsters
                     {
                         var isSummoned = summonbable.isSummoned;
                         return (enemySide & effectiveSide) != 0 && !isDead
-                          && (moveType & effectiveMoveSide) != 0 && isSummoned && !isTransparent;
+                          && (moveType & effectiveMoveSide) != 0 && isSummoned && !isTransparent && !isNonTarget;
                     }
+                    //ここタワーだから!isTransparent && !isNonTargetいらないけど将来もしかしたらそういう状態異常を
+                    //タワーに付与するやつが出てくるかもしれないから一応
                     return (enemySide & effectiveSide) != 0 && !isDead
-                            && (moveType & effectiveMoveSide) != 0;
+                            && (moveType & effectiveMoveSide) != 0 && !isTransparent && !isNonTarget;
                 }).ToArray(),
 
                 MonsterAttackType.OnlyBuilding => sortedArray.Where(cmp =>
                 {
+                    var isTransparent = cmp.statusCondition.Transparent.isActive;
+                    var isNonTarget = cmp.statusCondition.NonTarget.isActive;
                     var enemySide = cmp.GetUnitSide(controller.ownerID);
                     var isDead = cmp.isDead;
                     var building = cmp is IBuilding;
-                    return enemySide != Side.PlayerSide && !isDead && building;
+                    return enemySide != Side.PlayerSide && !isDead
+                          && building && !isTransparent && !isNonTarget;
                 }).ToArray(),
 
                 MonsterAttackType.GroundedAndEveryThing => sortedArray.Where(cmp =>
                 {
                     var enemySide = cmp.GetUnitSide(controller.ownerID);
                     var isTransparent = cmp.statusCondition.Transparent.isActive;
+                    var isNonTarget = cmp.statusCondition.NonTarget.isActive;
                     var isDead = cmp.isDead;
                     var isConfused = controller.statusCondition.Confusion.isActive;
                     var effectiveSide = isConfused switch
@@ -404,9 +412,10 @@ namespace Game.Monsters
                     {
                         var isSummoned = summonbable.isSummoned;
                         return (enemySide & effectiveSide) != 0 && !isDead
-                               && isSummoned && !isTransparent;
+                               && isSummoned && !isTransparent && !isNonTarget;
                     }
-                    return (enemySide & effectiveSide) != 0 && !isDead;
+                    //上のやつと同じ理由
+                    return (enemySide & effectiveSide) != 0 && !isDead && !isTransparent && !isNonTarget;
                 }).ToArray(),   
                 _ => default
             };

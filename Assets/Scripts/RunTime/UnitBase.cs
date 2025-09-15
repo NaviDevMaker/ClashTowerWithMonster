@@ -55,7 +55,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
     [SerializeField] StatusData statusData;
     public StatusCondition statusCondition { get; private set; }
     public int currentHP { get; protected set;} = 0;
-    int maxHP = 0;
+    protected int maxHP { get; private set;} = 0;
 
     bool isDisplayedHpBar = false;
 

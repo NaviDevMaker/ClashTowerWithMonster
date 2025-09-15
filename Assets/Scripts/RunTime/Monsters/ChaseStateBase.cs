@@ -164,7 +164,8 @@ namespace Game.Monsters
                             if(targetEnemy != null && targetEnemy.TryGetComponent<UnitBase>(out var unit))
                             {
                                 var isTransparent = unit.statusCondition.Transparent.isActive;
-                                if (isTransparent) { cts?.Cancel(); break; }
+                                var isNonTarget = unit.statusCondition.NonTarget.isActive;
+                                if (isTransparent || isNonTarget) { cts?.Cancel(); break; }
                             }
                             flatMyPosition = PositionGetter.GetFlatPos(controller.transform.position);
                             //var simpleDistance = Vector3.Distance(controller.transform.position, targetPos);
@@ -311,14 +312,15 @@ namespace Game.Monsters
                 var isDead = cmp.isDead;
                 var moveType = cmp.moveType;
                 var isTransparent = cmp.statusCondition.Transparent.isActive;
+                var isNonTarget = cmp.statusCondition.NonTarget.isActive;
                 if(cmp.TryGetComponent<ISummonbable>(out var summonbable))
                 {
                     var isSummoned = summonbable.isSummoned;
                     return (enemySide & effectiveSide) != 0  && !isDead
-                      && (moveType & effectiveMoveSide) != 0 && isSummoned;// 
+                      && (moveType & effectiveMoveSide) != 0 && isSummoned && !isTransparent && !isNonTarget;// 
                 }
                 return (enemySide & effectiveSide) != 0 && !isDead
-                        && (moveType & effectiveMoveSide) != 0 && !isTransparent;// 
+                        && (moveType & effectiveMoveSide) != 0 && !isTransparent && !isNonTarget;// 
             }).ToArray();
 
             if (filterdArray.Length == 0)
