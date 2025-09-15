@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Android;
 using UnityEngine.Timeline;
 
 namespace Game.Monsters.SpellDemon
@@ -30,7 +31,12 @@ namespace Game.Monsters.SpellDemon
         protected override void Update()
         {
             Debug.Log(transform.localScale);
-            if ((duration <= 0f || targetUnit.isDead) && !isDead) { isDead = true; ChangeState(DeathState); }
+            if(!isDead && ((targetUnit is IInvincible invincible && invincible.IsInvincible)
+                || duration <= 0f || targetUnit.isDead))
+            {
+                isDead = true;
+                ChangeState(DeathState);
+            }
             duration -= Time.deltaTime;
             currentState?.OnUpdate();
         }

@@ -2,9 +2,12 @@ using UnityEngine;
 
 namespace Game.Monsters.Werewolf
 {
-    public class WerewolfController : MonsterControllerBase<WerewolfController>
+    public class WerewolfController : MonsterControllerBase<WerewolfController>, INonTarget
     {
-        public ShapeShiftState ShapeShiftState { get;private set; }
+        public ShapeShiftState ShapeShiftState { get; private set; }
+        public bool IsInvincible { get; set; } = false;
+        public float shapeShiftDuration => 2.0f;
+
         bool isShapeShifted = false;
         protected override void Awake()
         {
@@ -17,13 +20,44 @@ namespace Game.Monsters.Werewolf
             Debug.Log("ｊｃｄさｃｄｓｈｋｃｓｄｊｄｓｃｓｄｋｓｄｎ");
             base.Start();
         }
+        protected override void Update()
+        {
 
+            if (!isSummonedInDeckChooseScene)
+            {
+                if (!IsInvincible)
+                {
+                    base.Update();
+                    Debug.Log($"{statusCondition.Freeze.isActive},{statusCondition.Freeze.isEffectedCount}");
+                    this.CheckFreeze_Unit(animator);
+                    this.CheckAbsorption();
+                    if (isSummoned)
+                    {
+                        currentState?.OnUpdate();
+                    }
+                    Debug.Log(currentState);
+                }
+                if (isDead && currentState != DeathState)
+                {
+                    ChangeToDeathState();
+                }
+            }
+            //これデッキ選択シーンの時に見本用のモンスターをその都度削除するからそのため
+            else
+            {
+                if (isDead && currentState != DeathState)
+                {
+                    ChangeToDeathState();
+                }
+            }
+        }
         public override void Damage(int damage)
         {
             var isNontarget = statusCondition.NonTarget.isActive;
             if (isNontarget) return;
             base.Damage(damage);
-            if(currentHP <= maxHP / 2 && currentState != ShapeShiftState && !isShapeShifted)
+            if (isDead) return;
+            if (currentHP <= maxHP / 2 && currentState != ShapeShiftState && !isShapeShifted)
             {
                 isShapeShifted = true;
                 ChangeState(ShapeShiftState);
@@ -39,5 +73,7 @@ namespace Game.Monsters.Werewolf
             DeathState = new DeathState(this);
             ShapeShiftState = new ShapeShiftState(this);
         }
+
+        public void ReflectEachHP(int currentHP) => this.currentHP = currentHP;
     }
 }

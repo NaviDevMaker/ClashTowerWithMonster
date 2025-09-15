@@ -189,9 +189,8 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
     async void DeathAction()
     {
         archer.isDestroyedTower = true;
-        DeathMoveExecuter deathMoveExecuter = new DeathMoveExecuter();
         await UniTask.WaitUntil(() => isSettedLength);
-        deathMoveExecuter.ExecuteDeathAction_Tower(this, deathActionLength).Forget();
+        this.ExecuteDeathAction_Tower(deathActionLength).Forget();
         var timeScaleAmount = 0.25f;
         Time.timeScale = timeScaleAmount;
         var delay = 0.5f;

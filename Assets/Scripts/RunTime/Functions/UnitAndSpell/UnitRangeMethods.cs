@@ -57,6 +57,11 @@ public static class UnitRangeMethods
             foreach (var unit in sortedArray)
             {
                 var isDead = unit.isDead;
+                if(unit is IInvincible invincible)
+                {
+                    var isInvincible = invincible.IsInvincible;
+                    if (isInvincible) continue;
+                }
                 if (unit.TryGetComponent<ISummonbable>(out var summonbable))
                 {
                     var isSummoned = summonbable.isSummoned;

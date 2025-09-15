@@ -1,20 +1,37 @@
+
 using Game.Monsters.Werewolf;
 using UnityEngine;
 
-public interface INonTarget
+public interface IInvincible
 {
-    UnitBase baseEntity { get; set; }
+    //特定条件での無敵の場合のやつ
+    bool IsInvincible { get; set; }
+}
+public interface INonTarget : IInvincible
+{ 
+    //変身中は呪文も効かないようにするからこれ必要、呪文の判定側でこのインターフェースを参照して
+    //statusConditionのほうで呪文側が判定すると呪文も効かない最強になる為
+    float shapeShiftDuration { get;}
+    void ReflectEachHP(int currentHP);
+}
+
+public interface ITransformedForm<TOrigin> : INonTarget where TOrigin:UnitBase
+{
     float nonTargetInterval { get; set; }
     float elapsedTime { get; }
+    TOrigin originalEntity { get; set; }
 }
 
 namespace Game.Monsters.TransformedPlayer
 {
-    public class TransformedPlayer : MonsterControllerBase<TransformedPlayer>, INonTarget
+    public class TransformedPlayer : MonsterControllerBase<TransformedPlayer>,ITransformedForm<WerewolfController>
     {
-        public UnitBase baseEntity { get; set; }
+        public WerewolfController originalEntity { get; set; }
         public float nonTargetInterval { get; set; } = 5f;
         public float elapsedTime { get; private set;}
+        public bool IsInvincible { get; set; } = false;
+
+        public float shapeShiftDuration => 2.0f;
 
         protected override void Awake()
         {
@@ -29,8 +46,34 @@ namespace Game.Monsters.TransformedPlayer
         }
         protected override void Update()
         {
-            if(IdleState.isEndSummon) CheckNonTarget();
-            base.Update();
+            if (!isSummonedInDeckChooseScene)
+            {
+                if(!IsInvincible)
+                {
+                    CheckNonTarget();
+                    base.Update();
+                    Debug.Log($"{statusCondition.Freeze.isActive},{statusCondition.Freeze.isEffectedCount}");
+                    this.CheckFreeze_Unit(animator);
+                    this.CheckAbsorption();
+                    if (isSummoned)
+                    {
+                        currentState?.OnUpdate();
+                    }
+                }
+                if (isDead && currentState != DeathState)
+                {
+                    ChangeToDeathState();
+                }
+                Debug.Log(currentState);
+           }
+            //これデッキ選択シーンの時に見本用のモンスターをその都度削除するからそのため
+           else
+           {
+               if (isDead && currentState != DeathState)
+               {
+                   ChangeToDeathState();
+               }
+           }
         }
         public override void Initialize(int owner = -1)
         {
@@ -47,5 +90,7 @@ namespace Game.Monsters.TransformedPlayer
             elapsedTime += Time.deltaTime;
             if(nonTargetInterval <= elapsedTime && !isDead) isDead = true;
         }
+
+        public void ReflectEachHP(int currentHP) => this.currentHP = currentHP;
     }
 }

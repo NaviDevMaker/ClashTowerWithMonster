@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TransformedPlayer
   m_EditorClassIdentifier: 
   attackAmount: 20
-  hp: 1000
+  hp: 200
   pushAmount: 10
   animInfo:
     attackStateAnimSpeed: 1

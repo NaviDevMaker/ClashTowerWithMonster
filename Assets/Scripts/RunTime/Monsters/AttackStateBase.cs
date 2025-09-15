@@ -73,6 +73,7 @@ namespace Game.Monsters
         }
         protected void SetUp()
         {
+            Debug.Log($"ターゲットは{target}");
             attackAmount = controller.statusCondition != null ? controller.BuffStatus(BuffType.Power, controller.MonsterStatus.AttackAmount)
                : controller.MonsterStatus.AttackAmount;
             Debug.Log("Attackに入りました");
@@ -116,6 +117,7 @@ namespace Game.Monsters
 
         protected virtual async UniTask Attack_Generic(SimpleAttackArguments attackArguments)
         {
+            Debug.Log("攻撃開始します");
             if (!controller.animator.GetCurrentAnimatorStateInfo(0).IsName(controller.MonsterAnimPar.attackAnimClipName))
             {
                 controller.animator.Play(controller.MonsterAnimPar.attackAnimClipName);
@@ -166,7 +168,6 @@ namespace Game.Monsters
                         && !isInterval)
                     {
                         repeatInterval = GetRepeatInterval(startNormalizeTime, remaining);
-                        Debug.Log($"リピート{GetCurrentNormalizedTime()}");
                         if (target == null) break;
                         var currentTargets = attackArguments.getTargets();
                         if (!currentTargets.Contains(target)) currentTargets.Add(target);
@@ -186,7 +187,7 @@ namespace Game.Monsters
                 leftLengthTime = Mathf.Max(0f, clipLength - elapsedTime / stateAnimSpeed);
                 isAttacking = false;
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) {}
             finally { if(attackArguments.attackEndAction != null) attackArguments.attackEndAction?.Invoke();}
             leftLengthTime = 0f;
         }
@@ -261,6 +262,7 @@ namespace Game.Monsters
             var targetPos = Vector3.zero;
             var isDead = target.isDead;
             var isTransparent = target.statusCondition.Transparent.isActive;
+            var isNonTarget = target.statusCondition.NonTarget.isActive;
             var collider = target.GetComponent<Collider>();
             var closestPos = collider.ClosestPoint(controller.transform.position);
             var myMoveType = controller.moveType;
@@ -282,7 +284,8 @@ namespace Game.Monsters
             };
 
             canAttack = (targetPos - myPos).magnitude <= attackRange && !isDead
-                && (targetSide & effectiveSide) != 0 && !isTransparent && (effectiveMoveSide & targetMoveType) != 0;// && !isDead;         
+                && (targetSide & effectiveSide) != 0 && !isTransparent && !isNonTarget 
+                && (effectiveMoveSide & targetMoveType) != 0;// && !isDead;         
             Debug.Log($"[距離チェック] 距離: {canAttack}, 射程: {controller.MonsterStatus.AttackRange}");
             return canAttack;
         }      

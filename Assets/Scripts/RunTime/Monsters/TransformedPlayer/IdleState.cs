@@ -1,6 +1,7 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Linq;
+using UnityEngine.Events;
 namespace Game.Monsters.TransformedPlayer
 {
     public class IdleState : IdleStateBase<TransformedPlayer>
@@ -23,24 +24,22 @@ namespace Game.Monsters.TransformedPlayer
         protected override async UniTask OnEnterProcess()
         {
             nextState = controller.ChaseState;
-            var fadeDuration =  3.0f;
-            var tasks = Enumerable.Empty<UniTask>().ToList();
+            var collider = controller.GetComponent<Collider>();
+            UnityAction colActiveChange = () => collider.enabled = isEndSummon;
+            colActiveChange();
             for (int i = 0; i < controller.meshMaterials.Count; i++)
             {
                 var materials = controller.meshMaterials[i];
                 for (int j = 0; j < materials.Length; j++)
                 {
                     var mat = materials[j];
-                    FadeProcessHelper.ChangeToTranparent(mat);
                     var color = mat.color;
                     color.a = 0f;
                     mat.color = color;
                     Debug.Log(mat.color);
-                    var task = FadeProcessHelper.FadeInColor(fadeDuration,mat,controller.GetCancellationTokenOnDestroy());
-                    tasks.Add(task);
                 }
             }
-            await UniTask.WhenAll(tasks);
+            await controller.WaitFIAllMesh(controller.shapeShiftDuration);
             if (controller == null) return;
             for (int i = 0; i < controller.meshMaterials.Count; i++)
             {
@@ -52,6 +51,7 @@ namespace Game.Monsters.TransformedPlayer
                 }
             }
             isEndSummon = true;
+            colActiveChange();
         }
     }
 }

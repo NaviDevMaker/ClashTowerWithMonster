@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc1854ba0494c1b4fa6bfcc5784c968b, type: 3}
   m_Name: Werewolf
   m_EditorClassIdentifier: 
-  attackAmount: 10
+  attackAmount: 5
   hp: 200
   pushAmount: 10
   animInfo:
@@ -25,8 +25,8 @@ MonoBehaviour:
   attackRange: 2
   moveSpeed: 3
   moveStep: 1
-  attackType: 0
+  attackType: 3
   monsterAttackType: 0
   monsterMoveType: 0
   continuousAttackInfo:
-    continuousCount: 8
+    continuousCount: 4
