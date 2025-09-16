@@ -128,7 +128,7 @@ namespace Game.Monsters
             float now = 0f;
             try
             {
-                if (!controller.statusCondition.Freeze.isActive) LookToTarget();
+                if (controller.statusCondition != null && !controller.statusCondition.Freeze.isActive) LookToTarget();
                 await UniTask.WaitUntil(() =>
                 {
                     if (controller.isDead) return false;

@@ -51,6 +51,7 @@ namespace Game.Monsters.TransformedPlayer
                 }
             }
             isEndSummon = true;
+            controller.IsInvincible = false;
             colActiveChange();
         }
     }

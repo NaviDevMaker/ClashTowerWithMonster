@@ -8,6 +8,7 @@ namespace Game.Monsters.TransformedPlayer
 
         public override void OnEnter()
         {
+            controller.originalEntity.animator.SetBool(controller.MonsterAnimPar.Chase_Hash, true);
             base.OnEnter();
         }
         public override void OnUpdate()
@@ -16,6 +17,7 @@ namespace Game.Monsters.TransformedPlayer
         }
         public override void OnExit()
         {
+            controller.originalEntity.animator.SetBool(controller.MonsterAnimPar.Chase_Hash,false);
             base.OnExit();
         }
     }

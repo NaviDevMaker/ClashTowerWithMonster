@@ -20,7 +20,6 @@ namespace Game.Monsters.Werewolf
         }
         void MaterialsProcess()
         {
-            if (!controller.gameObject.activeSelf) controller.gameObject.SetActive(true);
             controller.meshMaterials.ForEach(mats =>
             {
                 for (int i = 0; i < mats.Length; i++)

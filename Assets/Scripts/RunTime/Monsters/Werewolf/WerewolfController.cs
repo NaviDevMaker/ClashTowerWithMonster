@@ -6,7 +6,7 @@ namespace Game.Monsters.Werewolf
     {
         public ShapeShiftState ShapeShiftState { get; private set; }
         public bool IsInvincible { get; set; } = false;
-        public float shapeShiftDuration => 2.0f;
+        public float shapeShiftDuration => 0.5f;
 
         bool isShapeShifted = false;
         protected override void Awake()
@@ -27,7 +27,7 @@ namespace Game.Monsters.Werewolf
             {
                 if (!IsInvincible)
                 {
-                    base.Update();
+                    HPBarProcess();
                     Debug.Log($"{statusCondition.Freeze.isActive},{statusCondition.Freeze.isEffectedCount}");
                     this.CheckFreeze_Unit(animator);
                     this.CheckAbsorption();
@@ -53,8 +53,6 @@ namespace Game.Monsters.Werewolf
         }
         public override void Damage(int damage)
         {
-            var isNontarget = statusCondition.NonTarget.isActive;
-            if (isNontarget) return;
             base.Damage(damage);
             if (isDead) return;
             if (currentHP <= maxHP / 2 && currentState != ShapeShiftState && !isShapeShifted)

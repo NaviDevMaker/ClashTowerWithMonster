@@ -23,6 +23,7 @@ namespace Game.Monsters.TransformedPlayer
             else
             {
                 Debug.Log("éÙï∂Ç≈éÄÇÒÇæÇΩÇﬂÅAoriginÇÕéÄÇ…Ç‹Ç∑");
+                origin.gameObject.SetActive(true);
                 origin.isDead = true;
             }
             if (controller != null) UnityEngine.Object.Destroy(controller.gameObject);
@@ -32,17 +33,21 @@ namespace Game.Monsters.TransformedPlayer
 
         async UniTask ShapeShiftToOriginal(WerewolfController origin)
         {
-            origin.transform.position = controller.transform.position;
-            controller.transform.SetParent(origin.transform);
-            origin.ShapeShiftState.EndShapeShiftAction();
-            origin.ReflectEachHP(controller.currentHP);
-            controller.IsInvincible = true;
             var animPar = controller.MonsterAnimPar;
             controller.animator.SetBool(animPar.Attack_Hash, false);
             controller.animator.SetBool(animPar.Chase_Hash, false);
             controller.animator.Play("Idle");
-            var duration = 2.0f;
-            await controller.WaitFOAllMesh(duration);
+            controller.IsInvincible = true;
+            //controller.transform.SetParent(origin.transform);
+            var shapeShiftDuration = controller.shapeShiftDuration;
+            var seq = controller.GetTransformSequence(shapeShiftDuration);
+            var seqTask = seq.ToUniTask(cancellationToken:controller.GetCancellationTokenOnDestroy());
+            await UniTask.WhenAll(controller.WaitFOAllMesh(shapeShiftDuration), seqTask);
+            controller.ShapeEffectAction();
+            origin.transform.position = controller.transform.position;
+            origin.ShapeShiftState.EndShapeShiftAction();
+            origin.ReflectEachHP(controller.currentHP);
+            origin.transform.SetParent(null);
         }
     }
 }

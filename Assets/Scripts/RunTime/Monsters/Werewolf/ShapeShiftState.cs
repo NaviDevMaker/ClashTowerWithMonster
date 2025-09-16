@@ -1,6 +1,10 @@
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Game.Monsters.Werewolf
 {
@@ -13,7 +17,7 @@ namespace Game.Monsters.Werewolf
         TransformedPlayer.TransformedPlayer transformedPlayerPrefab;
         float shapeShiftDuration;
         bool isEndShapeAction = false;
-        public override void OnEnter()
+        public override async void OnEnter()
         {
             try
             {
@@ -26,8 +30,8 @@ namespace Game.Monsters.Werewolf
             controller.IsInvincible = true;
             controller.statusCondition.NonTarget.isActive = true;
             controller.animator.Play("Idle");
+            await DisappaerWerewolf();
             SetTransformedPlayer();
-            DisappaerWerewolf();
         }
         public override void OnUpdate()
         {
@@ -47,45 +51,66 @@ namespace Game.Monsters.Werewolf
             if (transformedPlayerObj == null) return;
             transformedPlayerPrefab = transformedPlayerObj.GetComponent<TransformedPlayer.TransformedPlayer>();
         }
-        async void DisappaerWerewolf()
+        async UniTask DisappaerWerewolf()
         {
+            var type = controller.GetType();
+            while(type != null && type.BaseType != typeof(MonoBehaviour)) type = type.BaseType;
+            var prop = type.GetField("originalMaterialColors",BindingFlags.NonPublic | BindingFlags.Instance);
+            var originalMaterialColors = prop.GetValue(controller) as List<Color[]>;
             for (int i = 0; i < controller.meshMaterials.Count; i++)
             {
                 var materials = controller.meshMaterials[i];
+                var colors = originalMaterialColors[i];
                 for (int j = 0; j < materials.Length; j++)
                 {
                     var mat = materials[j];
-                    var color = mat.color;
+                    var color = colors[j];
                     color.a = 1.0f;
                     mat.color = color;
                     Debug.Log(mat.color);
                 }
             }
-            await controller.WaitFOAllMesh(shapeShiftDuration);
-            controller.gameObject.SetActive(false);
-            controller.IsInvincible = false;
+            var originalScale = controller.transform.lossyScale;
+            var originalRot = controller.transform.rotation;
+            var seq = controller.GetTransformSequence(shapeShiftDuration);
+            var seqTask = seq.ToUniTask(cancellationToken:controller.GetCancellationTokenOnDestroy());
+            await UniTask.WhenAll(controller.WaitFOAllMesh(shapeShiftDuration),seqTask);
+
+            controller.ShapeEffectAction();
+            //controller.gameObject.SetActive(false);
+            controller.transform.localScale = originalScale;
+            controller.transform.localRotation = originalRot;
+            //controller.IsInvincible = false;
         }
+
+       
         async void SetTransformedPlayer()
         {
             var pos = controller.transform.position;
             var rot = controller.transform.rotation;
             var transformedPlayer = UnityEngine.Object.Instantiate(transformedPlayerPrefab, pos, rot);
-            transformedPlayer.originalEntity = controller;
-            transformedPlayer.transform.SetParent(controller.transform);
-            transformedPlayer.isSummoned = true;
-            transformedPlayer.ownerID = controller.ownerID;
             try
             {
-                await UniTask.WaitUntil(() => !controller.IsInvincible,
-                    cancellationToken: controller.GetCancellationTokenOnDestroy());
+                //transformedPlayerのInitializedでのHPの処理がStartだからそれが終わる前に
+                //transformedPlayer.ReflectEachHP(controller.currentHP);が動作してしまい、
+                //MaxのHPがあとから上書きされて意図した動作にならないから1フレーム待って、正しい処理順序になるようにする
+                await UniTask.Yield(cancellationToken: controller.GetCancellationTokenOnDestroy());
             }
-            catch (OperationCanceledException) { return; }
-            transformedPlayer.transform.SetParent(null);
+            catch (OperationCanceledException) { }
+            transformedPlayer.originalEntity = controller;
+            //transformedPlayer.transform.SetParent(controller.transform);
+            controller.transform.SetParent(transformedPlayer.transform);
+            transformedPlayer.isSummoned = true;
+            transformedPlayer.ownerID = controller.ownerID;
+            //transformedPlayer.transform.SetParent(null);
             transformedPlayer.ReflectEachHP(controller.currentHP);
         }
         public async void EndShapeShiftAction()
         {
-            controller.IsInvincible = true;
+            var animPar = controller.MonsterAnimPar;
+            controller.animator.SetBool(animPar.Attack_Hash, false);
+            controller.animator.SetBool(animPar.Chase_Hash, false);
+            //controller.IsInvincible = true;
             controller.gameObject.SetActive(true);
             await controller.WaitFIAllMesh(shapeShiftDuration);
             controller.meshMaterials.ForEach(mats =>

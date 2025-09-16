@@ -27,14 +27,15 @@ namespace Game.Monsters.TransformedPlayer
     public class TransformedPlayer : MonsterControllerBase<TransformedPlayer>,ITransformedForm<WerewolfController>
     {
         public WerewolfController originalEntity { get; set; }
-        public float nonTargetInterval { get; set; } = 5f;
+        public float nonTargetInterval { get; set; } = 30f;
         public float elapsedTime { get; private set;}
         public bool IsInvincible { get; set; } = false;
 
-        public float shapeShiftDuration => 2.0f;
+        public float shapeShiftDuration => 0.5f;
 
         protected override void Awake()
         {
+            IsInvincible = true;
             base.Awake();
             //isSummoned = true;//テスト用だから消して
         }
@@ -48,10 +49,10 @@ namespace Game.Monsters.TransformedPlayer
         {
             if (!isSummonedInDeckChooseScene)
             {
-                if(!IsInvincible)
+                if (!IsInvincible)
                 {
-                    CheckNonTarget();
-                    base.Update();
+                    HPBarProcess();
+                    CheckNonTargetInterval();
                     Debug.Log($"{statusCondition.Freeze.isActive},{statusCondition.Freeze.isEffectedCount}");
                     this.CheckFreeze_Unit(animator);
                     this.CheckAbsorption();
@@ -75,6 +76,7 @@ namespace Game.Monsters.TransformedPlayer
                }
            }
         }
+
         public override void Initialize(int owner = -1)
         {
             moveType = MoveType.Walk;
@@ -85,12 +87,11 @@ namespace Game.Monsters.TransformedPlayer
             DeathState = new DeathState(this);
             statusCondition.NonTarget.isActive = true;
         }
-        void CheckNonTarget()
+        void CheckNonTargetInterval()
         {
             elapsedTime += Time.deltaTime;
             if(nonTargetInterval <= elapsedTime && !isDead) isDead = true;
         }
-
         public void ReflectEachHP(int currentHP) => this.currentHP = currentHP;
     }
 }

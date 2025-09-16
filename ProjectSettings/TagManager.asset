@@ -7,6 +7,7 @@ TagManager:
   - PlayerSide
   - EnemySide
   - EnemyTower
+  - FxTemporaire
   layers:
   - Default
   - TransparentFX
@@ -49,6 +50,9 @@ TagManager:
     locked: 0
   - name: HitEffect
     uniqueID: 2396011803
+    locked: 0
+  - name: Toxic
+    uniqueID: 3200838329
     locked: 0
   m_RenderingLayers:
   - Default
