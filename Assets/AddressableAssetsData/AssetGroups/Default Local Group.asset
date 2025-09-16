@@ -195,6 +195,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ca7d909b3b91d474584581f5e0a2675f
+    m_Address: Monsters/Werewolf/TransformedPlayer
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: cc7e10b243f32fe409b937862ba1831b
     m_Address: Monsters/SpecialEffectMonsters/NagaWizardEffect_Head
     m_ReadOnly: 0

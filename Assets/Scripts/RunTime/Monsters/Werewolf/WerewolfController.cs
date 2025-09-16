@@ -2,9 +2,13 @@ using UnityEngine;
 
 namespace Game.Monsters.Werewolf
 {
-    public class WerewolfController : MonsterControllerBase<WerewolfController>
+    public class WerewolfController : MonsterControllerBase<WerewolfController>, INonTarget
     {
+        public ShapeShiftState ShapeShiftState { get; private set; }
+        public bool IsInvincible { get; set; } = false;
+        public float shapeShiftDuration => 0.5f;
 
+        bool isShapeShifted = false;
         protected override void Awake()
         {
             base.Awake();
@@ -16,20 +20,58 @@ namespace Game.Monsters.Werewolf
             Debug.Log("ｊｃｄさｃｄｓｈｋｃｓｄｊｄｓｃｓｄｋｓｄｎ");
             base.Start();
         }
+        protected override void Update()
+        {
 
+            if (!isSummonedInDeckChooseScene)
+            {
+                if (!IsInvincible)
+                {
+                    HPBarProcess();
+                    Debug.Log($"{statusCondition.Freeze.isActive},{statusCondition.Freeze.isEffectedCount}");
+                    this.CheckFreeze_Unit(animator);
+                    this.CheckAbsorption();
+                    if (isSummoned)
+                    {
+                        currentState?.OnUpdate();
+                    }
+                    Debug.Log(currentState);
+                }
+                if (isDead && currentState != DeathState)
+                {
+                    ChangeToDeathState();
+                }
+            }
+            //これデッキ選択シーンの時に見本用のモンスターをその都度削除するからそのため
+            else
+            {
+                if (isDead && currentState != DeathState)
+                {
+                    ChangeToDeathState();
+                }
+            }
+        }
+        public override void Damage(int damage)
+        {
+            base.Damage(damage);
+            if (isDead) return;
+            if (currentHP <= maxHP / 2 && currentState != ShapeShiftState && !isShapeShifted)
+            {
+                isShapeShifted = true;
+                ChangeState(ShapeShiftState);
+            }
+        }
         public override void Initialize(int owner = -1)
         {
-            /*Please select your monster movetype.
             moveType = MoveType.Walk;
-            moveType = MoveType.Fly;*/
             base.Initialize(owner);
-            /*I recommend to delete comment out after you create state class at Auto State Creater
             IdleState = new IdleState(this);
             ChaseState = new ChaseState(this);
             AttackState = new AttackState(this);
-            DeathState = new DeathState(this);*/
+            DeathState = new DeathState(this);
+            ShapeShiftState = new ShapeShiftState(this);
         }
 
+        public void ReflectEachHP(int currentHP) => this.currentHP = currentHP;
     }
-
 }

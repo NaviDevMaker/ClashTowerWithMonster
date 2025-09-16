@@ -87,7 +87,7 @@ namespace Game.Monsters
                 {
                     ChangeToDeathState();
                 }
-                Debug.Log(currentState);
+                //Debug.Log(currentState);
             }
             //これデッキ選択シーンの時に見本用のモンスターをその都度削除するからそのため
             else

@@ -10,21 +10,16 @@ namespace Game.Monsters.Archer
     {
         public DeathState(ArcherController controller) : base(controller) { }
         float stateAnimSpeed = 1.0f;
-        DeathMoveExecuter deathMoveExecuter;
         public override void OnEnter()
         {
             
-            deathMoveExecuter = new DeathMoveExecuter();
             clipLength = controller.GetAnimClipLength();
             controller.OnDestoryedTower?.Invoke(clipLength, stateAnimSpeed);
-            deathMoveExecuter.ExecuteDeathAction_Archer(controller, clipLength, stateAnimSpeed).Forget();
+            controller.ExecuteDeathAction_Archer(clipLength, stateAnimSpeed).Forget();
 
         }
-
         public override void OnUpdate() { }
-        public override void OnExit() { }
-       
+        public override void OnExit() { }      
     }
-
 }
 

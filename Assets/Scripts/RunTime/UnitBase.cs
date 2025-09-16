@@ -20,7 +20,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         public StatusEffect Freeze { get; set; }
         public StatusEffect Confusion { get; set; }
         public StatusEffect Transparent { get; set; }
-
+        public StatusEffect NonTarget { get; set; } 
         public StatusEffect Absorption { get; set; }
 
         public Dictionary<StatusConditionType,CancellationTokenSource> visualTokens = new Dictionary<StatusConditionType,CancellationTokenSource>();
@@ -34,6 +34,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
             Freeze = new StatusEffect();
             Confusion = new StatusEffect();
             Transparent = new StatusEffect();
+            NonTarget = new StatusEffect();
             Absorption = new StatusEffect();
         }
     }
@@ -54,9 +55,9 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
     [SerializeField] StatusData statusData;
     public StatusCondition statusCondition { get; private set; }
     public int currentHP { get; protected set;} = 0;
-    int maxHP = 0;
+    protected int maxHP { get; private set;} = 0;
 
-    bool isDisplayedHpBar = false;
+     bool isDisplayedHpBar = false;
 
     public int ownerID { get; set; } = 1;//テスト用に自分から召喚する以外は基本的に相手だから
     public bool isDead { get; set; } = false;
@@ -238,8 +239,9 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         if (currentHP >= maxHP) currentHP = maxHP;
         hPBar.HealHP(maxHP, currentHP);
     }
-    public void EnableHpBar()
+    public void DisableHpBar()
     {
+        isDisplayedHpBar = false;
        if(hPBar != null) hPBar.gameObject.SetActive(false);
     }
     public virtual void DestroyAll()
@@ -368,13 +370,15 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
     }
     protected void HPBarProcess()
     {
-        if (!isDisplayedHpBar && currentHP != maxHP && hPBar != null)
+        if (!isDisplayedHpBar && currentHP != maxHP
+            && hPBar != null && !isDead)
         {
             hPBar.gameObject.SetActive(true);
             hPBar.ReduceHP(maxHP, currentHP);
             isDisplayedHpBar = true;
         }
-        else if (isDisplayedHpBar && currentHP == maxHP && hPBar != null)
+        else if (isDisplayedHpBar && currentHP == maxHP 
+            && hPBar != null && !isDead)
         {
             hPBar.gameObject.SetActive(false);
             isDisplayedHpBar = false;

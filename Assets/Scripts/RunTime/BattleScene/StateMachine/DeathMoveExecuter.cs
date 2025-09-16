@@ -11,17 +11,11 @@ using Game.Monsters.Archer;
 using UnityEngine.Animations;
 using Unity.VisualScripting;
 
-public class DeathMoveExecuter
+public static class DeathMoveExecuter
 {
 
-    public async UniTask ExecuteDeathAction_Monster<T>(MonsterControllerBase<T> monsterController,float clipLength,float stateAnimSpeed) where T:MonsterControllerBase<T> 
+    public static async UniTask ExecuteDeathAction_Monster<T>(this T monsterController,float clipLength,float stateAnimSpeed) where T:MonsterControllerBase<T> 
     {
-        
-        //var meshesQueue = new Queue<Renderer>(); 
-        
-        //if (monsterController.MySkinnedMeshes.Count != 0) monsterController.MySkinnedMeshes.ForEach(mesh => meshesQueue.Enqueue(mesh));
-        //if (monsterController.MyMeshes.Count != 0) monsterController.MyMeshes.ForEach(mesh => meshesQueue.Enqueue(mesh));
-
         monsterController.animator.SetTrigger(monsterController.MonsterAnimPar.Death_Hash);
         var stateName = monsterController.MonsterAnimPar.deathAnimClipName;
         await UniTask.WaitUntil(() => monsterController.animator.GetCurrentAnimatorStateInfo(0).IsName(stateName));
@@ -38,13 +32,13 @@ public class DeathMoveExecuter
         }
 
         EffectManager.Instance.deathEffect.GenerateDeathEffect<UnitBase>(monsterController, clipLengthBySpeed);
-        monsterController.EnableHpBar();
+        monsterController.DisableHpBar();
         await UniTask.Delay(TimeSpan.FromSeconds(clipLengthBySpeed));
         cts.Cancel();
         cts.Dispose();
         monsterController.DestroyAll();
     }
-    public async UniTask ExecuteDeathAction_Player<T>(PlayerControllerBase<T> playerController, float clipLength, float stateAnimSpeed) where T : PlayerControllerBase<T>
+    public static async UniTask ExecuteDeathAction_Player<T>(this T playerController, float clipLength, float stateAnimSpeed) where T : PlayerControllerBase<T>
     {
 
         var meshesQueue = new Queue<Renderer>();
@@ -68,14 +62,14 @@ public class DeathMoveExecuter
         }
 
         EffectManager.Instance.deathEffect.GenerateDeathEffect<UnitBase>(playerController, clipLengthBySpeed);
-        playerController.EnableHpBar();
+        playerController.DisableHpBar();
         await UniTask.Delay(TimeSpan.FromSeconds(clipLengthBySpeed));
         cts.Cancel();
         cts.Dispose();
         //controller.DestroyAll();
     }
 
-    public async UniTask ExecuteDeathAction_Archer(ArcherController archer, float clipLength, float stateAnimSpeed)
+    public static async UniTask ExecuteDeathAction_Archer(this ArcherController archer, float clipLength, float stateAnimSpeed)
     {
 
         archer.animator.SetTrigger(archer.death);
@@ -97,7 +91,7 @@ public class DeathMoveExecuter
         cts.Dispose();
     }
 
-    public async UniTask ExecuteDeathAction_Tower(TowerController tower, float length)
+    public static async UniTask ExecuteDeathAction_Tower(this TowerController tower, float length)
     {
         var cts = new CancellationTokenSource();
         var token = cts.Token;
@@ -122,46 +116,10 @@ public class DeathMoveExecuter
             FadeProcessHelper.FadeOutColor(length, material, cts.Token).Forget();
         }
         EffectManager.Instance.deathEffect.GenerateDeathEffect(tower, length);
-        tower.EnableHpBar();
+        tower.DisableHpBar();
         await UniTask.Delay(TimeSpan.FromSeconds(length));
         cts.Cancel();
         cts.Dispose();
         tower.DestroyAll();
     }
-    //async void FadeOutColor(float fadeDuration, CancellationToken cancellationToken, Material material)
-    //{
-    //    Debug.Log("Playerのフェイドアウト開始");
-    //    var elapsedTime = 0f;
-    //    var meshMaterial = material;
-
-     
-    //    var startColor = meshMaterial.color;
-    //    var startAlpha = startColor.a;
-
-    //    try
-    //    {
-    //        while (elapsedTime <= fadeDuration && !cancellationToken.IsCancellationRequested)
-    //        {
-    //            var lerpedTime = elapsedTime / fadeDuration;
-    //            var color = startColor;
-    //            color.a = Mathf.Lerp(startAlpha, 0f, lerpedTime);
-
-    //            meshMaterial.color = color;
-    //            //Debug.Log(meshMaterial.color.a);
-    //            elapsedTime += Time.deltaTime;
-    //            await UniTask.Yield(cancellationToken: cancellationToken);
-    //        }
-    //    }
-    //    catch (OperationCanceledException)
-    //    {
-    //        Debug.Log("色変更キャンセルされました");
-    //    }
-    //    finally
-    //    {
-    //        var finalColor = startColor;
-    //        finalColor.a = 0f;
-    //        meshMaterial.color = finalColor;
-    //        Debug.Log(meshMaterial.color.a);
-    //    }
-    //}
 }

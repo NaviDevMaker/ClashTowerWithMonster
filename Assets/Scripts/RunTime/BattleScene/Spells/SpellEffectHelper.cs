@@ -67,6 +67,7 @@ public class SpellEffectHelper
         List<UnitBase> filteredList = new List<UnitBase>();
         foreach (var unit in sortedArray)
         {
+            if (unit is ISummonbable summonbable && !summonbable.isSummoned) continue;
             var isDead = unit.isDead;
             var unitSide = unit.GetUnitSide(spellBase.ownerID);
             var effectSide = spellType switch
@@ -79,6 +80,7 @@ public class SpellEffectHelper
                 _ => default
             };
             if (isDead || (effectSide & unitSide) == 0) continue;
+            if (unit is IInvincible invincible && invincible.IsInvincible) continue;
             filteredList.Add(unit);
         }
         return filteredList;

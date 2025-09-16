@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc3a4cf668f94af43ac12651ed3879c0, type: 3}
   m_Name: SpellDemon
   m_EditorClassIdentifier: 
-  attackAmount: 10
+  attackAmount: 20
   hp: 0
   pushAmount: 0
   animInfo:

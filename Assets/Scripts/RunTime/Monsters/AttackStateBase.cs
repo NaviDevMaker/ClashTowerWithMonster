@@ -7,6 +7,7 @@ using UnityEngine.Events;
 using System.Collections.Generic;
 using Game.Monsters;
 using static UnityEngine.Rendering.DebugUI.Table;
+using Unity.VisualScripting;
 
 public interface IAttackState
 {
@@ -41,6 +42,7 @@ namespace Game.Monsters
         }
 
         public AttackStateBase(T controller) : base(controller) { }
+        
         public UnitBase target;
         protected int attackAmount = 0;
         protected float stateAnimSpeed { get; private set; } = 0f;
@@ -62,7 +64,7 @@ namespace Game.Monsters
         bool isContineAttack = false;
         public bool isSettedEventClip { get; private set;} = false;
         public bool isInterval { get; private set; } = false;
-        bool _isAbsorbed = false;
+        public bool _isAbsorbed = false;//これSO側がリフレクションで参照ね
         
         public override void OnEnter()
         {
@@ -71,6 +73,7 @@ namespace Game.Monsters
         }
         protected void SetUp()
         {
+            Debug.Log($"ターゲットは{target}");
             attackAmount = controller.statusCondition != null ? controller.BuffStatus(BuffType.Power, controller.MonsterStatus.AttackAmount)
                : controller.MonsterStatus.AttackAmount;
             Debug.Log("Attackに入りました");
@@ -94,7 +97,8 @@ namespace Game.Monsters
             attackAmount = controller.statusCondition != null ? controller.BuffStatus(BuffType.Power, controller.MonsterStatus.AttackAmount)
                 : controller.MonsterStatus.AttackAmount;
             controller.CheckParesis_Monster(controller.animator);
-            UpdateAbsorption();
+            //これ吸収とかの関係ないやつね
+            //controller.MonsterStatus.AttackStateUpdateMethod(controller);
             //Debug.Log($"[アニメ状態] name: {state.fullPathHash}, elapsedTime: {state.normalizedTime}, looping: {state.loop}");
             if (!isAttacking && !isWaitingLeftTime)
             {
@@ -113,6 +117,7 @@ namespace Game.Monsters
 
         protected virtual async UniTask Attack_Generic(SimpleAttackArguments attackArguments)
         {
+            Debug.Log("攻撃開始します");
             if (!controller.animator.GetCurrentAnimatorStateInfo(0).IsName(controller.MonsterAnimPar.attackAnimClipName))
             {
                 controller.animator.Play(controller.MonsterAnimPar.attackAnimClipName);
@@ -123,7 +128,7 @@ namespace Game.Monsters
             float now = 0f;
             try
             {
-                if (!controller.statusCondition.Freeze.isActive) LookToTarget();
+                if (controller.statusCondition != null && !controller.statusCondition.Freeze.isActive) LookToTarget();
                 await UniTask.WaitUntil(() =>
                 {
                     if (controller.isDead) return false;
@@ -163,7 +168,6 @@ namespace Game.Monsters
                         && !isInterval)
                     {
                         repeatInterval = GetRepeatInterval(startNormalizeTime, remaining);
-                        Debug.Log($"リピート{GetCurrentNormalizedTime()}");
                         if (target == null) break;
                         var currentTargets = attackArguments.getTargets();
                         if (!currentTargets.Contains(target)) currentTargets.Add(target);
@@ -183,7 +187,7 @@ namespace Game.Monsters
                 leftLengthTime = Mathf.Max(0f, clipLength - elapsedTime / stateAnimSpeed);
                 isAttacking = false;
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) {}
             finally { if(attackArguments.attackEndAction != null) attackArguments.attackEndAction?.Invoke();}
             leftLengthTime = 0f;
         }
@@ -258,6 +262,7 @@ namespace Game.Monsters
             var targetPos = Vector3.zero;
             var isDead = target.isDead;
             var isTransparent = target.statusCondition.Transparent.isActive;
+            var isNonTarget = target.statusCondition.NonTarget.isActive;
             var collider = target.GetComponent<Collider>();
             var closestPos = collider.ClosestPoint(controller.transform.position);
             var myMoveType = controller.moveType;
@@ -279,7 +284,8 @@ namespace Game.Monsters
             };
 
             canAttack = (targetPos - myPos).magnitude <= attackRange && !isDead
-                && (targetSide & effectiveSide) != 0 && !isTransparent && (effectiveMoveSide & targetMoveType) != 0;// && !isDead;         
+                && (targetSide & effectiveSide) != 0 && !isTransparent && !isNonTarget 
+                && (effectiveMoveSide & targetMoveType) != 0;// && !isDead;         
             Debug.Log($"[距離チェック] 距離: {canAttack}, 射程: {controller.MonsterStatus.AttackRange}");
             return canAttack;
         }      
@@ -360,6 +366,7 @@ namespace Game.Monsters
                     var enemySide = cmp.GetUnitSide(controller.ownerID);
                     var isDead = cmp.isDead;
                     var isTransparent = cmp.statusCondition.Transparent.isActive;
+                    var isNonTarget = cmp.statusCondition.NonTarget.isActive;
                     var moveType = cmp.moveType;
                     var isConfused = controller.statusCondition.Confusion.isActive;
                     var effectiveSide = isConfused switch
@@ -372,24 +379,30 @@ namespace Game.Monsters
                     {
                         var isSummoned = summonbable.isSummoned;
                         return (enemySide & effectiveSide) != 0 && !isDead
-                          && (moveType & effectiveMoveSide) != 0 && isSummoned && !isTransparent;
+                          && (moveType & effectiveMoveSide) != 0 && isSummoned && !isTransparent && !isNonTarget;
                     }
+                    //ここタワーだから!isTransparent && !isNonTargetいらないけど将来もしかしたらそういう状態異常を
+                    //タワーに付与するやつが出てくるかもしれないから一応
                     return (enemySide & effectiveSide) != 0 && !isDead
-                            && (moveType & effectiveMoveSide) != 0;
+                            && (moveType & effectiveMoveSide) != 0 && !isTransparent && !isNonTarget;
                 }).ToArray(),
 
                 MonsterAttackType.OnlyBuilding => sortedArray.Where(cmp =>
                 {
+                    var isTransparent = cmp.statusCondition.Transparent.isActive;
+                    var isNonTarget = cmp.statusCondition.NonTarget.isActive;
                     var enemySide = cmp.GetUnitSide(controller.ownerID);
                     var isDead = cmp.isDead;
                     var building = cmp is IBuilding;
-                    return enemySide != Side.PlayerSide && !isDead && building;
+                    return enemySide != Side.PlayerSide && !isDead
+                          && building && !isTransparent && !isNonTarget;
                 }).ToArray(),
 
                 MonsterAttackType.GroundedAndEveryThing => sortedArray.Where(cmp =>
                 {
                     var enemySide = cmp.GetUnitSide(controller.ownerID);
                     var isTransparent = cmp.statusCondition.Transparent.isActive;
+                    var isNonTarget = cmp.statusCondition.NonTarget.isActive;
                     var isDead = cmp.isDead;
                     var isConfused = controller.statusCondition.Confusion.isActive;
                     var effectiveSide = isConfused switch
@@ -402,9 +415,10 @@ namespace Game.Monsters
                     {
                         var isSummoned = summonbable.isSummoned;
                         return (enemySide & effectiveSide) != 0 && !isDead
-                               && isSummoned && !isTransparent;
+                               && isSummoned && !isTransparent && !isNonTarget;
                     }
-                    return (enemySide & effectiveSide) != 0 && !isDead;
+                    //上のやつと同じ理由
+                    return (enemySide & effectiveSide) != 0 && !isDead && !isTransparent && !isNonTarget;
                 }).ToArray(),   
                 _ => default
             };
@@ -495,41 +509,7 @@ namespace Game.Monsters
             var leftLength = clipLength - startLength;
             var repeatInterval = leftLength /  (float)repeatCount;
             return (repeatInterval / stateAnimSpeed) / controller.animator.speed;
-        }
-        async void MoveToCorrectPos()
-        {
-            Debug.Log("元の位置に戻ります");
-            try
-            {
-                if (controller.MonsterStatus is IFlying flying)
-                {
-                    var targetPos = PositionGetter.GetFlatPos(controller.transform.position) + Vector3.up * flying.FlyingOffsetY;
-                    var moveSpeed = 10f;
-                    while (!controller.statusCondition.Absorption.isActive && !controller.isDead
-                        && Vector3.Distance(controller.transform.position, targetPos) >= Mathf.Epsilon)
-                    {
-                        targetPos = PositionGetter.GetFlatPos(controller.transform.position)
-                                        + Vector3.up * flying.FlyingOffsetY;
-                        var move = Vector3.MoveTowards(controller.transform.position, targetPos, Time.deltaTime * moveSpeed);
-                        controller.transform.position = move;   
-                        await UniTask.Yield(cancellationToken: controller.GetCancellationTokenOnDestroy());
-                    }
-                }
-            }
-            catch (OperationCanceledException) { }
-           
-        }
-
-        void UpdateAbsorption()
-        {
-            var isAbsorbed = controller.statusCondition.Absorption.isActive;
-
-            if (_isAbsorbed && !isAbsorbed)
-            {
-                MoveToCorrectPos();
-            }
-            _isAbsorbed = isAbsorbed;
-        }
+        }     
     }
 }
 

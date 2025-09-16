@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.VFX;
+using static UnityEngine.InputManagerEntry;
 using static UnityEngine.Rendering.DebugUI.Table;
 
 namespace Game.Monsters.StingRay
@@ -19,7 +20,7 @@ namespace Game.Monsters.StingRay
             SetEffect();
         }
 
-        List<VisualEffect> poolWindVfxs = new List<VisualEffect>();
+        Dictionary<VisualEffect,Vector3> poolWindVfxs = new Dictionary<VisualEffect, Vector3>();
         VisualEffect windPrefab;
         Queue<VisualEffect> windQueue = new Queue<VisualEffect>();
         int generateCount = 5;
@@ -121,10 +122,14 @@ namespace Game.Monsters.StingRay
             if (wind != null)
             {
                 windQueue.Enqueue(wind);
+                wind.SetFloat("SwirlRotationSpeed", -20f);
                 var pos = wind.transform.position;
                 pos.y = Terrain.activeTerrain.SampleHeight(pos);
                 wind.transform.position = pos;
-                var dust = wind.GetComponentInChildren<VisualEffect>();
+                var dust = wind.GetComponentsInChildren<VisualEffect>()
+                    .FirstOrDefault(vfx => vfx != null && vfx.gameObject != wind.gameObject);
+                Debug.Log(dust);
+                dust.gameObject.SetActive(true);
                 if (dust.playRate != 4.0f) dust.playRate = 4.0f;
                 wind.Play();
                 dust.Play();
@@ -135,14 +140,37 @@ namespace Game.Monsters.StingRay
         {
             if (windQueue.Count == 0) return;
             var currentWind = windQueue.Dequeue();
-            Func<VisualEffect,UniTask> waitVisual = async(vfx) =>
+
+            Func<UniTask> changeRotateSpeed = async () =>
+            {
+                var decreaseInterval = 0.1f;
+                var targetValue = -5f;
+                try
+                {
+                    while (currentWind.aliveParticleCount != 0 && currentWind.GetFloat("SwirlRotationSpeed") < targetValue)
+                    {
+                        var currentTargetValue = currentWind.GetFloat("SwirlRotationSpeed") + 1f;
+                        currentWind.SetFloat("SwirlRotationSpeed", currentTargetValue);
+                        await UniTask.Delay(TimeSpan.FromSeconds(decreaseInterval)
+                            , cancellationToken: currentWind.GetCancellationTokenOnDestroy());
+                    }
+                }
+                catch (OperationCanceledException) { }
+                finally
+                {
+                    currentWind.SetFloat("SwirlRotationSpeed", targetValue);
+                }
+              
+            };
+
+            Func<VisualEffect, UniTask> waitVisual = async (vfx) =>
             {
                 try
                 {
                     vfx.Stop();
                     while (vfx.aliveParticleCount != 0)
                     {
-                        await UniTask.Yield(cancellationToken: controller.GetCancellationTokenOnDestroy());
+                        await UniTask.Yield(cancellationToken:vfx.GetCancellationTokenOnDestroy());
                     }
                 }
                 catch (OperationCanceledException) { }
@@ -151,12 +179,24 @@ namespace Game.Monsters.StingRay
                     if (vfx != null) vfx.gameObject.SetActive(false);
                 }
             };
-
-            var currentDust = currentWind.GetComponentInChildren<VisualEffect>();
+            changeRotateSpeed().Forget();
+            var currentDust = currentWind.GetComponentsInChildren<VisualEffect>()
+                             .FirstOrDefault(vfx => vfx.gameObject != currentWind.gameObject); ;
             var task = waitVisual(currentWind);
             var task2 = waitVisual(currentDust);
-            await UniTask.WhenAll(task, task2);
-            if (currentWind != null) currentWind.gameObject.SetActive(false);      
+            await UniTask.WhenAny(task, task2);
+            if (currentWind != null)
+            {
+                try
+                {
+                    var duration = 0.25f;
+                    var scaleSet = new Vector3TweenSetup(Vector3.zero, duration);
+                    await currentWind.gameObject.Scaler(scaleSet)
+                        .ToUniTask(cancellationToken:currentWind.GetCancellationTokenOnDestroy());
+                }
+                catch (OperationCanceledException) { return; }
+                currentWind.gameObject.SetActive(false);
+            }
         }
         public async void SetEffect()
         {
@@ -167,11 +207,11 @@ namespace Game.Monsters.StingRay
             for (int i = 0; i < generateCount; i++)
             {
                 var wind = UnityEngine.Object.Instantiate(windPrefab, pos, Quaternion.identity);
-                wind.playRate = 4.0f;
+                wind.playRate = 6.0f;
                 wind.transform.SetParent(rangeAttackObj.transform);
                 wind.transform.localPosition = Vector3.zero;
                 wind.transform.localPosition += windOffSet;
-                poolWindVfxs.Add(wind);
+                poolWindVfxs[wind] = wind.transform.localScale;
                 wind.gameObject.SetActive(false);
             }
         }
@@ -181,10 +221,11 @@ namespace Game.Monsters.StingRay
             var currentWind = default(VisualEffect);
             for (int i = 0; i < poolWindVfxs.Count; i++)
             {
-                var wind = poolWindVfxs[i];
+                var wind = poolWindVfxs.ElementAt(i).Key;
                 if (wind.aliveParticleCount == 0 && !wind.gameObject.activeSelf)
                 {
                     currentWind = wind;
+                    currentWind.transform.localScale = poolWindVfxs[currentWind];
                     return currentWind;
                 }
             }
@@ -204,14 +245,16 @@ namespace Game.Monsters.StingRay
 
         protected override bool CheckAttackable()
         {
-            Debug.Log(target.gameObject.name);
             var canAttack = false;
+            if (isWinding) return true;
+            if(target == null) return false;
             var targetPos = Vector3.zero;
             var isDead = target.isDead;
             var isTransparent = target.statusCondition.Transparent.isActive;
-            var collider = target.GetComponent<Collider>();
+            var isNonTarget = target.statusCondition.NonTarget.isActive;
+            var collider = target?.GetComponent<Collider>();
             var closestPos = collider.ClosestPoint(controller.transform.position);
-
+             
             targetPos = PositionGetter.GetFlatPos(closestPos);
             var myPos = PositionGetter.GetFlatPos(controller.transform.position);
             var isConfused = controller.statusCondition.Confusion.isActive;
@@ -222,9 +265,8 @@ namespace Game.Monsters.StingRay
                 false => Side.EnemySide,
             };
 
-            canAttack = !isWinding ? (targetPos - myPos).magnitude <= attackRange
-                && !isTransparent &&(targetSide & effectiveSide) != 0 && !isDead
-                :true;// && !isDead;         
+            canAttack = (targetPos - myPos).magnitude <= attackRange
+                && !isTransparent && !isNonTarget &&(targetSide & effectiveSide) != 0 && !isDead;// && !isDead;         
             Debug.Log($"[距離チェック] 距離: {canAttack}, 射程: {controller.MonsterStatus.AttackRange}");
             return canAttack;
         }
@@ -248,7 +290,7 @@ namespace Game.Monsters.StingRay
                    var isFreezed = target.statusCondition.Freeze.isActive;
                    if (target is TowerController || isFreezed) return;
                    var rangeAttackPos = controller.rangeAttackObj.transform.position;
-                   var absorptionDistance = 0.25f;
+                   var absorptionDistance = 0.1f;
                    var flatPos_me = PositionGetter.GetFlatPos(rangeAttackPos);
                    var vector = flatPos_me - target.transform.position;
                    var distance = vector.magnitude;

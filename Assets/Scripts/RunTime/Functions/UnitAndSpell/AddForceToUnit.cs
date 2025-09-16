@@ -132,6 +132,7 @@ public class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
 
         foreach (var unit in sortedArray)
         {
+            if (unit is ISummonbable summonbable && !summonbable.isSummoned) continue;
             var isDead = unit.isDead;
             var oppoType = unit.moveType;
             var oppoScale = unit.UnitScale;
@@ -156,10 +157,12 @@ public class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
         };
         foreach (var unit in sortedArray)
         {
+            if (unit is ISummonbable summonbable && !summonbable.isSummoned) continue;
             var isDead = unit.isDead;
             var unitSide = unit.GetUnitSide(me.ownerID);
             var targetSide = (unitSide & effectiveSide) != 0;
             var isTower = unit.UnitType == UnitType.tower;
+            if (unit is IInvincible invincible && invincible.IsInvincible) continue;
             if (isDead || !targetSide || isTower) continue;
             filteredList.Add(unit);
         }

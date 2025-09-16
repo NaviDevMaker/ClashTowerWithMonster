@@ -37,7 +37,7 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
     State state;
     protected override void Start()
     {
-       
+        moveType = MoveType.Walk;
         base.Start();
         //Initialize(ownerID);
         //Debug.Log(Side);
@@ -85,8 +85,9 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
                     }
                 }
                 var isTransparent = hit.statusCondition.Transparent.isActive;
+                var isNonTarget = hit.statusCondition.NonTarget.isActive;
                 if (hit.gameObject == this.gameObject || hit.isDead || hitEnemyType == Side.PlayerSide
-                    || isTransparent) continue;
+                    || isTransparent || isNonTarget) continue;
                 targetEnemy = hit;
                 archer.target = hit;
                 Debug.Log("“G‚ð”­Œ©‚µ‚Ü‚µ‚½");
@@ -188,9 +189,8 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
     async void DeathAction()
     {
         archer.isDestroyedTower = true;
-        DeathMoveExecuter deathMoveExecuter = new DeathMoveExecuter();
         await UniTask.WaitUntil(() => isSettedLength);
-        deathMoveExecuter.ExecuteDeathAction_Tower(this, deathActionLength).Forget();
+        this.ExecuteDeathAction_Tower(deathActionLength).Forget();
         var timeScaleAmount = 0.25f;
         Time.timeScale = timeScaleAmount;
         var delay = 0.5f;

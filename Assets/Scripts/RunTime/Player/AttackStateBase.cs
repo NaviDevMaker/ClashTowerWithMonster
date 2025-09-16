@@ -62,6 +62,7 @@ namespace Game.Players
         void LookEnemyDirection()
         {
             var direction = target.transform.position - controller.transform.position;
+            direction.y = 0f;
             var rotation = Quaternion.LookRotation(direction);
             controller.transform.rotation = rotation;
         }

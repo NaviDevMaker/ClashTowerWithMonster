@@ -4,7 +4,8 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
-
+using Game.Monsters;
+using System.Linq;
 public static class FadeProcessHelper
 {
     public static async UniTask FadeOutColor(float fadeDuration, Material material,CancellationToken cancellationToken = default)
@@ -45,7 +46,6 @@ public static class FadeProcessHelper
             Debug.Log(meshMaterial.color.a);
         }
     }
-
     public static async UniTask FadeInColor(float fadeDuration, Material material,CancellationToken cancellationToken = default)
     {
         var time = 0f;
@@ -80,14 +80,12 @@ public static class FadeProcessHelper
             Debug.Log(meshMaterial.color.a);
         }
     }
-
     public static async UniTask FadeOutText(Text text,float fadeDuration)
     {
         var tween = text.DOFade(0f, fadeDuration);
         var task = tween.ToUniTask();
         await task;
     }
-
     public static async UniTask FadeInText(Text text, float fadeDuration)
     {
         var tween = text.DOFade(1f, fadeDuration);
@@ -119,5 +117,23 @@ public static class FadeProcessHelper
         material.SetFloat("SrcBlend", (float)UnityEngine.Rendering.BlendMode.One);
         material.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.Zero);
         material.SetFloat("_ZWrite", 1);
+    }
+    public static async UniTask WaitFOAllMesh<Towner>(this Towner controller,float duration) where Towner : MonsterControllerBase<Towner>
+    {
+        var tasks = controller.meshMaterials.SelectMany(materials => materials.Select(material =>
+        {
+            ChangeToTranparent(material);
+            return FadeOutColor(duration, material, controller.GetCancellationTokenOnDestroy());
+        })).ToArray();
+        await UniTask.WhenAll(tasks);
+    }
+    public static async UniTask WaitFIAllMesh<Towner>(this Towner controller, float duration) where Towner : MonsterControllerBase<Towner>
+    {
+        var tasks = controller.meshMaterials.SelectMany(materials => materials.Select(material =>
+        {
+            ChangeToTranparent(material);
+            return FadeInColor(duration, material, controller.GetCancellationTokenOnDestroy());
+        })).ToArray();
+        await UniTask.WhenAll(tasks);
     }
 }

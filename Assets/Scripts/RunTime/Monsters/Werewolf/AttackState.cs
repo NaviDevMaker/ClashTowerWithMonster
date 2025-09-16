@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Game.Monsters.Werewolf
@@ -11,7 +12,7 @@ namespace Game.Monsters.Werewolf
             base.OnEnter();
 
             //This paremetars are examples,so please change it to your preference!!
-            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<WerewolfController >(controller, this, clipLength,10,
+            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<WerewolfController >(controller, this, clipLength,1,
                 controller.MonsterStatus.AttackInterval);
         }
         public override void OnUpdate()
@@ -20,7 +21,19 @@ namespace Game.Monsters.Werewolf
         }
         public override void OnExit()
         {
+            isAttacking = false;
             base.OnExit();
+        }
+
+        protected override async UniTask Attack_Generic(SimpleAttackArguments attackArguments)
+        {
+            var argument = new SimpleAttackArguments
+            {
+                getTargets = attackArguments.getTargets,
+                repeatCount = controller.ContinuousAttackMonsterStatus._ContinuousAttackInfo.ContinuousCount
+            };
+
+            await base.Attack_Generic(argument);
         }
     }
 
