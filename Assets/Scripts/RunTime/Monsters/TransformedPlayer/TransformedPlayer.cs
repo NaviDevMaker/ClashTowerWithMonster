@@ -27,7 +27,7 @@ namespace Game.Monsters.TransformedPlayer
     public class TransformedPlayer : MonsterControllerBase<TransformedPlayer>,ITransformedForm<WerewolfController>
     {
         public WerewolfController originalEntity { get; set; }
-        public float nonTargetInterval { get; set; } = 30f;
+        public float nonTargetInterval { get; set; } = 10f;
         public float elapsedTime { get; private set;}
         public bool IsInvincible { get; set; } = false;
 

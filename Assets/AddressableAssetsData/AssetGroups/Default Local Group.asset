@@ -15,6 +15,11 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 7c80cd3f0bd795b4a83c5b977aa6dcff
   m_SerializeEntries:
+  - m_GUID: 072955a122725194e8b7a61266e094f8
+    m_Address: Monsters/WormMonsterMouthEffect
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0afacd58e12ef3148b5a2a6138b78864
     m_Address: PlayerSpells/PlayerSkillEffect
     m_ReadOnly: 0
@@ -72,6 +77,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4ff8eafa25d48e4448cd0994255ebf55
     m_Address: Monsters/Spider_Middle
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6067de2e0432e9b4fa38e5f18c49333f
+    m_Address: Monsters/WormEffect
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -172,6 +182,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b46ab7721ee72ab46bf02d2c860abe6a
     m_Address: HPBar/Enemy_Large
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bea24c0710e75444db2b3665b51dc054
+    m_Address: Assets/Prefabs/Monsters/SpecialEffectMonsters/Specter.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

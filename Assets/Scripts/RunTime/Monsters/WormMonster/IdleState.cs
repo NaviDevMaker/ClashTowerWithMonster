@@ -1,5 +1,6 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using System;
 namespace Game.Monsters.WormMonster
 {
     public class IdleState : IdleStateBase<WormMonsterController>
@@ -21,7 +22,20 @@ namespace Game.Monsters.WormMonster
         }
         protected override async UniTask OnEnterProcess()
         {
-            await base.OnEnterProcess();
+            try
+            {
+                var summonWaitTime = controller.MonsterStatus.SummonWaitTime;
+                Func<bool> isSummoned = (() => controller.isSummoned);
+                await UniTask.WaitUntil(isSummoned);
+                AllResetBoolProparty();
+                nextState = controller.BurrowChaseState;
+                UIManager.Instance.StartSummonTimer(summonWaitTime, controller).Forget();
+                await UniTask.Yield();
+                controller.SummonMoveAction();
+                await UniTask.Delay(TimeSpan.FromSeconds(summonWaitTime));
+                isEndSummon = true;
+            }
+            catch (OperationCanceledException) { }
         }
 
     }

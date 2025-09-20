@@ -40,7 +40,6 @@ public class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
 
      public void CompareEachUnit(UnitBase other)
      {
-        if (me is ShockWaveEffecter) Debug.Log("ÉfÅ[ÉÇÉìÇ™âüÇµÇ‹Ç∑");
         var vector = other.transform.position - me.transform.position;
 
         var direction = vector != Vector3.zero ? vector.normalized : -(other.transform.forward);
@@ -136,6 +135,7 @@ public class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
             var isDead = unit.isDead;
             var oppoType = unit.moveType;
             var oppoScale = unit.UnitScale;
+            
             if (isDead) continue;
             if ((effectiveSide & oppoType) == 0 || (effectiveScale & oppoScale) == 0) continue;
             filteredList.Add(unit);

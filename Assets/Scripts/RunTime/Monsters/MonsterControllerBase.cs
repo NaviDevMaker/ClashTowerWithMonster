@@ -98,7 +98,7 @@ namespace Game.Monsters
                 }
             }          
         }
-        private void FixedUpdate()
+        protected virtual void FixedUpdate()
         {
             if(isSummoned && IdleState.isEndSummon && !isDead) addForceToUnit.KeepDistance(moveType);
         } 

@@ -12,7 +12,7 @@ namespace Game.Monsters.Werewolf
             base.OnEnter();
 
             //This paremetars are examples,so please change it to your preference!!
-            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<WerewolfController >(controller, this, clipLength,1,
+            if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<WerewolfController >(controller,this,clipLength,1,
                 controller.MonsterStatus.AttackInterval);
         }
         public override void OnUpdate()

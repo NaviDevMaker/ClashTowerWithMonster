@@ -58,7 +58,7 @@ public class NeedEnergyDisplayer : MonoBehaviour
         if (currentTextEnergy != currentEnergy)
         {
             numeratorText.text = currentEnergy.ToString();
-            UIFuctions.ShakeUI(numeratorText);
+            numeratorText.ShakeUI();
         }
     }
 

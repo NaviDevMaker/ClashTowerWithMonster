@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 public class NetWorkSceneManager : SingletonMonobehavier<NetWorkSceneManager>
 {
     public SceneNames sceneNames { get; private set; }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // Start is called once before the firstColor execution of Update after the MonoBehaviour is created
     async void Start()
     {
         sceneNames = await SetFieldFromAssets.SetField<SceneNames>("Datas/SceneNames");

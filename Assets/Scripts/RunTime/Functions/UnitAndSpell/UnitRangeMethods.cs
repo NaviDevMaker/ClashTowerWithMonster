@@ -57,11 +57,8 @@ public static class UnitRangeMethods
             foreach (var unit in sortedArray)
             {
                 var isDead = unit.isDead;
-                if(unit is IInvincible invincible)
-                {
-                    var isInvincible = invincible.IsInvincible;
-                    if (isInvincible) continue;
-                }
+                if (unit is IInvincible invincible && invincible.IsInvincible) continue;
+               
                 if (unit.TryGetComponent<ISummonbable>(out var summonbable))
                 {
                     var isSummoned = summonbable.isSummoned;
@@ -111,7 +108,9 @@ public static class UnitRangeMethods
                 colliderRangeProvider = new SphereColliderRangeProvider { sphereCollider = sphereCollider };
                 rangeX = colliderRangeProvider.GetRangeX() * scale.x;
                 rangeZ = colliderRangeProvider.GetRangeZ() * scale.z;
-                prioritizedRange = colliderRangeProvider.GetPriorizedRange();
+                prioritizedRange = colliderRangeProvider.GetPriorizedRange();     
+
+                Debug.Log($"{rangeX},{rangeZ},{prioritizedRange}");
                 prioritizedRange = rangeX == prioritizedRange ? prioritizedRange * scale.x : prioritizedRange * scale.z;
             }
         }
@@ -119,6 +118,7 @@ public static class UnitRangeMethods
         Func<List<UnitBase>> getUnitsInWeponRange = () =>
         {
             var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(rangeAttackObj.gameObject, prioritizedRange);
+            sortedArray.ToList().ForEach(unit => Debug.Log(unit.name));
             if (sortedArray.Length == 0) return new List<UnitBase>();
             List<UnitBase> filteredList = new List<UnitBase>();
             var myType = moveType == default ? attacker.moveType : moveType;
@@ -128,10 +128,11 @@ public static class UnitRangeMethods
                 MoveType.Fly => MoveType.Fly | MoveType.Walk,
                 _ => default
             };
-
+            
             foreach (var unit in sortedArray)
             {
                 var isDead = unit.isDead;
+                if (unit is IInvincible invincible && invincible.IsInvincible) continue;
                 if (unit.TryGetComponent<ISummonbable>(out var summonbable))
                 {
                     var isSummoned = summonbable.isSummoned;

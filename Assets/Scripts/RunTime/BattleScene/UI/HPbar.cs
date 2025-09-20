@@ -11,9 +11,10 @@ public class HPbar : MonoBehaviour
     public GameObject chaseUnit { get; set;}
     Color originalForwardColor = default;
     Color originalShadowColor = default;
-    void Start()
+
+    private void Awake()
     {
-        if(ColorUtility.TryParseHtmlString("#34FF4A",out var forwardColor)) originalForwardColor = forwardColor;
+        if (ColorUtility.TryParseHtmlString("#34FF4A", out var forwardColor)) originalForwardColor = forwardColor;
         if (ColorUtility.TryParseHtmlString("#000000", out var shadowColor))
         {
             var translusent = 140.0f / 250.0f;
@@ -32,17 +33,11 @@ public class HPbar : MonoBehaviour
         ChaseUnit();
     }
 
-    public async void LitBar()
+    public void LitBar()
     {
-        Debug.Log("a");
-        var duration = 0.01f;
-        var color = Color.white;
-        hpImage.color = color;
-        shadowImage.color = color;
-        await UniTask.Delay(TimeSpan.FromSeconds(duration));
-        hpImage.color = originalForwardColor;
-        shadowImage.color = originalShadowColor;
-
+        //Debug.Log("a");
+         hpImage.LitBar(originalForwardColor).Forget();
+         shadowImage.LitBar(originalShadowColor).Forget();
     }
     void ChaseUnit()
     {

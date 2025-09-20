@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class Test1 : MonoBehaviour
 {
     Image image;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // Start is called once before the firstColor execution of Update after the MonoBehaviour is created
     void Start()
     {
         image = GetComponent<Image>();

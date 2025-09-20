@@ -17,8 +17,10 @@ namespace Game.Monsters.Werewolf
         TransformedPlayer.TransformedPlayer transformedPlayerPrefab;
         float shapeShiftDuration;
         bool isEndShapeAction = false;
+        public bool isShaping { get; private set; } = false;
         public override async void OnEnter()
         {
+            isShaping = true;
             try
             {
                 controller.ChaseState.cts?.Cancel();
@@ -44,6 +46,7 @@ namespace Game.Monsters.Werewolf
         public override void OnExit()
         {
             controller.statusCondition.NonTarget.isActive = false;
+            isShaping = false;
         }
         async void SetTransformedPlayerPrefab()
         {
@@ -74,15 +77,12 @@ namespace Game.Monsters.Werewolf
             var originalRot = controller.transform.rotation;
             var seq = controller.GetTransformSequence(shapeShiftDuration);
             var seqTask = seq.ToUniTask(cancellationToken:controller.GetCancellationTokenOnDestroy());
+            controller.ShapeEffectAction().Forget();
             await UniTask.WhenAll(controller.WaitFOAllMesh(shapeShiftDuration),seqTask);
 
-            controller.ShapeEffectAction();
-            //controller.gameObject.SetActive(false);
             controller.transform.localScale = originalScale;
             controller.transform.localRotation = originalRot;
-            //controller.IsInvincible = false;
         }
-
        
         async void SetTransformedPlayer()
         {
@@ -110,7 +110,6 @@ namespace Game.Monsters.Werewolf
             var animPar = controller.MonsterAnimPar;
             controller.animator.SetBool(animPar.Attack_Hash, false);
             controller.animator.SetBool(animPar.Chase_Hash, false);
-            //controller.IsInvincible = true;
             controller.gameObject.SetActive(true);
             await controller.WaitFIAllMesh(shapeShiftDuration);
             controller.meshMaterials.ForEach(mats =>

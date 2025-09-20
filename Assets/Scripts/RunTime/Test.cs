@@ -6,7 +6,7 @@ using System;
 public class Test : MonoBehaviour
 {
     CancellationTokenSource cts = new CancellationTokenSource();
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // Start is called once before the firstColor execution of Update after the MonoBehaviour is created
     void Start()
     {
         TestMeso();

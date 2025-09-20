@@ -2,6 +2,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Linq;
 using UnityEngine.Events;
+using System;
 namespace Game.Monsters.TransformedPlayer
 {
     public class IdleState : IdleStateBase<TransformedPlayer>
@@ -25,8 +26,7 @@ namespace Game.Monsters.TransformedPlayer
         {
             nextState = controller.ChaseState;
             var collider = controller.GetComponent<Collider>();
-            UnityAction colActiveChange = () => collider.enabled = isEndSummon;
-            colActiveChange();
+            collider.enabled = false;
             for (int i = 0; i < controller.meshMaterials.Count; i++)
             {
                 var materials = controller.meshMaterials[i];
@@ -52,7 +52,7 @@ namespace Game.Monsters.TransformedPlayer
             }
             isEndSummon = true;
             controller.IsInvincible = false;
-            colActiveChange();
+            collider.enabled = true;
         }
     }
 }

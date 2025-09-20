@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cafdd7cc1c21c34788b1e74148bd3c4, type: 3}
+  m_Name: WormMonster
+  m_EditorClassIdentifier: 
+  attackAmount: 10
+  hp: 1000
+  pushAmount: 10
+  animInfo:
+    attackStateAnimSpeed: 0.5
+    deathStateAnimSpeed: 1
+    attackMotionType: 0
+  attackInterval: 1
+  chaseRange: 9
+  summonWaitTime: 1
+  attackRange: 10
+  moveSpeed: 2
+  moveStep: 1
+  attackType: 1
+  monsterAttackType: 1
+  monsterMoveType: 0
+  projectileMoveSpeed: 10
+  moverStartTra: {fileID: 5461529636096070892, guid: 5c0a6b544e7b8bc479cbc71da292de06, type: 3}
+  mover: {fileID: 6707521227724331649, guid: 0f150b38ce340f64cb339918e364c28d, type: 3}

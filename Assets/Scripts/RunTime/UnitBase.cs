@@ -155,7 +155,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
         Initialize(tentativeID);
         SetRadius();
     }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // Start is called once before the firstColor execution of Update after the MonoBehaviour is created
     protected virtual void Start() => SetUps();
   
     protected virtual void Update()
@@ -233,7 +233,7 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
 
         LitBody();
     }
-    public void Heal(int heal)
+    public virtual void Heal(int heal)
     {
         currentHP += heal;
         if (currentHP >= maxHP) currentHP = maxHP;
