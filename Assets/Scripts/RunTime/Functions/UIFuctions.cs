@@ -1,10 +1,12 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public static class UIFuctions
 {
-    public static Tween ShakeUI(Graphic UiCompoent, float duration = 0.1f,float strength = 50f,int vibrato = 30)
+    public static Tween ShakeUI(this Graphic UiCompoent, float duration = 0.1f,float strength = 50f,int vibrato = 30)
     {
         //var duration = 0.1f;
         //var strength = 50f;
@@ -17,7 +19,7 @@ public static class UIFuctions
             return tween;
     }
 
-    public static Tween ScaleUI(Graphic UIComponent,float duration = 0.05f,float scaleAmount = 1.3f)
+    public static Tween ScaleUI(this Graphic UIComponent,float duration = 0.05f,float scaleAmount = 1.3f)
     {
         var originalScale = UIComponent.rectTransform.localScale;
         var targetScale = originalScale * scaleAmount;
@@ -29,7 +31,7 @@ public static class UIFuctions
         return sequence;
     }
 
-    public static Tween SlideUI(Graphic UIComponent,float duration,float endValue,float delay = 0f)
+    public static Tween SlideUI(this Graphic UIComponent,float duration,float endValue,float delay = 0f)
     {
         var startPosX = UIComponent.rectTransform.anchoredPosition.x;
         var sequence = DOTween.Sequence();
@@ -37,6 +39,14 @@ public static class UIFuctions
             .AppendInterval(delay)
             .Append(UIComponent.rectTransform.DOAnchorPosX(startPosX, duration));
         return sequence;
+    }
+    public static async UniTask LitBar(this Graphic graphic, Color originalColor, float duration = 0.01f)
+    {
+        Debug.Log("a");
+        var color = Color.white;
+        graphic.color = color;
+        await UniTask.Delay(TimeSpan.FromSeconds(duration));
+        graphic.color = originalColor;
     }
     public static void LookToCamera(GameObject rotateObject)
     {

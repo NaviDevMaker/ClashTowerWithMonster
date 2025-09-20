@@ -23,8 +23,9 @@ namespace Game.Monsters.TransformedPlayer
             else
             {
                 Debug.Log("éÙï∂Ç≈éÄÇÒÇæÇΩÇﬂÅAoriginÇÕéÄÇ…Ç‹Ç∑");
-                origin.gameObject.SetActive(true);
+                //origin.gameObject.SetActive(true);
                 origin.isDead = true;
+                origin.transform.SetParent(null);
             }
             if (controller != null) UnityEngine.Object.Destroy(controller.gameObject);
         }
@@ -33,6 +34,7 @@ namespace Game.Monsters.TransformedPlayer
 
         async UniTask ShapeShiftToOriginal(WerewolfController origin)
         {
+
             var animPar = controller.MonsterAnimPar;
             controller.animator.SetBool(animPar.Attack_Hash, false);
             controller.animator.SetBool(animPar.Chase_Hash, false);
@@ -43,11 +45,13 @@ namespace Game.Monsters.TransformedPlayer
             var seq = controller.GetTransformSequence(shapeShiftDuration);
             var seqTask = seq.ToUniTask(cancellationToken:controller.GetCancellationTokenOnDestroy());
             await UniTask.WhenAll(controller.WaitFOAllMesh(shapeShiftDuration), seqTask);
-            controller.ShapeEffectAction();
+            controller.ShapeEffectAction().Forget();
             origin.transform.position = controller.transform.position;
             origin.ShapeShiftState.EndShapeShiftAction();
             origin.ReflectEachHP(controller.currentHP);
             origin.transform.SetParent(null);
+            var col = controller.GetComponent<Collider>();
+            col.enabled = false;
         }
     }
 }

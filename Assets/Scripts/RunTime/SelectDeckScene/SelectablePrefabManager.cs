@@ -31,7 +31,7 @@ public class SelectablePrefabManager : MonoBehaviour
     int columCount = 0;
 
     GameObject slimePrefab;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // Start is called once before the firstColor execution of Update after the MonoBehaviour is created
 
     Dictionary<AttackMotionType, UnityAction<SelectableMonster, CancellationTokenSource>> attackMotions = new Dictionary<AttackMotionType, UnityAction<SelectableMonster, CancellationTokenSource>>();
     private void Awake() => Instance = this;

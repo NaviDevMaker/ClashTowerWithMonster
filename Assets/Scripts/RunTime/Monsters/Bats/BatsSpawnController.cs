@@ -9,7 +9,7 @@ namespace Game.Monsters.Bat
 {
     public class BatsSpawnController : MultiSpawnMonster<BatController>
     {
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        // Start is called once before the firstColor execution of Update after the MonoBehaviour is created
         protected override void Start()
         {
             base.Start();

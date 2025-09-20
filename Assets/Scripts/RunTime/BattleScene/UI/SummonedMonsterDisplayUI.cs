@@ -82,8 +82,8 @@ public class SummonedMonsterDisplayUI : MonoBehaviour
         var delay = 2.0f;
 
         var tweens = new List<Tween>();
-        tweens.Add(UIFuctions.SlideUI(image, duration, targetWidth, delay));
-        tweens.Add(UIFuctions.SlideUI(logText, duration, targetWidth, delay));
+        tweens.Add(image.SlideUI(duration, targetWidth, delay));
+        tweens.Add(logText.SlideUI(duration, targetWidth, delay));
         var tasks = TaskGetter(tweens);
         await UniTask.WhenAll(tasks);
         activeSummonedUI.Dequeue();

@@ -19,7 +19,7 @@ public class EnergyGageController : MonoBehaviour
     public int currentEnergy { get; private set; } = 0;
 
     public UnityAction ShakeUIAction;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // Start is called once before the firstColor execution of Update after the MonoBehaviour is created
     void Start()
     {
         energyLiquidImage = GetComponent<RawImage>();
@@ -50,7 +50,7 @@ public class EnergyGageController : MonoBehaviour
             energyTimer -= energyChargeTIme_3;
             currentEnergy++;
             energyCountText.text = currentEnergy.ToString();
-            var tween = UIFuctions.ShakeUI(energyCountText);
+            var tween = energyCountText.ShakeUI();
         }
         RenewChargeImageVisual();
     }
@@ -69,7 +69,7 @@ public class EnergyGageController : MonoBehaviour
         //if (card.CardData.Energy > currentEnergy) return false;
         currentEnergy -= card.CardData.Energy;
         energyCountText.text = currentEnergy.ToString();
-        var tween = UIFuctions.ShakeUI(energyCountText);
+        var tween = energyCountText.ShakeUI();
 
         //return true;
     } 
@@ -77,7 +77,7 @@ public class EnergyGageController : MonoBehaviour
     {
         currentEnergy -= energy;
         energyCountText.text = currentEnergy.ToString();
-        var tween = UIFuctions.ShakeUI(energyCountText);
+        var tween = energyCountText.ShakeUI();
         ShakeUIAction?.Invoke();
     }
 }

@@ -32,7 +32,7 @@ namespace Game.Monsters.TransformedPlayer
                                           : UnityEngine.Rendering.ShadowCastingMode.Off;
              });
                 
-             controller.AllMesh.ForEach(mesh =>
+             controller.originalEntity.AllMesh.ForEach(mesh =>
              {
                  mesh.shadowCastingMode = isAppearMyShadow ? UnityEngine.Rendering.ShadowCastingMode.Off
                                           : UnityEngine.Rendering.ShadowCastingMode.On;

@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
@@ -22,7 +23,7 @@ public static class TransformedMethod
         return sequence;
     }
 
-    public static async void ShapeEffectAction<T>(this T controller) where T : MonoBehaviour
+    public static async UniTask ShapeEffectAction<T>(this T controller) where T : MonoBehaviour
     {
         var pos = controller.transform.position;
         var effectObj = PoolObjectPreserver.TransformerEffectGetter();

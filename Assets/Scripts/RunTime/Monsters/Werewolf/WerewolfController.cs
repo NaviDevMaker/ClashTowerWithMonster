@@ -51,6 +51,12 @@ namespace Game.Monsters.Werewolf
                 }
             }
         }
+
+        protected override void FixedUpdate()
+        {
+            if (ShapeShiftState.isShaping) return;
+            base.FixedUpdate();
+        }
         public override void Damage(int damage)
         {
             base.Damage(damage);
@@ -71,7 +77,6 @@ namespace Game.Monsters.Werewolf
             DeathState = new DeathState(this);
             ShapeShiftState = new ShapeShiftState(this);
         }
-
         public void ReflectEachHP(int currentHP) => this.currentHP = currentHP;
     }
 }

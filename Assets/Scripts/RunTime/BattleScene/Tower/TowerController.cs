@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Game.Monsters.Archer;
 using System;
+using UnityEngine.Events;
 
 public interface IBuilding { }
 public interface ILongDistanceAttacker<T> where T : UnitBase
@@ -27,6 +28,8 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
 
     float deathActionLength = 0f;
     bool isSettedLength = false;
+
+    public UnityEvent<TowerController> towerHpUIEvent;
     enum State
     {
        Search,
@@ -86,6 +89,7 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
                 }
                 var isTransparent = hit.statusCondition.Transparent.isActive;
                 var isNonTarget = hit.statusCondition.NonTarget.isActive;
+
                 if (hit.gameObject == this.gameObject || hit.isDead || hitEnemyType == Side.PlayerSide
                     || isTransparent || isNonTarget) continue;
                 targetEnemy = hit;
@@ -103,8 +107,12 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
     {
         if (targetEnemy == null) return;
         var sortedArray = SortExtention.GetSpecificColliderInRange<UnitBase>(this,TowerStatus.SearchRadius);
+
         bool stillInRange = false;
         bool isDeadTarget = targetEnemy.isDead;
+        bool isTransparent = targetEnemy.statusCondition.Transparent.isActive;
+        bool isNonTarget = targetEnemy.statusCondition.NonTarget.isActive;
+
         foreach (Collider col in sortedArray)
         {
             if(col.gameObject == targetEnemy.gameObject)
@@ -113,7 +121,8 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
                break;
             }
         }
-        if(!stillInRange || isDeadTarget)
+        if(!stillInRange || isDeadTarget || targetEnemy is IInvincible invincible && invincible.IsInvincible
+            || isTransparent || isNonTarget)
         {
             targetEnemy = null;
             archer.target = null;
@@ -184,8 +193,14 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
     public override void Damage(int damage)
     {
         base.Damage(damage);
+        towerHpUIEvent.Invoke(this);
     }
 
+    public override void Heal(int heal)
+    {
+        base.Heal(heal);
+        towerHpUIEvent.Invoke(this);
+    }
     async void DeathAction()
     {
         archer.isDestroyedTower = true;

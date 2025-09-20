@@ -48,7 +48,7 @@ public class SkillIcon : MonoBehaviour, IPointerEnterHandler,IPointerExitHandler
         public void SetShaderMaterialColor()
         {
             var value = isMeetedEnergy == true ? 1.0f : 0f;
-            if (value == 1.0f) { var tween = UIFuctions.ScaleUI(iconImage); }
+            if (value == 1.0f) { var tween = iconImage.ShakeUI(); }
             iconImage.material.SetFloat("_RevealAmount", value);
             energyImage.material.SetFloat("_RevealAmount", value);
         }
@@ -81,7 +81,7 @@ public class SkillIcon : MonoBehaviour, IPointerEnterHandler,IPointerExitHandler
         skillImages._isMeetedEnergy = energyGageController.currentEnergy >= skillIconData.Energy;
     }
 
-    void ShakeIconImage() => UIFuctions.ShakeUI(skillImages.iconImage);
+    void ShakeIconImage() => skillImages.iconImage.ShakeUI();
     public void OnPointerEnter(PointerEventData eventData) => skillImages.SetNewAlpha();
     public void OnPointerExit(PointerEventData eventData) => skillImages.SetOriginal();
 }

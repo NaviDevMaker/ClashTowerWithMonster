@@ -62,7 +62,7 @@ namespace Game.Monsters
         protected bool isAttacking = false;
         bool isWaitingLeftTime = false;
         bool isContineAttack = false;
-        public bool isSettedEventClip { get; private set;} = false;
+        protected bool isSettedEventClip { get; private set;} = false;
         public bool isInterval { get; private set; } = false;
         public bool _isAbsorbed = false;//これSO側がリフレクションで参照ね
         
@@ -70,6 +70,7 @@ namespace Game.Monsters
         {
             SetUp();
             if (!isSettedEventClip) ChangeClipForAnimationEvent();//
+            nextState = controller.ChaseState;
         }
         protected void SetUp()
         {
@@ -201,7 +202,7 @@ namespace Game.Monsters
                 if (!controller.statusCondition.Freeze.isActive) LookToTarget();
                 controller.animator.speed = 1.0f;
                 await UniTask.WaitUntil(() => controller.animator.GetCurrentAnimatorStateInfo(0).IsName(controller.MonsterAnimPar.attackAnimClipName)
-                , cancellationToken: cts.Token);
+                                              ,cancellationToken: cts.Token);
                 Debug.Log(target.gameObject.name);
                 startNormalizeTime = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
                 Func<bool> wait = (() =>
@@ -321,12 +322,14 @@ namespace Game.Monsters
             controller.animator.Play("Idle");
             try
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(leftLengthTime), cancellationToken: controller.GetCancellationTokenOnDestroy());
+                await UniTask.Delay(TimeSpan.FromSeconds(leftLengthTime)
+                                    ,cancellationToken: controller.GetCancellationTokenOnDestroy());
                 if (ContinueAttackState())
                 {
                     isContineAttack = true;
                     var continueAttackInterval = interval - leftLengthTime;
-                    await UniTask.Delay(TimeSpan.FromSeconds(continueAttackInterval), cancellationToken: controller.GetCancellationTokenOnDestroy());
+                    await UniTask.Delay(TimeSpan.FromSeconds(continueAttackInterval)
+                                        ,cancellationToken: controller.GetCancellationTokenOnDestroy());
                     controller.animator.Play(controller.MonsterAnimPar.attackAnimClipName);
                     cts = new CancellationTokenSource();
                     isAttacking = true;
@@ -343,7 +346,7 @@ namespace Game.Monsters
                 isWaitingLeftTime = false;
                 isContineAttack = false;
             }             
-            nextState = controller.ChaseState;
+            //nextState = controller.ChaseState;
             controller.ChangeState(nextState);
         }
         bool ContinueAttackState()
@@ -475,7 +478,7 @@ namespace Game.Monsters
                 isAttacking = false;
             }
         }
-        void ChangeClipForAnimationEvent()
+        protected void ChangeClipForAnimationEvent()
         {
             var clipName = controller.MonsterAnimPar.attackAnimClipName;
             var attackMotionClip = AnimatorClipGeter.GetAnimationClip(controller.animator,clipName);

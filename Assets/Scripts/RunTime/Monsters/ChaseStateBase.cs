@@ -13,13 +13,13 @@ namespace Game.Monsters
         public ChaseStateBase(T controller) : base(controller) { }
 
         GameObject targetTower = null;
-        protected GameObject targetEnemy { get; private set;} = null;
+        protected GameObject targetEnemy { get; private set;}  = null;
 
         bool reachTargetEnemy = false;
         bool isChasing = false;
         int moveSpeed = 0;
         protected float flyingOffsetY = 0f;
-        public CancellationTokenSource cts = new CancellationTokenSource();
+        public CancellationTokenSource cts;
         SemaphoreSlim moveSemaphoreSlim = new SemaphoreSlim(1, 1);
         MonsterAttackType myMonsterAttackType;
         protected float currentMoveSpeed = 0f;
@@ -57,10 +57,7 @@ namespace Game.Monsters
                     controller.ChangeState(this);
                     Debug.Log("ノックバックされたよ");
                 }
-                catch (ObjectDisposedException)
-                {
-
-                }
+                catch (ObjectDisposedException) { }
                 return;
             }
 

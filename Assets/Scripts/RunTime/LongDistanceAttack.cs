@@ -69,7 +69,6 @@ public class LongDistanceAttack<T> : MonoBehaviour where T : UnitBase
                 transform.position = move;
                 yield return null;
             }
-
         }
 
         transform.position = targetPos;

@@ -47,7 +47,7 @@ public class MyHandField : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         var anchoredPos = cardOffset + new Vector2(width * cardIndex, 0f);
         card._cardImage.iconImage.rectTransform.anchoredPosition = anchoredPos;
         card._cardImage.SetOriginal(card, isHandCard: !card.isSettedNextCard);
-        UIFuctions.ShakeUI(card._cardImage.iconImage);
+        card._cardImage.iconImage.ShakeUI();
     }
 
     async UniTask SetFirstCardOnMyHandPos(List<Card> firstHand)
