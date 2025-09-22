@@ -6440,7 +6440,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tentativeID: 1
-  unitScale: 1
+  unitScale: 2
   unitType: 0
   mySkinnedMeshes:
   - {fileID: 8005750479098930830}
@@ -6972,7 +6972,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8481530390832123746}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.48327366, y: 0.5161846, z: -0.48327366, w: 0.5161846}
+  m_LocalRotation: {x: -0.48327368, y: 0.5161846, z: -0.48327368, w: 0.5161846}
   m_LocalPosition: {x: -5.9121067e-17, y: 1.362617, z: -0.19555366}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -6985,7 +6985,7 @@ Transform:
   - {fileID: 7409359496346706454}
   - {fileID: 6942084330097769330}
   m_Father: {fileID: 8300171615570065903}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: -86.228}
 --- !u!1 &8611681433874620191
 GameObject:
   m_ObjectHideFlags: 0

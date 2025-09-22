@@ -121,7 +121,6 @@ namespace Game.Players
         {
             base.Damage(damage);
         }
-
         public float GetAnimClipLength()
         {
             RuntimeAnimatorController runtimeAnimator = animator.runtimeAnimatorController;

@@ -22,7 +22,15 @@ namespace Game.Monsters.WormMonster
             }
             catch (OperationCanceledException) { return;}
             SetUp();
-            if (!isSettedEventClip) ChangeClipForAnimationEvent();//
+            if (!isSettedEventClip) 
+            {
+                var original = controller.animator.runtimeAnimatorController;
+                var overrideContoroller = new AnimatorOverrideController(original);
+                controller.animator.runtimeAnimatorController = overrideContoroller;
+                controller.animator.ChangeClipForAnimationEvent(overrideContoroller,controller.MonsterAnimPar.attackAnimClipName,
+                                                                clipLength);
+                isSettedEventClip = true;
+            }
             nextState = controller.BurrowChaseState;
             if (attackEndNomTime == 0f) StateFieldSetter.AttackStateFieldSet<WormMonsterController>
                     (controller, this, clipLength,10,controller.MonsterStatus.AttackInterval);
@@ -38,9 +46,9 @@ namespace Game.Monsters.WormMonster
             base.OnExit();
         }
 
-        protected override async UniTask Attack_Long(LongAttackArguments longAttackArguments)
+        protected override async UniTask Attack_Long(LongAttackArguments<WormMonsterController> longAttackArguments)
         {
-            var arguments = new LongAttackArguments
+            var arguments = new LongAttackArguments<WormMonsterController>
             { 
                 getNextMover = GetNextMover,
                 moveAction = NextMoverAction,

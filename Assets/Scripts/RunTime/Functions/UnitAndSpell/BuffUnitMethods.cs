@@ -72,7 +72,7 @@ public static class BuffUnitMethods
             }
             unitInBuffRange.ForEach(unit => Debug.Log($"{unit.name}のスピードがバフされました"));
             if (animator == null) return;
-            var clip = AnimatorClipGeter.GetAnimationClip(animator, "Buff");
+            var clip = animator.GetAnimationClip("Buff");
             if (clip == null) return;
 
             var clipName = clip.name;

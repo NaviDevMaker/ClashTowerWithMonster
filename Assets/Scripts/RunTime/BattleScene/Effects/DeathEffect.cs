@@ -17,7 +17,7 @@ public class DeathEffect:IEffectSetter
         var unitPos = unit.gameObject.transform.position;
         Renderer meshRenderer = default;
         //var body = 0;
-        if (unit is IMonster || unit is IPlayer || unit is TowerController)
+        if (unit is IMonster || unit is IPlayer || unit is ITower)
         {
            var unitBase = unit as UnitBase;
            meshRenderer =  unitBase.BodyMesh;

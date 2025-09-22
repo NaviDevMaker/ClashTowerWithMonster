@@ -24,7 +24,7 @@ namespace Game.Monsters.Archer
             if (clipLength == 0)
             {
                 clipLength = controller.GetAnimClipLength();
-                var clip = AnimatorClipGeter.GetAnimationClip(controller.animator, stateName);
+                var clip = controller.animator.GetAnimationClip(stateName);
                 var frameRate = clip.frameRate;
                 totalFrame = Mathf.RoundToInt(frameRate * clipLength);
                 firstShotNomTime = stanceFrame / totalFrame;

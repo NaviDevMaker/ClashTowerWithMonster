@@ -26,9 +26,9 @@ namespace Game.Monsters.EvilMage
         {
             base.OnExit();
         }
-        protected override async UniTask Attack_Long(LongAttackArguments longAttackArguments)
+        protected override async UniTask Attack_Long(LongAttackArguments<EvilMageController> longAttackArguments)
         {
-            var arguments = new LongAttackArguments
+            var arguments = new LongAttackArguments<EvilMageController>
             {
                 getNextMover = GetNextMover,
                 moveAction = NextMoverAction

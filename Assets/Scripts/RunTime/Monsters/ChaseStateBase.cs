@@ -12,7 +12,7 @@ namespace Game.Monsters
     {
         public ChaseStateBase(T controller) : base(controller) { }
 
-        GameObject targetTower = null;
+        protected GameObject targetTower = null;
         protected GameObject targetEnemy { get; private set;}  = null;
 
         bool reachTargetEnemy = false;
@@ -264,8 +264,7 @@ namespace Game.Monsters
             var unitBase = target.GetComponent<UnitBase>();
 
             attackState.target = unitBase;
-        }      
-     
+        }       
         void EvaluateNewTargetAndChase()
         {
             if (myMonsterAttackType == MonsterAttackType.OnlyBuilding)

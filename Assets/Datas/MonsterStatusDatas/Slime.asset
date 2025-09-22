@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc3a4cf668f94af43ac12651ed3879c0, type: 3}
   m_Name: Slime
   m_EditorClassIdentifier: 
-  attackAmount: 10
-  hp: 200
+  attackAmount: 1
+  hp: 600
   pushAmount: 10
   animInfo:
     attackStateAnimSpeed: 1

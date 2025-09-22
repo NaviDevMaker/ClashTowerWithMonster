@@ -8,9 +8,9 @@ public class TowerHpUIManager : MonoBehaviour
 {
     List<TowerController> myTowerList = new List<TowerController>();
     [SerializeField] List<Image> parentImages = new List<Image>();
-    Dictionary<TowerController,Image> imageDic = new Dictionary<TowerController,Image>();
-    Dictionary<TowerController,Text> hpTextDic = new Dictionary<TowerController, Text>();
-    Dictionary<TowerController,(Text deadText,bool isAppear)> deadTextDic = new Dictionary<TowerController,(Text,bool)>();
+    Dictionary<ITower,Image> imageDic = new Dictionary<ITower, Image>();
+    Dictionary<ITower, Text> hpTextDic = new Dictionary<ITower, Text>();
+    Dictionary<ITower, (Text deadText,bool isAppear)> deadTextDic = new Dictionary<ITower, (Text,bool)>();
 
     Color firstColor;
     Color middleColor;

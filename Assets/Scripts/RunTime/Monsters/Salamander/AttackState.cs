@@ -28,9 +28,9 @@ namespace Game.Monsters.Salamander
         {
             base.OnExit();
         }
-        protected override async UniTask Attack_Long(LongAttackArguments longAttackArguments)
+        protected override async UniTask Attack_Long(LongAttackArguments<SalamanderController> longAttackArguments)
         {
-            var arguments = new LongAttackArguments
+            var arguments = new LongAttackArguments<SalamanderController>
             { 
                 attackEffectAction = PlayMouthFireEffect,
                 attackEndAction = DestroyParticle,

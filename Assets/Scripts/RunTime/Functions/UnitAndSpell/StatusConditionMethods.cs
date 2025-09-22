@@ -80,7 +80,7 @@ public static class StatusConditionMethods
 
     public static async void ParesisTarget<T>(this T controller,UnitBase target) where T : UnitBase 
     {  
-        if (target == null || target is TowerController) return;
+        if (target == null || target is ITower) return;
         var statusCondition = target.statusCondition;
         try
         {

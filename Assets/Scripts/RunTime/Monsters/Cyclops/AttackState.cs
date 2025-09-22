@@ -52,7 +52,7 @@ namespace Game.Monsters.Cyclops
         protected override void AddDamageToTarget(UnitBase currentTarget)
         {
             Debug.Log("ƒ_ƒ[ƒW‚ð—^‚¦‚Ü‚·");
-            if (GetCurrentNormalizedTime() >= beamMotionzEndNorm) return;
+            if (controller.animator.GetCurrentNormalizedTime(startNormalizeTime) >= beamMotionzEndNorm) return;
             base.AddDamageToTarget(currentTarget);
         }
         async void StartBeamAttack()
@@ -71,7 +71,8 @@ namespace Game.Monsters.Cyclops
                 var isFreezed = controller.statusCondition.Freeze.isActive;
                 var isDead = target.isDead;
 
-                var isInBeamEmitNorm = GetCurrentNormalizedTime() < beamMotionzEndNorm;
+                var isInBeamEmitNorm = controller.animator.GetCurrentNormalizedTime(startNormalizeTime)
+                                       < beamMotionzEndNorm;
                 return !cancelled && !isFreezed && !isDead && !isInterval && isInBeamEmitNorm;
             };
 

@@ -160,7 +160,7 @@ namespace Game.Monsters.Dragon
               
               var startColPos = colObj.transform.position;
               var targetPos = colObj.transform.position - controller.transform.right * hitJudgeColliderInfo.absRightAmount;
-              var startLength = GetCurrentNormalizedTime() * clipLength;
+              var startLength = AnimatorMethod.GetCurrentNormalizedTime(controller.animator, startNormalizeTime) * clipLength;
               var leftLength = clipLength - startLength;
               var interval =  leftLength / (float)controller.repeatCount;
               Debug.Log($"インターバルは{interval}");
@@ -194,7 +194,8 @@ namespace Game.Monsters.Dragon
               damageEachUnit.Invoke();
               while (CanFireShot(doubleCls))
               {
-                  var elapsedTime = clipLength * GetCurrentNormalizedTime() - startLength;
+                  var elapsedTime = clipLength * 
+                      AnimatorMethod.GetCurrentNormalizedTime(controller.animator, startNormalizeTime) - startLength;
                   var lerp = Mathf.Clamp01(elapsedTime / leftLength);
                   var targetZ = Mathf.Lerp(startEulerZ, targetEulerZ, lerp);
                   var targetRot = Quaternion.Euler(euler.x, euler.y, targetZ);

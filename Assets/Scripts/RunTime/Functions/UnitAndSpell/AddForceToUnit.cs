@@ -61,11 +61,10 @@ public class AddForceToUnit<T> where T : MonoBehaviour, IPushable,ISide
          var extraDistance = minDistance - distance;
          var push = direction * extraDistance;
          push.y = 0f;
-         var otherType = other.GetType();
 
          Vector3 targetPos_me = Vector3.zero;
          Vector3 targetPos_other = Vector3.zero;
-         if (otherType == typeof(TowerController))
+         if (other is ITower)
          {
              Debug.Log("‰Ÿ‚³‚ê‚Ü‚·");
              targetPos_me = me.transform.position - push;

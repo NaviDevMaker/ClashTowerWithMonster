@@ -58,7 +58,7 @@ namespace Game.Monsters.AttackerBoy
         //        EffectManager.Instance.statusConditionEffect.buffEffect.SetEffectToUnit(unit, BuffType.Power);
         //    }
         //    unitInBuffRange.ForEach(unit => Debug.Log($"{unit.name}‚ÌUŒ‚—Í‚ªƒoƒt‚³‚ê‚Ü‚µ‚½"));
-        //    var clipName = AnimatorClipGeter.GetAnimationClip(controller.animator, "Buff").name;
+        //    var clipName = AnimatorMethod.GetAnimationClip(controller.animator, "Buff").name;
         //    await UniTask.WaitUntil(() => controller.animator.GetCurrentAnimatorStateInfo(0).IsName(clipName)
         //    ,cancellationToken:controller.gameObject.GetCancellationTokenOnDestroy());
         //    await UniTask.WaitUntil(() => controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f

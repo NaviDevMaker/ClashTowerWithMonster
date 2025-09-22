@@ -91,7 +91,7 @@ public static class DeathMoveExecuter
         cts.Dispose();
     }
 
-    public static async UniTask ExecuteDeathAction_Tower(this TowerController tower, float length)
+    public static async UniTask ExecuteDeathAction_Tower<T>(this T tower, float length) where T : UnitBase,ITower
     {
         var cts = new CancellationTokenSource();
         var token = cts.Token;
