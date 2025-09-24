@@ -114,16 +114,6 @@ public class UnitBase : MonoBehaviour, IUnitDamagable,IUnitHealable,IPushable,IS
             else return null;
         }
     }
-
-    public TowerStatusData TowerStatus
-    {
-        get
-        {
-            if (unitType == UnitType.tower) return StatusData as TowerStatusData;
-            else return null;
-        }
-    }
-
     public PlayerStatusData PlayerStatus
     {
         get

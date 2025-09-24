@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem.XR;
 using Game.Monsters;
 using Unity.VisualScripting;
+using Cysharp.Threading.Tasks;
 
 public static class UnitRangeMethods
 {
@@ -155,20 +156,22 @@ public static class UnitRangeMethods
         return getUnitsInWeponRange;
     }
 
-    public static TowerController GetTargetTower(this GameObject controller,int ownerID)
+    public static UnitBase GetTargetTower(this GameObject controller,int ownerID) 
     {
         Debug.Log("ターゲットのタワーを取得します");
-        TowerController[] targetTowers = GameObject.FindObjectsByType<TowerController>(sortMode: FindObjectsSortMode.None);
+        UnitBase[] units = GameObject.FindObjectsByType<UnitBase>(sortMode: FindObjectsSortMode.None).ToArray();
 
-        List<TowerController> toList = new List<TowerController>(targetTowers);
+        List<UnitBase> toList = new List<UnitBase>(units);
         toList = toList
-            .Where(tower =>
+            .Where(unit =>
             {
-                var isDead = tower.isDead;
-                var side = tower.GetUnitSide(ownerID);
-                return !isDead && side == Side.EnemySide;
+                if (unit is not ITower) return false;
+                var isDead = unit.isDead;
+                var side = unit.GetUnitSide(ownerID);
+                var isNontarget = unit.statusCondition.NonTarget.isActive;
+                return !isDead && side == Side.EnemySide && !isNontarget;
             })
-            .OrderBy(tower => Vector3.Distance(controller.transform.position, tower.transform.position)).ToList();
+            .OrderBy(tower => Vector3.Distance(controller.transform.position,tower.transform.position)).ToList();
         if (toList.Count > 0) return toList[0];
         else return null;
     }

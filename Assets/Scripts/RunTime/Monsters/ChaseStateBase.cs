@@ -12,7 +12,7 @@ namespace Game.Monsters
     {
         public ChaseStateBase(T controller) : base(controller) { }
 
-        GameObject targetTower = null;
+        protected GameObject targetTower = null;
         protected GameObject targetEnemy { get; private set;}  = null;
 
         bool reachTargetEnemy = false;
@@ -135,7 +135,7 @@ namespace Game.Monsters
 
                     //var myRadius = controller.GetComponent<Collider>().bounds.extents.magnitude;
                     while (Vector3.Distance(flatMyPosition, flatTargetPosition) > controller.MonsterStatus.AttackRange
-                        && target != null)
+                        && targetEnemy != null)
                     {
                         var perPixelMoveTime = (1 / moveStep) / moveSpeed;
                         targetPos = targetCollider.ClosestPoint(controller.transform.position);//.transform.position;
@@ -169,7 +169,7 @@ namespace Game.Monsters
                             //var correntDistance = simpleDistance - myRadius;
                             if (isDead || isFreeze) { cts?.Cancel();  break; }
                             if (Vector3.Distance(flatMyPosition, flatTargetPosition) <= controller.MonsterStatus.AttackRange
-                              || targetEnemy == null || controller.isKnockBacked_Spell)
+                            　　 || controller.isKnockBacked_Spell)
                             {
                                 Debug.Log("敵に到着 || ターゲットが範囲外にいきました");
 
@@ -196,13 +196,13 @@ namespace Game.Monsters
                   
                     Debug.Log("タワーを追跡中");
 
-                    if (target == null || targetCollider == null) return;
+                    if (targetTower == null || targetCollider == null) return;
                     //targetPos = targetCollider.ClosestPoint(controller.transform.position);
                     //targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos) + flyingOffsetY;
                     Debug.Log(targetPos);
                       
                      while (Vector3.Distance(controller.transform.position, targetPos) > controller.MonsterStatus.AttackRange
-                         && target != null)
+                           && targetTower == target)
                      {
                             var perPixelMoveTime = (1 / moveStep) / moveSpeed;
 
@@ -220,8 +220,8 @@ namespace Game.Monsters
                             moveTween = controller.gameObject.Mover(set);//DOMove(perTargetPos, perPixelMoveTime);
                             moveTask = moveTween.ToUniTask(cancellationToken: cts.Token);//一歩分の動き
 
-                            while (!moveTask.Status.IsCompleted() && !cts.IsCancellationRequested)
-                            {
+                        while (!moveTask.Status.IsCompleted() && !cts.IsCancellationRequested)
+                        {
                                 var isDead = controller.isDead;
                                 var isFreeze = controller.statusCondition.Freeze.isActive;　
                                 if (isDead || isFreeze) { cts?.Cancel(); break; }
@@ -248,6 +248,7 @@ namespace Game.Monsters
                      }
                 }
             }
+            //catch (MissingReferenceException) { }バグ出たらまた原因追跡のためにこれ作る、今んとこは大丈夫
             finally
             {
                 Debug.Log("おおかかｃｄｈｃｄｓｈかしあｊか");
@@ -264,8 +265,7 @@ namespace Game.Monsters
             var unitBase = target.GetComponent<UnitBase>();
 
             attackState.target = unitBase;
-        }      
-     
+        }       
         void EvaluateNewTargetAndChase()
         {
             if (myMonsterAttackType == MonsterAttackType.OnlyBuilding)
@@ -322,6 +322,7 @@ namespace Game.Monsters
 
             if (filterdArray.Length == 0)
             {
+                SetTargetTower();
                 targetEnemy = null;
                 if(targetTower != null && !isChasing) ChaseTarget().Forget();
             }

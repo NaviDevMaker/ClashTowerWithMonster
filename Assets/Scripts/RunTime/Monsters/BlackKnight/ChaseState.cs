@@ -12,6 +12,7 @@ namespace Game.Monsters.BlackKnight
         }
         public override void OnUpdate()
         {
+            Debug.Log($"“G‚Í{targetEnemy},ƒ^ƒ[‚Í{targetTower}");
             base.OnUpdate();
         }
         public override void OnExit()

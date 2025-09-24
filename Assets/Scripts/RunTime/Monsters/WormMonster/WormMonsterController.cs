@@ -101,7 +101,8 @@ namespace Game.Monsters.WormMonster
             {
                 var mover = Instantiate(ProjectileAttackMonsterStatus.Mover, Vector3.zero, Quaternion.identity);
                 var moverCmp = mover.GetComponent<NeurotoxinMover>();
-                moverCmp.Setup(this, startTra, localPos, rot, movers, EndMoveAction, ProjectileAttackMonsterStatus.ProjectileMoveSpeed);
+                moverCmp.Setup(this, startTra, localPos, rot, movers, EndMoveAction,
+                               ProjectileAttackMonsterStatus.ProjectileMoveSpeed,StatusData.AttackAmount);
             }
         }       
     }

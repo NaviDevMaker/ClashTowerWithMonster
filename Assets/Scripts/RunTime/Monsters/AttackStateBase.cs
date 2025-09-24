@@ -5,9 +5,6 @@ using System.Threading;
 using System.Linq;
 using UnityEngine.Events;
 using System.Collections.Generic;
-using Game.Monsters;
-using static UnityEngine.Rendering.DebugUI.Table;
-using Unity.VisualScripting;
 
 public interface IAttackState
 {
@@ -16,42 +13,41 @@ public interface IAttackState
 
 namespace Game.Monsters
 {
+    public class SimpleAttackArguments
+    {
+        public Func<List<UnitBase>> getTargets;//ターゲットの取得
+        public UnityAction<UnitBase> specialEffectAttack = null;//攻撃後の個別の敵に対しての特別な処理（この攻撃後にHP回復など）
+        public UnityAction attackEffectAction = null;//ダメージを与えるフレームになった時に出すエフェクトのアクション(ゴーレムの煙など)
+        public UnityAction attackEndAction = null;//攻撃終わりにする処理
+        public UnityAction<Func<float,float>> actionByLeftAttackLength = null;//何か攻撃開始時の時間が関係するような処理の時
+        public float repeatCount = 0f;//攻撃回数（サイクロプスやナーガウィザードの多段攻撃の回数）
+    }
+    public class LongAttackArguments<T> where T : UnitBase
+    {
+        public Func<LongDistanceAttack<T>> getNextMover;
+        public UnityAction<LongDistanceAttack<T>> moveAction;
+        public UnityAction attackEffectAction = null;
+        public UnityAction attackEndAction = null;
+        public int repeatCount = 0;
+    }
+
+    public interface ILongDistanceAction<T> where T : UnitBase
+    {
+        LongDistanceAttack<T> GetNextMover();
+        void NextMoverAction(LongDistanceAttack<T> nextMover);
+    }
+
     public class AttackStateBase<T> : StateMachineBase<T>, IUnitAttack,IAttackState where T : MonsterControllerBase<T>
     {
-        public interface ILongDistanceAction
-        {
-            LongDistanceAttack<T> GetNextMover();
-            void NextMoverAction(LongDistanceAttack<T> nextMover);
-        }
-        protected class SimpleAttackArguments
-        {
-            public Func<List<UnitBase>> getTargets;//ターゲットの取得
-            public UnityAction<UnitBase> specialEffectAttack = null;//攻撃後の個別の敵に対しての特別な処理（この攻撃後にHP回復など）
-            public UnityAction attackEffectAction = null;//ダメージを与えるフレームになった時に出すエフェクトのアクション(ゴーレムの煙など)
-            public UnityAction attackEndAction = null;//攻撃終わりにする処理
-            public UnityAction<Func<float>> actionByLeftAttackLength = null;//何か攻撃開始時の時間が関係するような処理の時
-            public float repeatCount = 0f;//攻撃回数（サイクロプスやナーガウィザードの多段攻撃の回数）
-        }
-        protected class LongAttackArguments
-        {
-            public Func<LongDistanceAttack<T>> getNextMover;
-            public UnityAction<LongDistanceAttack<T>> moveAction;
-            public UnityAction attackEffectAction = null;
-            public UnityAction attackEndAction = null;
-            public int repeatCount = 0;
-        }
-
+     
         public AttackStateBase(T controller) : base(controller) { }
         
         public UnitBase target;
         protected int attackAmount = 0;
-        protected float stateAnimSpeed { get; private set; } = 0f;
+        protected float stateAnimSpeed { get; private set;} = 0f;
         protected float attackRange { get; private set;} = 0f;
         protected CancellationTokenSource cts;
-        //キャンセルされるのは自分自身のオブジェクトが破壊されたとき、又は敵がCheckAttackable()がfalseの時
-        //それでOnExitでDispose(死んだとき)はAttack内でDisposeのcatchがあるから実質キャンセルと同じでRepeat系のアタックの時も
-     　 //攻撃は継続しない感じ
-       　//エフェクト系もattackEndActionをfinallyで呼び出すからエフェクトの継続も問題ない感じ
+       
         public int maxFrame = 0;
         public int attackEndFrame = 0;
         public float attackEndNomTime = 0f;
@@ -62,14 +58,22 @@ namespace Game.Monsters
         protected bool isAttacking = false;
         bool isWaitingLeftTime = false;
         bool isContineAttack = false;
-        protected bool isSettedEventClip { get; private set;} = false;
+        protected bool isSettedEventClip = false;
         public bool isInterval { get; private set; } = false;
         public bool _isAbsorbed = false;//これSO側がリフレクションで参照ね
         
         public override void OnEnter()
         {
             SetUp();
-            if (!isSettedEventClip) ChangeClipForAnimationEvent();//
+            if (!isSettedEventClip)
+            {
+                var originalController = controller.animator.runtimeAnimatorController;
+                var overrideController = new AnimatorOverrideController(originalController);
+                controller.animator.runtimeAnimatorController = overrideController;
+                controller.animator.ChangeClipForAnimationEvent(overrideController,
+                                                             controller.MonsterAnimPar.attackAnimClipName,clipLength);//
+                isSettedEventClip = true;
+            }
             nextState = controller.ChaseState;
         }
         protected void SetUp()
@@ -118,7 +122,7 @@ namespace Game.Monsters
 
         protected virtual async UniTask Attack_Generic(SimpleAttackArguments attackArguments)
         {
-            Debug.Log("攻撃開始します");
+            //Debug.Log("攻撃開始します");
             if (!controller.animator.GetCurrentAnimatorStateInfo(0).IsName(controller.MonsterAnimPar.attackAnimClipName))
             {
                 controller.animator.Play(controller.MonsterAnimPar.attackAnimClipName);
@@ -160,15 +164,17 @@ namespace Game.Monsters
                 else
                 {
                     var remaining = (int)attackArguments.repeatCount;
-                    var repeatInterval = GetRepeatInterval(startNormalizeTime,remaining);
-                   
-                    attackArguments.actionByLeftAttackLength?.Invoke(GetCurrentNormalizedTime);
-                    Debug.Log($"{GetCurrentNormalizedTime()},リピート攻撃開始します");
+                    var repeatInterval = controller.animator.GetRepeatInterval(startNormalizeTime, remaining
+                                                                      ,clipLength, stateAnimSpeed);
 
-                    while(remaining > 0 && GetCurrentNormalizedTime() < 1.0f && !cts.IsCancellationRequested
+                    attackArguments.actionByLeftAttackLength?.Invoke(controller.animator.GetCurrentNormalizedTime);
+
+                    while(remaining > 0 && controller.animator.GetCurrentNormalizedTime(startNormalizeTime)
+                        < 1.0f && !cts.IsCancellationRequested
                         && !isInterval)
                     {
-                        repeatInterval = GetRepeatInterval(startNormalizeTime, remaining);
+                        repeatInterval = controller.animator.GetRepeatInterval(startNormalizeTime, remaining
+                                                                      ,clipLength, stateAnimSpeed);
                         if (target == null) break;
                         var currentTargets = attackArguments.getTargets();
                         if (!currentTargets.Contains(target)) currentTargets.Add(target);
@@ -188,12 +194,16 @@ namespace Game.Monsters
                 leftLengthTime = Mathf.Max(0f, clipLength - elapsedTime / stateAnimSpeed);
                 isAttacking = false;
             }
-            catch (ObjectDisposedException) {}
+            catch (ObjectDisposedException) { return; }
             finally { if(attackArguments.attackEndAction != null) attackArguments.attackEndAction?.Invoke();}
-            leftLengthTime = 0f;
+            if(!cts.IsCancellationRequested) leftLengthTime = 0f;
         }
-        protected virtual async UniTask Attack_Long(LongAttackArguments longAttackArguments)
+        protected virtual async UniTask Attack_Long(LongAttackArguments<T> longAttackArguments)
         {
+            if (!controller.animator.GetCurrentAnimatorStateInfo(0).IsName(controller.MonsterAnimPar.attackAnimClipName))
+            {
+                controller.animator.Play(controller.MonsterAnimPar.attackAnimClipName);
+            }
             if (controller is IRepeatAttack repeat) longAttackArguments.repeatCount = repeat.repeatCount;
             float now = 0f;
             LongDistanceAttack<T> nextMover = null;
@@ -222,12 +232,17 @@ namespace Game.Monsters
                 else
                 {
                     var remaining = longAttackArguments.repeatCount;
-                    var repeatInterval = GetRepeatInterval(startNormalizeTime, remaining);
-                    while (remaining > 0 && GetCurrentNormalizedTime() < 1.0f && !cts.IsCancellationRequested
+                    var repeatInterval = controller.animator.GetRepeatInterval(startNormalizeTime, remaining
+                                                                      ,clipLength, stateAnimSpeed);
+
+                    while (remaining > 0 && controller.animator.GetCurrentNormalizedTime(startNormalizeTime)
+                        < 1.0f && !cts.IsCancellationRequested
                         && !isInterval)
                     {
                         LookToTarget();
-                        repeatInterval = GetRepeatInterval(startNormalizeTime, remaining);
+                        repeatInterval = controller.animator.GetRepeatInterval(startNormalizeTime, remaining
+                                                                      ,clipLength, stateAnimSpeed);
+
                         Debug.Log("ロングでリピートなアタック！！");
                         nextMover = longAttackArguments.getNextMover();
                         if (nextMover == null) return;
@@ -243,9 +258,9 @@ namespace Game.Monsters
                 leftLengthTime = Mathf.Max(0f, clipLength - elaspedTime) / stateAnimSpeed;
                 isAttacking = false;
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) { return; }
             finally { longAttackArguments.attackEndAction?.Invoke(); }
-            leftLengthTime = 0f;
+            if(!cts.IsCancellationRequested) leftLengthTime = 0f;
         }
         protected virtual void AddDamageToTarget(UnitBase currentTarget)
         {
@@ -330,7 +345,7 @@ namespace Game.Monsters
                     var continueAttackInterval = interval - leftLengthTime;
                     await UniTask.Delay(TimeSpan.FromSeconds(continueAttackInterval)
                                         ,cancellationToken: controller.GetCancellationTokenOnDestroy());
-                    controller.animator.Play(controller.MonsterAnimPar.attackAnimClipName);
+                    //controller.animator.Play(controller.MonsterAnimPar.attackAnimClipName);
                     cts = new CancellationTokenSource();
                     isAttacking = true;
                     Attack();
@@ -351,6 +366,7 @@ namespace Game.Monsters
         }
         bool ContinueAttackState()
         {
+            //IsInvincibleのやつはもれなくNonTargetがtrueだからこの評価はいらない
             var monsterAttackType = controller.MonsterStatus.MonsterAttackType;
             var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(controller.gameObject, controller.MonsterStatus.ChaseRange);
             var myType = controller.moveType;
@@ -456,63 +472,11 @@ namespace Game.Monsters
             }
             else if (controller.MonsterStatus.AttackType == AttackType.Long)
             {
-                var arguments = new LongAttackArguments();
+                var arguments = new LongAttackArguments<T>();
                 Attack_Long(arguments).Forget();
             }
         }
-        public virtual async void StopAnimFromEvent()
-        {
-            Debug.Log("イベントが呼ばれました");
-            isInterval = true;
-            controller.animator.speed = 0f;
-            try
-            {
-                var stopAnimInterval = controller.animator.speed != 0f ? interval / controller.animator.speed :interval;
-                await UniTask.Delay(TimeSpan.FromSeconds(stopAnimInterval), cancellationToken: cts.Token);
-            }
-            catch (ObjectDisposedException) { }
-            catch (OperationCanceledException) { }
-            finally 
-            {
-                isInterval = false;
-                isAttacking = false;
-            }
-        }
-        protected void ChangeClipForAnimationEvent()
-        {
-            var clipName = controller.MonsterAnimPar.attackAnimClipName;
-            var attackMotionClip = AnimatorClipGeter.GetAnimationClip(controller.animator,clipName);
-            var eventSetTime = clipLength - 0.01f;
-
-            var originalController = controller.animator.runtimeAnimatorController;
-            var overrideController = new AnimatorOverrideController(originalController);
-            controller.animator.runtimeAnimatorController = overrideController;
-
-            var newClip = UnityEngine.Object.Instantiate(attackMotionClip);
-            AnimationEvent animationEvent = new AnimationEvent();
-            animationEvent.functionName = "StopAnimation_AttackState";
-            newClip.name = clipName + "_PlusEvent";
-            animationEvent.time = eventSetTime;
-            newClip.AddEvent(animationEvent);
-
-            overrideController[attackMotionClip.name] = newClip;
-            isSettedEventClip = true;
-        }
-        protected float GetCurrentNormalizedTime()
-        {
-            var current = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-            Debug.Log($"現在は{current},スタートは{startNormalizeTime}");
-            return current - startNormalizeTime;
-        }
-        protected float GetRepeatInterval(float startNormalizedTime,int repeatCount)
-        {
-            var now = controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-            var elapsedNormalizedTime = now - startNormalizeTime;
-            var startLength = elapsedNormalizedTime * clipLength;
-            var leftLength = clipLength - startLength;
-            var repeatInterval = leftLength /  (float)repeatCount;
-            return (repeatInterval / stateAnimSpeed) / controller.animator.speed;
-        }     
+        public virtual void StopAnimFromEvent() => controller.StopAnimation(interval);
     }
 }
 

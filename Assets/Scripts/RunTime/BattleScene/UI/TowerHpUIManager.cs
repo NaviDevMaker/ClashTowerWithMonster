@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,9 @@ public class TowerHpUIManager : MonoBehaviour
 {
     List<TowerController> myTowerList = new List<TowerController>();
     [SerializeField] List<Image> parentImages = new List<Image>();
-    Dictionary<TowerController,Image> imageDic = new Dictionary<TowerController,Image>();
-    Dictionary<TowerController,Text> hpTextDic = new Dictionary<TowerController, Text>();
-    Dictionary<TowerController,(Text deadText,bool isAppear)> deadTextDic = new Dictionary<TowerController,(Text,bool)>();
+    Dictionary<ITower,Image> imageDic = new Dictionary<ITower, Image>();
+    Dictionary<ITower, Text> hpTextDic = new Dictionary<ITower, Text>();
+    Dictionary<ITower, (Text deadText,bool isAppear)> deadTextDic = new Dictionary<ITower, (Text,bool)>();
 
     Color firstColor;
     Color middleColor;
@@ -40,20 +41,20 @@ public class TowerHpUIManager : MonoBehaviour
             imageDic[tower] = image;
             hpTextDic[tower] = hpText;
             deadTextDic[tower] = (deadText,false);
-            var hp = tower.TowerStatus.Hp;
+            var hp = tower.SimpleTowerStatus.Hp;
             hpText.text = hp.ToString();
             tower.towerHpUIEvent.AddListener(RenewUI);
         }
     }
     void RenewUI(TowerController tower)
     {
-        var maxHP = tower.TowerStatus.Hp;
+        var maxHP = tower.SimpleTowerStatus.Hp;
         var currentHP = tower.currentHP;
         var fill = (float)currentHP/(float)maxHP;
         var targetImageParent = imageDic[tower];
         var currentColor = GetCurrentHPColor(fill);
         targetImageParent.color = currentColor;
-        targetImageParent.LitBar(currentColor);
+        targetImageParent.LitBar(currentColor).Forget();
         targetImageParent.fillAmount = fill;
         var hpText = hpTextDic[tower];
         var hpAmount = Mathf.Max(0, currentHP);

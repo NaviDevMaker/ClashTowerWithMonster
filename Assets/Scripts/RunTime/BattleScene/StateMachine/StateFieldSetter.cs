@@ -12,7 +12,7 @@ public static class StateFieldSetter
         if (changeClipByScript) targetClipName = controller.MonsterAnimPar.attackAnimClipName + "_PlusEvent";
         else targetClipName = controller.MonsterAnimPar.attackAnimClipName;
 
-        var frameRate = AnimatorClipGeter.GetAnimationClip(controller.animator,targetClipName).frameRate;
+        var frameRate = controller.animator.GetAnimationClip(targetClipName).frameRate;
         attackState.maxFrame = Mathf.RoundToInt(frameRate * clipLength);
         attackState.attackEndFrame = attackEndFrame;
         attackState.attackEndNomTime = (float)attackEndFrame / (float)attackState.maxFrame;

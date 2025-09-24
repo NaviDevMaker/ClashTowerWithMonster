@@ -44,9 +44,9 @@ namespace Game.Monsters.EvilMage
             transform.SetParent(null);
             base.Move();
         }
-        protected override void Initialize(EvilMageController attacker)
+        protected override void Initialize(EvilMageController attacker,int attackAmount)
         {
-            base.Initialize(attacker);
+            base.Initialize(attacker,attackAmount);
             visualEffect = GetComponent<VisualEffect>();    
             smokeParticle = GetComponentInChildren<ParticleSystem>();
             mainModule = smokeParticle.main;

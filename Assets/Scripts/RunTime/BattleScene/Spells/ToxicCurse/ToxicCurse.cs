@@ -41,7 +41,7 @@ namespace Game.Spells.ToxicCurse
                     var list = spellEffectHelper.GetUnitInRange();
                     var removedTowerList = list.Where(t =>
                     {
-                        var tower = t is TowerController;
+                        var tower = t is ITower;
                         if (tower) return false;
                         return true;
                     }).ToList();

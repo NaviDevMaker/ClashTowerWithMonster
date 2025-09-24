@@ -6,7 +6,7 @@ namespace Game.Monsters.Specter
     public class ChaseState : ChaseStateBase<SpecterController>
     {
         public ChaseState(SpecterController controller) : base(controller) { }
-        float translusent = 0.5f;
+        float translusent = 0.3f;
         ParticleSystem runParticle;
         public override void OnEnter()
         {

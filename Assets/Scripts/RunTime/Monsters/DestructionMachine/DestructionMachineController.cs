@@ -47,7 +47,8 @@ namespace Game.Monsters.DestructionMachine
             {
                 var mover = Instantiate(ProjectileAttackMonsterStatus.Mover, Vector3.zero, Quaternion.identity);
                 var moverCmp = mover.GetComponent<CannonBallMover>();
-                moverCmp.Setup(this, startTra, localPos, rot,movers, EndMoveAction,ProjectileAttackMonsterStatus.ProjectileMoveSpeed);
+                moverCmp.Setup(this, startTra, localPos, rot,movers, EndMoveAction,
+                               ProjectileAttackMonsterStatus.ProjectileMoveSpeed,StatusData.AttackAmount);
             }
         }
 

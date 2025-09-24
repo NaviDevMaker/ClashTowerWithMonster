@@ -91,11 +91,21 @@ public static class DeathMoveExecuter
         cts.Dispose();
     }
 
-    public static async UniTask ExecuteDeathAction_Tower(this TowerController tower, float length)
+    public static async UniTask ExecuteDeathAction_Tower<T>(this T tower, float length) where T : UnitBase,ITower
     {
         var cts = new CancellationTokenSource();
         var token = cts.Token;
         var mesh = tower.BodyMesh;
+
+        Func<UniTask> scaleChangeTask = async() =>
+        {
+            var timeScaleAmount = 0.25f;
+            Time.timeScale = timeScaleAmount;
+            var delay = 0.5f;
+            await UniTask.Delay(TimeSpan.FromSeconds(delay));
+            Time.timeScale = 1f;
+        };
+        
         for (int i = 0; i < mesh.materials.Length;i++)
         {
              var material = mesh.materials[i];
@@ -117,7 +127,7 @@ public static class DeathMoveExecuter
         }
         EffectManager.Instance.deathEffect.GenerateDeathEffect(tower, length);
         tower.DisableHpBar();
-        await UniTask.Delay(TimeSpan.FromSeconds(length));
+        await UniTask.WhenAll(UniTask.Delay(TimeSpan.FromSeconds(length)),scaleChangeTask());
         cts.Cancel();
         cts.Dispose();
         tower.DestroyAll();

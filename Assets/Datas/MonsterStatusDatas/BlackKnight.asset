@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4a89a51bd4caa44fad839972306ac40, type: 3}
   m_Name: BlackKnight
   m_EditorClassIdentifier: 
-  attackAmount: 5
+  attackAmount: 50
   hp: 1000
   pushAmount: 10
   animInfo:

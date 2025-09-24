@@ -39,7 +39,7 @@ namespace Game.Spells.Confusion
             var filteredList = units.Where(unit =>
             {
                 var inRange = spellEffectHelper.CompareUnitInRange(unit);
-                var isNotTower = !(unit is TowerController);
+                var isNotTower = !(unit is ITower);
                 return isNotTower && inRange;
             }).ToList();
 

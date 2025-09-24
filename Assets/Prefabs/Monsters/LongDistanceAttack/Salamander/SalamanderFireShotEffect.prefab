@@ -14640,7 +14640,7 @@ GameObject:
   - component: {fileID: 9081795634895127371}
   - component: {fileID: 5527920518865228312}
   - component: {fileID: 5699623323711432644}
-  - component: {fileID: -288302399069032458}
+  - component: {fileID: 2758479120054279494}
   m_Layer: 11
   m_Name: SalamanderFireShotEffect
   m_TagString: Untagged
@@ -19481,7 +19481,7 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!114 &-288302399069032458
+--- !u!114 &2758479120054279494
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -19490,7 +19490,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7566674639184150907}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e89d964f0e457bb49a88ad95aa3ce286, type: 3}
+  m_Script: {fileID: 11500000, guid: f408f4db76aaf504d99b765637c27e84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hitEffect: {fileID: 0}

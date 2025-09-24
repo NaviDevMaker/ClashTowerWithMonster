@@ -26,7 +26,7 @@ public class FlyingMonsterStatusData : MonsterStatusData,IFlying
     //    if (isInitilizedAttackState) return;
     //    var attackStateBase = typeof(AttackStateBase<>);
     //    var stateType = attackStateBase.MakeGenericType(controller.GetType());
-    //    _attackInstance = controller.AttackState;
+    //    _attackInstance = controller._attackState;
     //    isAbsorbedField = stateType.GetField("_isAbsorbed", BindingFlags.NonPublic | BindingFlags.Instance);
     //    isInitilizedAttackState = true;
     //}

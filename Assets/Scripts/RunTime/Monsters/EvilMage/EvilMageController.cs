@@ -60,7 +60,8 @@ namespace Game.Monsters.EvilMage
             {
                 var mover = Instantiate(ProjectileAttackMonsterStatus.Mover, Vector3.zero, Quaternion.identity);
                 var moverCmp = mover.GetComponent<MageSpellMover>();
-                moverCmp.Setup(this, startTra, localPos, rot, movers, EndMoveAction, ProjectileAttackMonsterStatus.ProjectileMoveSpeed);
+                moverCmp.Setup(this, startTra, localPos, rot, movers, EndMoveAction,
+                              ProjectileAttackMonsterStatus.ProjectileMoveSpeed,StatusData.AttackAmount);
             }
         }
     }

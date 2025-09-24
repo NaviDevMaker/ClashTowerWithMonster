@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace Game.Monsters.DestructionMachine
 {
-    public class AttackState : AttackStateBase<DestructionMachineController>, AttackStateBase<DestructionMachineController>.ILongDistanceAction
+    public class AttackState : AttackStateBase<DestructionMachineController>, ILongDistanceAction<DestructionMachineController>
     {
         public AttackState(DestructionMachineController controller) : base(controller) { }
         LongDistanceAttack<DestructionMachineController> nextMover = null;
@@ -28,7 +28,7 @@ namespace Game.Monsters.DestructionMachine
             base.OnExit();
         }
 
-        protected override async UniTask Attack_Long(LongAttackArguments longAttackArguments)
+        protected override async UniTask Attack_Long(LongAttackArguments<DestructionMachineController> longAttackArguments)
         {
             float startNormalizeTime = 0f;
             float now = 0f;

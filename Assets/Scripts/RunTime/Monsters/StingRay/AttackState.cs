@@ -88,15 +88,15 @@ namespace Game.Monsters.StingRay
                 arguments.attackEffectAction.Invoke();
            
                 var remaining = controller.repeatCount;
-                var repeatInterval = GetRepeatInterval(startNormalizeTime, remaining);
+                var repeatInterval = controller.animator.GetRepeatInterval(startNormalizeTime, remaining
+                                                                      ,clipLength,stateAnimSpeed);
 
-                Debug.Log($"{GetCurrentNormalizedTime()},リピート攻撃開始します");
 
-                while (remaining > 0 && GetCurrentNormalizedTime() < 1.0f && !cts.IsCancellationRequested
-                    && !isInterval)
+                while (remaining > 0 && controller.animator.GetCurrentNormalizedTime(startNormalizeTime) < 1.0f 
+                    && !cts.IsCancellationRequested && !isInterval)
                 {
-                    repeatInterval = GetRepeatInterval(startNormalizeTime, remaining);
-                    Debug.Log($"リピート{GetCurrentNormalizedTime()}");
+                    repeatInterval = controller.animator.GetRepeatInterval(startNormalizeTime, remaining
+                                                                      , clipLength, stateAnimSpeed);
                     var currentTargets = arguments.getTargets();
                     currentTargets.ForEach(target =>
                     {
@@ -112,9 +112,9 @@ namespace Game.Monsters.StingRay
                 leftLengthTime = Mathf.Max(0f, clipLength - elapsedTime / stateAnimSpeed);
                 isAttacking = false;
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) { return; }
             finally { arguments.attackEndAction.Invoke(); }
-            leftLengthTime = 0f;
+            if(!cts.IsCancellationRequested) leftLengthTime = 0f;
         }
         void PlayWindEffect()
         {
@@ -288,7 +288,7 @@ namespace Game.Monsters.StingRay
             {
                    if (target == null) return;
                    var isFreezed = target.statusCondition.Freeze.isActive;
-                   if (target is TowerController || isFreezed) return;
+                   if (target is ITower || isFreezed) return;
                    var rangeAttackPos = controller.rangeAttackObj.transform.position;
                    var absorptionDistance = 0.1f;
                    var flatPos_me = PositionGetter.GetFlatPos(rangeAttackPos);
@@ -320,7 +320,7 @@ namespace Game.Monsters.StingRay
                     });
                     currentTargets.ForEach(target =>
                     {
-                        if (target is TowerController) return;
+                        if (target is ITower) return;
                         target.statusCondition.Absorption.isActive = true;
                         absorptionAction(target);
                     });

@@ -49,6 +49,7 @@ namespace Game.Monsters.Specter
             renderers.ForEach(renderer =>
             {
                 var mat = renderer.material;
+                FadeProcessHelper.ChangeToTranparent(mat);
                 var color = mat.color;
                 color.a = 0.5f;
                 mat.color = color;
@@ -56,7 +57,7 @@ namespace Game.Monsters.Specter
 
             myID = attacker.ownerID;
             moveType = attacker.moveType;
-            damage = attacker.MonsterStatus.AttackAmount * 2;
+            damage = attacker.MonsterStatus.AttackAmount;
             ouraParticle.Play();
         }
         UnitBase GetTarget()
@@ -69,13 +70,12 @@ namespace Game.Monsters.Specter
                 var targetSide = target.GetUnitSide(myID);
                 var isDead = target.isDead;
                 var isTransparent = target.statusCondition.Transparent.isActive;
-                if ((targetSide & effectiveSide) == 0 || isDead
+                var isNonTarget = target.statusCondition.NonTarget.isActive;
+
+                if ((targetSide & effectiveSide) == 0 || isDead || isNonTarget
                      || isTransparent || (moveType & effectiveMoveType) == 0) return false;
-                if (target is ISummonbable summonbable)
-                {
-                    var isSummoned = summonbable.isSummoned;
-                    if (!isSummoned) return false;
-                }
+                if (target is ISummonbable summonbable && !summonbable.isSummoned) return false;
+                if (target is IInvincible invincible && invincible.IsInvincible) return false;
                 return true;
             }).ToList();
 
@@ -87,7 +87,9 @@ namespace Game.Monsters.Specter
         }
         async void MoveToTarget(UnitBase target)
         {
+            
             if (isReachedTargetPos) return;
+            Debug.Log("ターゲットに進みます");
             specterCts = new CancellationTokenSource();
             var targetCollider = target.GetComponent<Collider>();
             var targetPos = targetCollider.ClosestPoint(transform.position);
@@ -107,18 +109,29 @@ namespace Game.Monsters.Specter
                     var direction = (flatTargetPos - transform.position).normalized;
                     var perTargetPos = PositionGetter.GetPerTargetPos(transform.position, direction);
                     var perDirection = perTargetPos - transform.position;
-                    var rot = Quaternion.LookRotation(perDirection);
-                    transform.rotation = rot;
+                    if(perDirection != Vector3.zero)
+                    {
+                        var rot = Quaternion.LookRotation(perDirection);
+                        transform.rotation = rot;
+                    }                
+                    Debug.Log($"transform.forward: {transform.forward}");
                     var moveSet = new Vector3TweenSetup(perTargetPos, 0.1f, Ease.Linear);
                     var moveTask = this.gameObject.Mover(moveSet).ToUniTask(cancellationToken: specterCts.Token);
                  
                     while (!moveTask.Status.IsCompleted() && !specterCts.IsCancellationRequested)
                     {
                         var flatMyPos = PositionGetter.GetFlatPos(transform.position);
+                        if(Vector3.Distance(flatTargetPos, flatMyPos) <= Mathf.Epsilon)
+                        {
+                            specterCts?.Cancel();
+                            break;
+                        }
                         var isDead = target.isDead;
                         var isTransparent = target.statusCondition.Transparent.isActive;
-                        if (isDead || isTransparent || target == null 
-                            || Vector3.Distance(flatTargetPos,flatMyPos) <= Mathf.Epsilon)
+                        var isNonTarget = target.statusCondition.NonTarget.isActive;
+                        var isInvincivle = target is IInvincible invincible ? invincible.IsInvincible : false;
+                        if (isDead || isTransparent || target == null
+                                   || isNonTarget || isInvincivle)
                         {
                             specterCts?.Cancel();
                             var nextTarget = GetTarget();
@@ -173,17 +186,18 @@ namespace Game.Monsters.Specter
             await UniTask.WaitUntil(() => isReachedTargetPos, cancellationToken:this.GetCancellationTokenOnDestroy());
             await MoveToForward();
             animator.SetBool(chase_Hash, false);
-            var fadeDuration = 3.0f;
+            var fadeDuration = 3f;
             var allTasks = renderers.Select(renderer =>
             {
-                var task = renderer.material.DOFade(0f,fadeDuration).ToUniTask(cancellationToken:this.GetCancellationTokenOnDestroy());
+                var task = renderer.material.DOFade(0f,fadeDuration)
+                           .ToUniTask(cancellationToken:this.GetCancellationTokenOnDestroy());
                 return task;
             }).ToList();
 
             var main = ouraParticle.main;
             main.startLifetime = fadeDuration;
             main.loop = false;
-            main.simulationSpeed /= 2f;
+            main.simulationSpeed =1f;
 
             var dissapearTask = RelatedToParticleProcessHelper.WaitUntilParticleDisappear(ouraParticle);
             allTasks.Add(dissapearTask);
@@ -193,8 +207,8 @@ namespace Game.Monsters.Specter
         async UniTask MoveToForward()
         {
             trailRenderers.ForEach(trail => trail.enabled = true);
-            var duration = 0.5f;
-            var damageInterval = 0.1f;
+            var duration = 0.25f;
+            var damageInterval = 0.05f;
             var offsetZ = 5.0f;
             var targetPos = transform.position + transform.forward * offsetZ;
             targetPos.y = Terrain.activeTerrain.SampleHeight(targetPos);
@@ -206,7 +220,8 @@ namespace Game.Monsters.Specter
                 while (Time.time - startTime < duration && this != null)
                 {           
                     DamageCurrentTargets();
-                    await UniTask.Delay(TimeSpan.FromSeconds(damageInterval), cancellationToken: this.GetCancellationTokenOnDestroy());
+                    await UniTask.Delay(TimeSpan.FromSeconds(damageInterval)
+                                        ,cancellationToken: this.GetCancellationTokenOnDestroy());
                 }
             }
             catch (OperationCanceledException) { }

@@ -49,7 +49,7 @@ namespace Game.Monsters.Golem
         {
             try
             {
-                if (target is TowerController) return;
+                if (target is ITower) return;
                 var absorptionDistance = 5f;
                 var collider = controller.GetComponent<Collider>();
                 var flatPos_target = PositionGetter.GetFlatPos(target.transform.position);

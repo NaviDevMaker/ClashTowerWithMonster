@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Game.Monsters.Salamander
 {
     public class AttackState : AttackStateBase<SalamanderController>
-        ,AttackStateBase<SalamanderController>.ILongDistanceAction,IEffectSetter
+        ,ILongDistanceAction<SalamanderController>,IEffectSetter
     {
         public AttackState(SalamanderController controller) : base(controller)
         {
@@ -28,9 +28,9 @@ namespace Game.Monsters.Salamander
         {
             base.OnExit();
         }
-        protected override async UniTask Attack_Long(LongAttackArguments longAttackArguments)
+        protected override async UniTask Attack_Long(LongAttackArguments<SalamanderController> longAttackArguments)
         {
-            var arguments = new LongAttackArguments
+            var arguments = new LongAttackArguments<SalamanderController>
             { 
                 attackEffectAction = PlayMouthFireEffect,
                 attackEndAction = DestroyParticle,
@@ -58,7 +58,8 @@ namespace Game.Monsters.Salamander
         }
         async void DestroyParticle()
         {
-            var particle = particles.Dequeue();
+            var particle = particles.Count > 0 ? particles.Dequeue() : null;
+            if (particle == null) return;
             var main = particle.main;
             main.loop = false;
             main.simulationSpeed *= 3f;
@@ -70,7 +71,7 @@ namespace Game.Monsters.Salamander
         {
             foreach (var mover in controller.movers)
             {
-                if (mover is FireMover fireMover)
+                if (mover is SalamanderFireMover fireMover)
                 {
                     if (!fireMover.gameObject.activeInHierarchy && !fireMover.IsProcessingTask)
                     {
