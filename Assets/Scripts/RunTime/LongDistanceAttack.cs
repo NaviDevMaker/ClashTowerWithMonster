@@ -15,9 +15,11 @@ public class LongDistanceAttack<T> : MonoBehaviour where T : UnitBase
     public T attacker { get; private set; }
     protected Coroutine moveCoroutine;
     public UnityAction<LongDistanceAttack<T>> OnEndProcess;
-    protected virtual void Initialize(T attacker) 
+    public int attackAmount { get;private set;} = 0;
+    protected virtual void Initialize(T attacker,int attackAmount) 
     {
         this.attacker = attacker;
+        this.attackAmount = attackAmount;
     }
     protected virtual void Update() { }
     protected virtual void DamageToEnemy(UnitBase target,Func<UniTask> hitEffect = null)
@@ -28,7 +30,7 @@ public class LongDistanceAttack<T> : MonoBehaviour where T : UnitBase
            if(target.TryGetComponent(out IUnitDamagable unitDamagable))
            {
                 if (hitEffect != null) hitEffect().Forget();
-                unitDamagable.Damage(attacker.StatusData.AttackAmount);
+                unitDamagable.Damage(attackAmount);
                 OnEndProcess?.Invoke(this);
             }
         }
@@ -77,9 +79,9 @@ public class LongDistanceAttack<T> : MonoBehaviour where T : UnitBase
     }
 
     public void Setup(T attacker,Transform parent,Vector3 pos,Quaternion rot,List<LongDistanceAttack<T>> addedList
-        ,UnityAction<LongDistanceAttack<T>> EndAction,float moveSpeed)
+        ,UnityAction<LongDistanceAttack<T>> EndAction,float moveSpeed,int atAmount)
     {
-        Initialize(attacker);
+        Initialize(attacker,atAmount);
         transform.SetParent(parent);
         transform.localPosition = pos;
         transform.localRotation = rot;

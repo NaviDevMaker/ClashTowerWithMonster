@@ -12,13 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e53e376333afad5438db6f0cfc649253, type: 3}
   m_Name: KingDragon
   m_EditorClassIdentifier: 
-  attackAmount: 30
-  hp: 2000
+  attackAmount: 200
+  hp: 1000
   pushAmount: 10
-  gunSpeed: 0
-  shotDuration: 0
-  towerShotgun: {fileID: 0}
+  moverSpeed: 20
   searchRadius: 25
   animatorParemeterSet: {fileID: 11400000, guid: ad1d0f3189b90de4c945f2b6c825e09e, type: 2}
-  attackSimpleRange: 5
+  kingDragonFireMover: {fileID: -5347526833818438147, guid: 8aa3e581f541a484b8a8bb800bb94910, type: 3}
+  attackSimpleRange: 10
   attackLongRange: 25

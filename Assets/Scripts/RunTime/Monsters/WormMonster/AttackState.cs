@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Game.Monsters.WormMonster
 {
     public class AttackState : AttackStateBase<WormMonsterController>
-                              ,AttackStateBase<WormMonsterController>.ILongDistanceAction
+                              ,ILongDistanceAction<WormMonsterController>
                               ,IEffectSetter
     {
         public AttackState(WormMonsterController controller) : base(controller) => SetEffect();

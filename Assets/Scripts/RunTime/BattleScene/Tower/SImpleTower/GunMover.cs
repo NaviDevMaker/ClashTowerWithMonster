@@ -75,9 +75,9 @@ public class GunMover:LongDistanceAttack<TowerController>
         moveCoroutine = null;
         IsReachedTargetPos = true;
     }
-    protected override void Initialize(TowerController controlller)
+    protected override void Initialize(TowerController controlller, int attackAmount)
     {
-        base.Initialize(controlller);
+        base.Initialize(controlller,attackAmount);
         hit = Instantiate(hitEffect);
         trail = Instantiate(trailEffect);
         trail.gameObject.transform.SetParent(transform);

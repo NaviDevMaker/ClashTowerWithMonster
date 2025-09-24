@@ -6,7 +6,7 @@ using UnityEngine.Events;
 namespace Game.Monsters.EvilMage
 {
     public class AttackState : AttackStateBase<EvilMageController>
-        , AttackStateBase<EvilMageController>.ILongDistanceAction
+        ,ILongDistanceAction<EvilMageController>
     {
         public AttackState(EvilMageController controller) : base(controller) { }
 

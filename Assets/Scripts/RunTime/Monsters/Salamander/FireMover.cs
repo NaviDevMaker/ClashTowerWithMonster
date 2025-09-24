@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Game.Monsters.Salamander
+namespace Game.Monsters
 {
-    public class FireMover : LongDistanceAttack<SalamanderController>,IHitEffectDisapaer
+    public class FireMover<T> : LongDistanceAttack<T>,IHitEffectDisapaer where T :UnitBase,ILongDistanceAttacker<T>
     {
         public bool IsProcessingTask { get; private set;} = false;
         Dictionary<ParticleSystem,ParticleSystem.MainModule> pAndm = new Dictionary<ParticleSystem,ParticleSystem.MainModule>();
@@ -26,7 +26,7 @@ namespace Game.Monsters.Salamander
                 }
             }
         }
-        protected override void Initialize(SalamanderController attacker)
+        protected override void Initialize(T attacker,int attackAmount)
         {
             var particles = GetComponentsInChildren<ParticleSystem>().ToList();
             particles.ForEach(p =>
@@ -34,7 +34,7 @@ namespace Game.Monsters.Salamander
                 pAndm[p] = p.main;
                 originalSimuSpeeds[p] = p.main.simulationSpeed;
             });
-            base.Initialize(attacker);
+            base.Initialize(attacker,attackAmount);
         }
         public override void Move()
         {

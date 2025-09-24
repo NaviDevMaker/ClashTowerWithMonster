@@ -91,9 +91,9 @@ namespace Game.Monsters.Dragon
                 leftLengthTime = Mathf.Max(0f, clipLength - elapsedTime / stateAnimSpeed);
                 isAttacking = false;
             }
-            catch(ObjectDisposedException){ }
+            catch(ObjectDisposedException){ return; }
             finally{}
-            leftLengthTime = 0f;
+            if(!cts.IsCancellationRequested) leftLengthTime = 0f;
         }
 
         protected override bool CheckAttackable()

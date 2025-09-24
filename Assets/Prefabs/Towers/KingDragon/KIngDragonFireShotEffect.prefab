@@ -14640,9 +14640,9 @@ GameObject:
   - component: {fileID: 9081795634895127371}
   - component: {fileID: 5527920518865228312}
   - component: {fileID: 5699623323711432644}
-  - component: {fileID: 2758479120054279494}
+  - component: {fileID: -5347526833818438147}
   m_Layer: 11
-  m_Name: SalamanderFireShotEffect
+  m_Name: KIngDragonFireShotEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19481,7 +19481,7 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!114 &2758479120054279494
+--- !u!114 &-5347526833818438147
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -19490,10 +19490,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 7566674639184150907}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f408f4db76aaf504d99b765637c27e84, type: 3}
+  m_Script: {fileID: 11500000, guid: 19f2fab4317b1874f808d0ce1d3d5add, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hitEffect: {fileID: 0}
+  attackAmount: 0
 --- !u!1 &7612123644613584601
 GameObject:
   m_ObjectHideFlags: 0

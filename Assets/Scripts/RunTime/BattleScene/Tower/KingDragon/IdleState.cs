@@ -10,6 +10,7 @@ namespace Game.Monsters.KingDragon
         bool isEndWaitAction = false;
         public override async void OnEnter()
         {
+            nextState = controller.SearchState;
             controller.IsInvincible = true;
             controller.statusCondition.NonTarget.isActive = true;
             controller.animator.speed = 0f;
@@ -27,9 +28,12 @@ namespace Game.Monsters.KingDragon
 
         public override void OnUpdate()
         {
-            if (isEndWaitAction) Debug.Log("ìÆÇ´èoÇµÇ‹Ç∑");
+            if (isEndWaitAction)
+            {
+                Debug.Log("ìÆÇ´èoÇµÇ‹Ç∑");
+                controller.ChangeState(nextState);
+            }
         }
-
         async UniTask WaitMove()
         {
             try

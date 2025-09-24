@@ -1,5 +1,4 @@
-using Game.Monsters.EvilMage;
-using NUnit.Framework.Constraints;
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -38,7 +37,7 @@ namespace Game.Monsters.Salamander
         public async void EndMoveAction(LongDistanceAttack<SalamanderController> fireShot)
         {
             fireShot.IsReachedTargetPos = false;
-            var cmp = fireShot.GetComponent<FireMover>();
+            var cmp = fireShot.GetComponent<SalamanderFireMover>();
             if(cmp != null)
             {
                 var disapearTask = cmp.WaitEffectDissapaer();
@@ -58,11 +57,12 @@ namespace Game.Monsters.Salamander
             startTra = parentObj.transform;
             var localPos = Vector3.zero;
             var rot = Quaternion.identity;
-            for (int i = 0; i < moverCount; i++)
+            for (int i = 0; i < moverCount;i++)
             {
                 var mover = Instantiate(ProjectileAttackMonsterStatus.Mover, Vector3.zero, Quaternion.identity);
-                var moverCmp = mover.GetComponent<FireMover>();
-                moverCmp.Setup(this, startTra, localPos, rot, movers, EndMoveAction, ProjectileAttackMonsterStatus.ProjectileMoveSpeed);
+                var moverCmp = mover.GetComponent<SalamanderFireMover>();
+                moverCmp.Setup(this, startTra, localPos, rot, movers, EndMoveAction,
+                               ProjectileAttackMonsterStatus.ProjectileMoveSpeed,StatusData.AttackAmount);
             }
         }
         public void SetHitJudgementObject() { throw new System.NotImplementedException(); }

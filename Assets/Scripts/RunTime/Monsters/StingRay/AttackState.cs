@@ -112,9 +112,9 @@ namespace Game.Monsters.StingRay
                 leftLengthTime = Mathf.Max(0f, clipLength - elapsedTime / stateAnimSpeed);
                 isAttacking = false;
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) { return; }
             finally { arguments.attackEndAction.Invoke(); }
-            leftLengthTime = 0f;
+            if(!cts.IsCancellationRequested) leftLengthTime = 0f;
         }
         void PlayWindEffect()
         {

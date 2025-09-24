@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace Game.Monsters.DestructionMachine
 {
-    public class AttackState : AttackStateBase<DestructionMachineController>, AttackStateBase<DestructionMachineController>.ILongDistanceAction
+    public class AttackState : AttackStateBase<DestructionMachineController>, ILongDistanceAction<DestructionMachineController>
     {
         public AttackState(DestructionMachineController controller) : base(controller) { }
         LongDistanceAttack<DestructionMachineController> nextMover = null;

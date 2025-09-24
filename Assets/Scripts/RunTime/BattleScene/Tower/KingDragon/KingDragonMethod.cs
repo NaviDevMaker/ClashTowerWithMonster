@@ -7,12 +7,13 @@ using System.Threading;
 using Unity.VisualScripting;
 using static Game.Monsters.KingDragon.AttackState;
 using System.Linq;
+using UnityEngine.UIElements;
 
 namespace Game.Monsters.KingDragon
 {
-    public class KingAttackMethod
+    public class KingDragonMethod
     {
-        public KingAttackMethod(KingDragonController controller)
+        public KingDragonMethod(KingDragonController controller)
         {
             this.controller = controller;
             _attackState = controller.AttackState;
@@ -23,18 +24,18 @@ namespace Game.Monsters.KingDragon
         KingDragonAnimPar kingDragonAnimPar;
         public async UniTask Attack_Simple(SimpleAttackArguments attackArguments)
         {
+            controller.animator.SetBool(kingDragonAnimPar.Attack2_Hash,false);
+            controller.animator.SetBool(kingDragonAnimPar.Attack_Hash,true);
             var animationInfo = _attackState.animationInfo;
             Debug.Log("攻撃開始します");
             if (!controller.animator.GetCurrentAnimatorStateInfo(0).IsName(kingDragonAnimPar.attackAnimClipName))
             {
-                controller.animator.SetBool(kingDragonAnimPar.Attack_Hash, true);
                 controller.animator.Play(kingDragonAnimPar.attackAnimClipName);
             }
-
+            var cts = controller.AttackState.cts;
             float now = 0f;
             try
             {
-                var cts = controller.AttackState.cts;
                 LookToTarget();
                 await UniTask.WaitUntil(() =>
                 {
@@ -54,33 +55,39 @@ namespace Game.Monsters.KingDragon
                 var target = _attackState.targetEnemy;
                 if (target == null) return;
                 AddDamageToTarget(target);
+                _attackState.canChangeAttackType = true;
                 if (attackArguments.specialEffectAttack != null) attackArguments.specialEffectAttack?.Invoke(target);
+                await UniTask.WaitUntil(() => controller.animator.GetCurrentNormalizedTime(_attackState.startNormalizeTime) >= 1.0f
+                                        ,cancellationToken:cts.Token);
             }
             catch (OperationCanceledException)
             {
+                now = controller.animator.GetCurrentNormalizedTime(_attackState.startNormalizeTime);
                 var elapsedTime = (now - _attackState.startNormalizeTime) * animationInfo.simpleAttackClipLength;
                 _attackState.leftLengthTime = Mathf.Max(0f, animationInfo.simpleAttackClipLength - elapsedTime /
                                                        animationInfo.simpleAttackAnimSpeed);
-                _attackState.isAttacking = false;
+                //_attackState.isAttacking = false;
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) { return; }
             finally { if (attackArguments.attackEndAction != null) attackArguments.attackEndAction?.Invoke(); }
-            _attackState.leftLengthTime = 0f;
+            if(!cts.IsCancellationRequested) _attackState.leftLengthTime = 0f;
         }
         public async UniTask Attack_Long(LongAttackArguments<KingDragonController> longAttackArguments)
         {
+            _attackState.canChangeAttackType = true;
             var animationInfo = _attackState.animationInfo;
+            controller.animator.SetBool(kingDragonAnimPar.Attack_Hash, false);
+            controller.animator.SetBool(kingDragonAnimPar.Attack2_Hash, true);
             if (!controller.animator.GetCurrentAnimatorStateInfo(0).IsName(kingDragonAnimPar.attack_2AnimClipName))
             {
-                controller.animator.SetBool(kingDragonAnimPar.Attack2_Hash, true);
                 controller.animator.Play(kingDragonAnimPar.attack_2AnimClipName);
             }
 
             float now = 0f;
             LongDistanceAttack<KingDragonController> nextMover = null;
+            var cts = controller.AttackState.cts;
             try
             {
-                var cts = controller.AttackState.cts;
                 if (!controller.statusCondition.Freeze.isActive) LookToTarget();
                 controller.animator.speed = 1.0f;
                 await UniTask.WaitUntil(() => controller.animator.GetCurrentAnimatorStateInfo(0).IsName(kingDragonAnimPar.attack_2AnimClipName)
@@ -93,35 +100,44 @@ namespace Game.Monsters.KingDragon
                 });
 
                 await UniTask.WaitUntil(wait, cancellationToken: cts.Token);
+                _attackState.isShotingFire = true;
                 longAttackArguments.attackEffectAction?.Invoke();
                 var remaining = longAttackArguments.repeatCount;
                 var repeatInterval = controller.animator.GetRepeatInterval(_attackState.startNormalizeTime, remaining
-                                                               ,animationInfo.longAttackClipLength,animationInfo.longAttackAnimSpeed);
+                                                               ,animationInfo.longAttackClipLength
+                                                               ,animationInfo.longAttackAnimSpeed);
                 ;
+
                 while (remaining > 0 && controller.animator.GetCurrentNormalizedTime(_attackState.startNormalizeTime) < 1.0f
                     && !cts.IsCancellationRequested&& !_attackState.isInterval)
                 {
-                    LookToTarget();
                     repeatInterval = controller.animator.GetRepeatInterval(_attackState.startNormalizeTime, remaining
-                                                               ,animationInfo.longAttackClipLength, animationInfo.longAttackAnimSpeed);
+                                                               ,animationInfo.longAttackClipLength
+                                                               ,animationInfo.longAttackAnimSpeed);
                     Debug.Log("ロングでリピートなアタック！！");
                     nextMover = longAttackArguments.getNextMover();
                     if (nextMover == null) return;
                     longAttackArguments.moveAction?.Invoke(nextMover);
+                    if (_attackState.targetEnemy == null) cts?.Cancel();
+                    LookToTarget();
                     remaining--;
                     await UniTask.Delay(TimeSpan.FromSeconds(repeatInterval), cancellationToken: cts.Token);
                 }
+
             }
             catch (OperationCanceledException)
             {
                 var elaspedTime = (now - _attackState.startNormalizeTime) * animationInfo.longAttackClipLength;
                 _attackState.leftLengthTime = Mathf.Max(0f,animationInfo.longAttackClipLength - elaspedTime)
                                                         / animationInfo.longAttackAnimSpeed;
-                _attackState.isAttacking = false;
             }
-            catch (ObjectDisposedException) { }
-            finally { longAttackArguments.attackEndAction?.Invoke(); }
-            _attackState.leftLengthTime = 0f;
+            catch (ObjectDisposedException) { return; }
+            finally 
+            {
+                _attackState.isShotingFire = false;
+                longAttackArguments.attackEndAction?.Invoke();
+            }
+            if (!cts.IsCancellationRequested) _attackState.leftLengthTime = 0f;
         }
         public void LookToTarget()
         {
@@ -140,7 +156,7 @@ namespace Game.Monsters.KingDragon
 
         void AddDamageToTarget(UnitBase currentTarget)
         {
-            var attackAmount = controller.TowerStatus.AttackAmount;
+            var attackAmount = controller.KingDragonStatus.AttackAmount;
             if (currentTarget.TryGetComponent<IUnitDamagable>(out var unitDamagable))
             {
                 Debug.Log($"{controller.gameObject.name}のアタック");
@@ -153,22 +169,29 @@ namespace Game.Monsters.KingDragon
         {
             Debug.Log("敵が範囲外に行きました");
             _attackState.cts?.Cancel();
+            _attackState.isChecking = true;
+            _attackState.targetEnemy = null;
             _attackState.isAttacking = false;
             _attackState.isWaitingLeftTime = true;
             controller.animator.speed = 1.0f;
             controller.animator.Play("Idle");
+            controller.animator.SetBool(kingDragonAnimPar.Attack_Hash, false);
+            controller.animator.SetBool(kingDragonAnimPar.Attack2_Hash, false);
             try
             {
                 await UniTask.Delay(TimeSpan.FromSeconds(_attackState.leftLengthTime)
                                     , cancellationToken: controller.GetCancellationTokenOnDestroy());
-                if (ContinueAttackState())
+                Debug.Log($"攻撃続行{ContinueCurrentAttackProcess(out var ex)},{ex}");
+                if (ContinueCurrentAttackProcess(out var newTarget))
                 {
+                    if (_attackState.canChangeAttackType) _attackState.ChangeCurrentAttackType(_attackState.currentAttackType);
                     _attackState.isContineAttack = true;
                     var continueAttackInterval = _attackState.animationInfo.interval - _attackState.leftLengthTime;
                     await UniTask.Delay(TimeSpan.FromSeconds(continueAttackInterval)
-                                        , cancellationToken: controller.GetCancellationTokenOnDestroy());
-                    controller.animator.Play(kingDragonAnimPar.attackAnimClipName);
+                                        ,cancellationToken: controller.GetCancellationTokenOnDestroy());
+                    Debug.Log($"{_attackState.leftLengthTime},{continueAttackInterval}");
                     _attackState.cts = new CancellationTokenSource();
+                    _attackState.targetEnemy = newTarget;
                     _attackState.isAttacking = true;
                     _attackState.Attack();
                     return;
@@ -177,43 +200,76 @@ namespace Game.Monsters.KingDragon
             catch (OperationCanceledException){ return;}
             finally
             {
+                _attackState.leftLengthTime = 0f;
                 _attackState.isWaitingLeftTime = false;
                 _attackState.isContineAttack = false;
+                _attackState.isChecking = false;
             }
             controller.ChangeState( _attackState._nextState);
         }
 
-        bool ContinueAttackState()
+        public bool ContinueCurrentAttackProcess(out UnitBase newTarget)
         {
-            var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(controller.gameObject
-                                                                       , controller.TowerStatus.SearchRadius);
-            var nextAttackType = _attackState.currentAttackType == CurrentAttackType.Simple ? CurrentAttackType.Long
-                                  : CurrentAttackType.Simple;
-            var effectiveMoveType = nextAttackType switch
+           
+            var nextAttackType = _attackState.currentAttackType == CurrentAttackType.Simple && _attackState.canChangeAttackType
+                                  ? CurrentAttackType.Long 
+                                  : _attackState.currentAttackType == CurrentAttackType.Long && _attackState.canChangeAttackType
+                                  ? CurrentAttackType.Simple
+                                  : _attackState.currentAttackType;
+
+            var target = SetTarget(nextAttackType);
+            if(target == null && nextAttackType == CurrentAttackType.Long)
+            {
+                newTarget = null;
+                return false;
+            }
+            else if(target == null && nextAttackType == CurrentAttackType.Simple)
+            {
+                target = SetTarget(CurrentAttackType.Long);
+                if (target == null)
+                {
+                    newTarget = null;
+                    return false;
+                }
+                else _attackState.ChangeCurrentAttackType(nextAttackType);
+            }           
+            newTarget = target;
+            return true;
+        }
+
+        public UnitBase SetTarget(CurrentAttackType targetAttackType)
+        {
+            var targetRadius = targetAttackType switch
+            {
+                CurrentAttackType.Simple => controller.KingDragonStatus.AttackSimpleRange,
+                CurrentAttackType.Long => controller.KingDragonStatus.AttackLongRange,
+                _ => default
+            };
+
+            var effectiveMoveType = targetAttackType switch
             {
                 CurrentAttackType.Simple => MoveType.Walk,
                 CurrentAttackType.Long => MoveType.Walk | MoveType.Fly,
                 _ => default
             };
+            var sortedList = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>
+                (controller.gameObject, targetRadius).ToList();
 
-            var filteredArray = sortedArray.Where(unit =>
+            var filterdList = sortedList.Where(unit =>
             {
-                if (unit.TryGetComponent<ISummonbable>(out var summonbable) && !summonbable.isSummoned) return false;
-                var enemySide = unit.GetUnitSide(controller.ownerID);
+                if (unit is ISummonbable summonbable && !summonbable.isSummoned) return false;
+                if (unit is IInvincible invincible && invincible.IsInvincible) return false;
                 var isDead = unit.isDead;
+                var side = unit.GetUnitSide(controller.ownerID);
                 var isTransparent = unit.statusCondition.Transparent.isActive;
                 var isNonTarget = unit.statusCondition.NonTarget.isActive;
                 var moveType = unit.moveType;
-                //ここタワーだから!isTransparent && !isNonTargetいらないけど将来もしかしたらそういう状態異常を
-                //タワーに付与するやつが出てくるかもしれないから一応
-                return (enemySide & Side.EnemySide) != 0 && !isDead
-                        && (moveType & effectiveMoveType) != 0 && !isTransparent && !isNonTarget;
-            }).ToArray();
-
-            if (filteredArray.Length == 0) return false;
-            var newTarget = filteredArray[0];
-            _attackState.targetEnemy = newTarget;
-            return true;
+                if (isDead || side == Side.PlayerSide || isTransparent || isNonTarget
+                   || (moveType & effectiveMoveType) == 0) return false;
+                return true;
+            }).ToList();
+            if (filterdList.Count == 0) return null;
+            else return filterdList[0];
         }
     }
 }

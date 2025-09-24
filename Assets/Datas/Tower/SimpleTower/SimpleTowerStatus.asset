@@ -9,13 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cccd532fa0e97a04f976060538af74cf, type: 3}
-  m_Name: NormalTower
+  m_Script: {fileID: 11500000, guid: b7e379abb2875b84690e6c0332bcb886, type: 3}
+  m_Name: SimpleTowerStatus
   m_EditorClassIdentifier: 
   attackAmount: 10
-  hp: 500
+  hp: 100
   pushAmount: 10
-  gunSpeed: 20
-  shotDuration: 0.8
-  towerShotgun: {fileID: 276059565231537751, guid: 350c7bb6a8e482647a7f8df689f60638, type: 3}
+  moverSpeed: 20
   searchRadius: 20
+  shotDuration: 0.8
+  gunMover: {fileID: 276059565231537751, guid: 350c7bb6a8e482647a7f8df689f60638, type: 3}

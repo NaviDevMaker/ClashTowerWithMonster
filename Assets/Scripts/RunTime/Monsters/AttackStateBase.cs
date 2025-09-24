@@ -31,15 +31,15 @@ namespace Game.Monsters
         public int repeatCount = 0;
     }
 
+    public interface ILongDistanceAction<T> where T : UnitBase
+    {
+        LongDistanceAttack<T> GetNextMover();
+        void NextMoverAction(LongDistanceAttack<T> nextMover);
+    }
 
     public class AttackStateBase<T> : StateMachineBase<T>, IUnitAttack,IAttackState where T : MonsterControllerBase<T>
     {
-        public interface ILongDistanceAction
-        {
-            LongDistanceAttack<T> GetNextMover();
-            void NextMoverAction(LongDistanceAttack<T> nextMover);
-        }
-         
+     
         public AttackStateBase(T controller) : base(controller) { }
         
         public UnitBase target;
@@ -122,7 +122,7 @@ namespace Game.Monsters
 
         protected virtual async UniTask Attack_Generic(SimpleAttackArguments attackArguments)
         {
-            Debug.Log("攻撃開始します");
+            //Debug.Log("攻撃開始します");
             if (!controller.animator.GetCurrentAnimatorStateInfo(0).IsName(controller.MonsterAnimPar.attackAnimClipName))
             {
                 controller.animator.Play(controller.MonsterAnimPar.attackAnimClipName);
@@ -194,12 +194,16 @@ namespace Game.Monsters
                 leftLengthTime = Mathf.Max(0f, clipLength - elapsedTime / stateAnimSpeed);
                 isAttacking = false;
             }
-            catch (ObjectDisposedException) {}
+            catch (ObjectDisposedException) { return; }
             finally { if(attackArguments.attackEndAction != null) attackArguments.attackEndAction?.Invoke();}
-            leftLengthTime = 0f;
+            if(!cts.IsCancellationRequested) leftLengthTime = 0f;
         }
         protected virtual async UniTask Attack_Long(LongAttackArguments<T> longAttackArguments)
         {
+            if (!controller.animator.GetCurrentAnimatorStateInfo(0).IsName(controller.MonsterAnimPar.attackAnimClipName))
+            {
+                controller.animator.Play(controller.MonsterAnimPar.attackAnimClipName);
+            }
             if (controller is IRepeatAttack repeat) longAttackArguments.repeatCount = repeat.repeatCount;
             float now = 0f;
             LongDistanceAttack<T> nextMover = null;
@@ -254,9 +258,9 @@ namespace Game.Monsters
                 leftLengthTime = Mathf.Max(0f, clipLength - elaspedTime) / stateAnimSpeed;
                 isAttacking = false;
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException) { return; }
             finally { longAttackArguments.attackEndAction?.Invoke(); }
-            leftLengthTime = 0f;
+            if(!cts.IsCancellationRequested) leftLengthTime = 0f;
         }
         protected virtual void AddDamageToTarget(UnitBase currentTarget)
         {
@@ -341,7 +345,7 @@ namespace Game.Monsters
                     var continueAttackInterval = interval - leftLengthTime;
                     await UniTask.Delay(TimeSpan.FromSeconds(continueAttackInterval)
                                         ,cancellationToken: controller.GetCancellationTokenOnDestroy());
-                    controller.animator.Play(controller.MonsterAnimPar.attackAnimClipName);
+                    //controller.animator.Play(controller.MonsterAnimPar.attackAnimClipName);
                     cts = new CancellationTokenSource();
                     isAttacking = true;
                     Attack();
@@ -472,24 +476,7 @@ namespace Game.Monsters
                 Attack_Long(arguments).Forget();
             }
         }
-        public virtual async void StopAnimFromEvent()
-        {
-            Debug.Log("イベントが呼ばれました");
-            isInterval = true;
-            controller.animator.speed = 0f;
-            try
-            {
-                var stopAnimInterval = controller.animator.speed != 0f ? interval / controller.animator.speed :interval;
-                await UniTask.Delay(TimeSpan.FromSeconds(stopAnimInterval), cancellationToken: cts.Token);
-            }
-            catch (ObjectDisposedException) { }
-            catch (OperationCanceledException) { }
-            finally 
-            {
-                isInterval = false;
-                isAttacking = false;
-            }
-        }
+        public virtual void StopAnimFromEvent() => controller.StopAnimation(interval);
     }
 }
 

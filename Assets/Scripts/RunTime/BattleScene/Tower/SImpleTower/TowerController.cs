@@ -27,7 +27,7 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
     public int moverCount { get; private set;} = 5;
     public List<LongDistanceAttack<TowerController>> movers { get; set; } = new List<LongDistanceAttack<TowerController>>();
     public Transform startTra { get => throw new NotImplementedException();}
-
+    public SimpleTowerStatus SimpleTowerStatus => StatusData as SimpleTowerStatus;
     float deathActionLength = 0f;
     bool isSettedLength = false;
 
@@ -72,7 +72,7 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
     }
     void SearchEnemy()
     {
-        var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(this.gameObject,TowerStatus.SearchRadius);
+        var sortedArray = SortExtention.GetSortedArrayByDistance_Sphere<UnitBase>(this.gameObject,SimpleTowerStatus.SearchRadius);
 
         sortedArray.ToList().ForEach((c) => Debug.Log(c.gameObject.name));
         if (sortedArray.Length != 0)
@@ -107,7 +107,7 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
     void ChangeEnemy()
     {
         if (targetEnemy == null) return;
-        var sortedArray = SortExtention.GetSpecificColliderInRange<UnitBase>(this,TowerStatus.SearchRadius);
+        var sortedArray = SortExtention.GetSpecificColliderInRange<UnitBase>(this,SimpleTowerStatus.SearchRadius);
 
         bool stillInRange = false;
         bool isDeadTarget = targetEnemy.isDead;
@@ -137,11 +137,10 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
         var parent = archer.arrowHand;
         var pos = archer.originalArrowPos;
         var rot = archer.originalArrowRot;
-        //gunParent = new GameObject("GunParent");
         for (int i = 0; i < moverCount; i++)
         {
-            var gunMover = Instantiate(TowerStatus.TowerShotgun,Vector3.zero,Quaternion.identity);
-            gunMover.Setup(this,parent,pos,rot,movers,EndMoveAction,TowerStatus.GunSpeed);
+            var gunMover = Instantiate(SimpleTowerStatus.GunMover,Vector3.zero,Quaternion.identity);
+            gunMover.Setup(this,parent,pos,rot,movers,EndMoveAction,SimpleTowerStatus.MoverSpeed,SimpleTowerStatus.AttackAmount);
             //GunSetUp(gunMover);
         }
 
@@ -161,7 +160,7 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, TowerStatus.SearchRadius);
+        Gizmos.DrawWireSphere(transform.position,SimpleTowerStatus.SearchRadius);
         Gizmos.color = Color.cyan;
         DrawEllipse(transform.position, rangeX, rangeZ, 32);
     }
@@ -188,7 +187,7 @@ public class TowerController :UnitBase,IBuilding,ILongDistanceAttacker<TowerCont
         base.Initialize(owner);
         archer.OnDestoryedTower += SetLength;
         SetMoverToList();
-        archer.shotDuration = TowerStatus.ShotDuration;
+        archer.shotDuration = SimpleTowerStatus.ShotDuration;
     }
 
     public override void Damage(int damage)
